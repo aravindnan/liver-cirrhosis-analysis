@@ -1,0 +1,229 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+        "Droid Sans", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+::-webkit-scrollbar {
+    display: none;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+.radgradHov:hover {
+    background-image: radial-gradient(#a9030642, #a903060e, #00000000);
+    transition: 1s all;
+}
+
+.league-spartan {
+    font-family: "League Spartan", sans-serif;
+}
+
+.rotate-infinte {
+    animation: rotate 8s linear infinite ;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.jump-up-and-down{
+  animation: jump 2s linear infinite;
+}
+
+@keyframes jump {
+  0% {
+    transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-10px) scale(1.05);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+      }
+        }
+
+        .loader {
+            position: relative;
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+          }
+          
+          .loader div {
+            width: 8%;
+            height: 24%;
+            background: #a90306ce;
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            opacity: 0;
+            border-radius: 50px;
+            box-shadow: 0 0 3px rgba(0,0,0,0.2);
+            animation: fade458 1s linear infinite;
+          }
+          
+          @keyframes fade458 {
+            from {
+              opacity: 1;
+            }
+          
+            to {
+              opacity: 0.25;
+            }
+          }
+          
+          .loader .bar1 {
+            transform: rotate(0deg) translate(0, -130%);
+            animation-delay: 0s;
+          }
+          
+          .loader .bar2 {
+            transform: rotate(30deg) translate(0, -130%);
+            animation-delay: -1.1s;
+          }
+          
+          .loader .bar3 {
+            transform: rotate(60deg) translate(0, -130%);
+            animation-delay: -1s;
+          }
+          
+          .loader .bar4 {
+            transform: rotate(90deg) translate(0, -130%);
+            animation-delay: -0.9s;
+          }
+          
+          .loader .bar5 {
+            transform: rotate(120deg) translate(0, -130%);
+            animation-delay: -0.8s;
+          }
+          
+          .loader .bar6 {
+            transform: rotate(150deg) translate(0, -130%);
+            animation-delay: -0.7s;
+          }
+          
+          .loader .bar7 {
+            transform: rotate(180deg) translate(0, -130%);
+            animation-delay: -0.6s;
+          }
+          
+          .loader .bar8 {
+            transform: rotate(210deg) translate(0, -130%);
+            animation-delay: -0.5s;
+          }
+          
+          .loader .bar9 {
+            transform: rotate(240deg) translate(0, -130%);
+            animation-delay: -0.4s;
+          }
+          
+          .loader .bar10 {
+            transform: rotate(270deg) translate(0, -130%);
+            animation-delay: -0.3s;
+          }
+          
+          .loader .bar11 {
+            transform: rotate(300deg) translate(0, -130%);
+            animation-delay: -0.2s;
+          }
+          
+          .loader .bar12 {
+            transform: rotate(330deg) translate(0, -130%);
+            animation-delay: -0.1s;
+          }
+
+
+          
+/* The container must be positioned relative: */
+.custom-select {
+  position: relative;
+  font-family: Arial;
+}
+
+.custom-select select {
+  display: none; /*hide original SELECT element: */
+}
+
+.select-selected {
+  background-color:a90306ce ;
+}
+
+/* Style the arrow inside the select element: */
+.select-selected:after {
+  position: absolute;
+  content: "";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #fff transparent transparent transparent;
+}
+
+/* Point the arrow upwards when the select box is open (active): */
+.select-selected.select-arrow-active:after {
+  border-color: transparent transparent #fff transparent;
+  top: 7px;
+}
+
+/* style the items (options), including the selected item: */
+.select-items div,.select-selected {
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+}
+
+/* Style items (options): */
+.select-items {
+  position: absolute;
+  background-color: #a90306ce;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+
+/* Hide the items when the select box is closed: */
+.select-hide {
+  display: none;
+}
+
+.select-items div:hover, .same-as-selected {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+td,th{
+  /* border:1px solid #a90306ce; */
+  border:1px solid gray;
+  padding:8px
+}
+
+td:hover,th:hover{
+  background-color: #a9030628;
+}
+
+
+
+.backgroundjif{
+  background-image: url('./assets/homepagejif.gif');
+  background-repeat: no-repeat;
+  filter: opacity(1);
+  background-color: black;
+  background-size: cover;
+  background-attachment: fixed;
+}
