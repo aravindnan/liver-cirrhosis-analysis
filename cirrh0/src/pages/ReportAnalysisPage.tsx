@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { AttachFile, Close, FolderZip, Image, Info, InfoOutlined, InsertDriveFile, Troubleshoot, Upload, UploadFile } from "@mui/icons-material";
+import { Close, InfoOutlined, InsertDriveFile, Troubleshoot, Upload } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Tooltip } from "@mui/material";
@@ -10,11 +10,8 @@ import * as authActions from "../redux/actions"
 import { getUserById } from "../services/userServices";
 import Loader from "../assets/Loader";
 import APIResponseStatus from "../components/APIResponseStatus";
-import { reverse } from "dns";
-import { CLOUDINARY_CLOUDNAME } from "../env/environment";
 import axios from "axios";
 import { analyseReportById, getExtractedParameters } from "../services/reportAnalysisServices";
-import ReportResultModal from "../modals/ReportResultModal";
 
 
 function ReportAnalysisPage() {
@@ -28,19 +25,14 @@ function ReportAnalysisPage() {
   const [pageLoading, setPageLoading] = useState<any>("not-loaded")
   const [loading, setLoading] = useState<Boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [resultStatus,setResultStatus] = useState<String>("result-loaded")
   const [reportId,setReportId]= useState<any>("new-report")
-
-
-
+  const CLOUDINARY_CLOUDNAME = process.env.REACT_APP_CLOUDINARY_CLOUDNAME;
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
   useEffect(() => {
     const existingUser:any = getUserDetailsFromToken()
-    // console.log("EXISITING USER ID : ",existingUser)
-
     if (existingUser?._id) {
       getMyProfileData(existingUser._id)
     }

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-import { Analytics, Close, Info, InfoOutlined, InsertDriveFile, Insights, QueryStats, Troubleshoot, Upload, UploadFile } from '@mui/icons-material'
+import { Close, InfoOutlined, InsertDriveFile, Troubleshoot, Upload } from '@mui/icons-material'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { Tooltip } from '@mui/material'
@@ -12,8 +12,6 @@ import Loader from '../assets/Loader'
 import APIResponseStatus from '../components/APIResponseStatus'
 import axios from 'axios'
 import { analyseMRIById } from '../services/mriAnalysisServices'
-import { CLOUDINARY_CLOUDNAME } from '../env/environment'
-
 
 function MRIAnalysisPage() {
 useEffect(()=>{
@@ -26,6 +24,7 @@ const [networkError,setNetworkError] = useState<Boolean>(false)
 const [pageLoading, setPageLoading] = useState<any>("not-loaded")
 const [loading, setLoading] = useState<Boolean>(false);
 const [error, setError] = useState<string | null>(null);
+const CLOUDINARY_CLOUDNAME = process.env.REACT_APP_CLOUDINARY_CLOUDNAME;
 
 const dispatch = useDispatch()
 const navigate = useNavigate()
@@ -49,7 +48,6 @@ useEffect(() => {
 
 const getMyProfileData =async(myUserId:any)=>{
   await getUserById(myUserId).then((res:any)=>{
-    // console.log("in TASKPAGE RETURNED TASK ",res.code);
     if(res.code==="ERR_NETWORK"){
       setNetworkError(true)
       console.error("NETWORK ERROR ")
@@ -142,8 +140,6 @@ useEffect(() => {
   } else {
     document.body.style.overflow = 'auto';
   }
-
-  // Cleanup function to reset overflow when component unmounts
   return () => {
     document.body.style.overflow = 'auto';
   };
