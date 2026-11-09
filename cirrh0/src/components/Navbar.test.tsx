@@ -56,6 +56,7 @@ test('signed-in users get Profile and Logout on every page, and Logout opens the
   await userEvent.click(screen.getByRole('button', { name: 'Open menu' }))
   const menu = document.getElementById('mobile-menu') as HTMLElement
   expect(within(menu).getByRole('link', { name: /My Profile/ })).toHaveAttribute('href', '/profile')
+  expect(within(menu).getByRole('link', { name: /My Trends/ })).toHaveAttribute('href', '/trends')
   await userEvent.click(within(menu).getByRole('button', { name: /Logout/ }))
   expect(screen.getByRole('dialog')).toBeInTheDocument()
 })

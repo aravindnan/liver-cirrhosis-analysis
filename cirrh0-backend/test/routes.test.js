@@ -27,6 +27,7 @@ test("protected routes return 401 without credentials, and the wipe route no lon
       ["GET", `/get-user-by-id/${id}`],
       ["POST", `/add-files-to-report/${id}`],
       ["POST", "/analyze-report"],
+      ["GET", "/get-trends"],
       ["GET", `/get-report-by-id/${id}`],
       ["DELETE", `/delete-report-by-id/${id}`],
       ["POST", `/analyze-mri/${id}`],

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Logout, Menu, Close, Person } from '@mui/icons-material'
+import { Logout, Menu, Close, Person, Timeline } from '@mui/icons-material'
 import { LogoIcon } from './LogoIcon'
 import LogoText from './LogoText'
 import LogoutModal from '../modals/LogoutModal'
@@ -117,6 +117,9 @@ function Navbar({ activePage }: NavbarProps) {
                   <Link to="/profile" className={itemClass}>
                     <Person sx={{ fontSize: '16px' }} /> My Profile
                   </Link>
+                  <Link to="/trends" className={itemClass}>
+                    <Timeline sx={{ fontSize: '16px' }} /> My Trends
+                  </Link>
                   <button type="button" onClick={() => setLogoutModal(true)} className={itemClass}>
                     <Logout sx={{ fontSize: '16px' }} /> Logout
                   </button>
@@ -161,6 +164,7 @@ function Navbar({ activePage }: NavbarProps) {
             {user ? (
               <>
                 <li><Link to="/profile" className={itemClass}><Person sx={{ fontSize: '18px' }} /> My Profile</Link></li>
+                <li><Link to="/trends" className={itemClass}><Timeline sx={{ fontSize: '18px' }} /> My Trends</Link></li>
                 <li>
                   <button
                     type="button"

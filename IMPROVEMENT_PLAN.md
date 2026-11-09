@@ -473,6 +473,16 @@ The result moves from a demo that guesses a stage to a tool patients would trust
 - [x] Tests: 15 API (Node test runner), 33 ML (pytest), 9 web (Jest); GitHub Actions CI runs all three plus `tsc` and a production build
 - [x] API dependencies updated within semver ranges: `npm audit` now reports 0 vulnerabilities (was 12, 3 critical)
 - [ ] The media still exists in git history (`.git` is about 76 MB). Remove it in the same `git filter-repo` pass as the leaked secrets
+### Lab trends (branch `improve/trends`)
+
+- [x] `GET /get-trends` and a "My trends" page: guideline scores and six lab values across all of a user's analysed reports, oldest to newest, with the change since the previous report
+- [x] Older reports that predate stored scores get scores worked out from their stored lab values with the same code, so history is consistent; the API returns only ids, dates, labs and scores (no analysis text or file links)
+- [x] Score reference lines come from one exported `SCORE_THRESHOLDS`, shared with the scoring code so the chart and the explanations cannot drift apart
+- [x] Dependency-free SVG chart; each chart is an image with a title and a written description, and offers its data as a table; direction is shown with symbols and words, not colour alone
+- [x] Checked in a browser at 375 px and 1280 px with five reports of sample history; chart text was unreadably small on a phone (5.7 px) and was redrawn at about 9.6 px
+- [ ] Lab charts have no reference lines on purpose: normal ranges differ between labs. Reading them from the report would be a good extraction improvement
+- [ ] Not yet covered: points are not links back to their report, no date-range filter, not checked against a live database, chart contrast not audited
+
 ### Responsive layout and accessibility (branch `improve/responsive-a11y`)
 
 Checked in a real browser at 375 px and 1280 px against a mock API:
