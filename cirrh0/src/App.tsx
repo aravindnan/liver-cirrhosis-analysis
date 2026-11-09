@@ -18,6 +18,7 @@ const ReportAnalysisPage = lazy(() => import('./pages/ReportAnalysisPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const MRIResultPage = lazy(() => import('./pages/MRIResultPage'));
 const ReportResultPage = lazy(() => import('./pages/ReportResultPage'));
+const TrendsPage = lazy(() => import('./pages/TrendsPage'));
 
 function App() {
   useEffect(()=>{
@@ -38,6 +39,7 @@ function App() {
           <Route path="/profile" element={<RequireAuth><ProfilePage/></RequireAuth>}/>
           <Route path="/mri-result" element={<RequireAuth><MRIResultPage/></RequireAuth>}/>
           <Route path="/report-result" element={<RequireAuth><ReportResultPage/></RequireAuth>}/>
+          <Route path="/trends" element={<RequireAuth><TrendsPage/></RequireAuth>}/>
           <Route path="*" element={<ErrorPage/>}/>
         </Routes>
       </Suspense>

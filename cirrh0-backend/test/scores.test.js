@@ -99,3 +99,12 @@ test("invalid inputs return unavailable instead of NaN or Infinity", () => {
   assert.equal(fib4({ age: 50, sgot: 40, alt: 0, platelets: 200 }).value, null);
   assert.equal(albi({ bilirubin: 0, albumin: 4 }).value, null);
 });
+
+test("the explanation text quotes the same thresholds the scoring uses", () => {
+  const { SCORE_THRESHOLDS: t } = require("../utils/scores");
+  const f = fib4(labs).cutoffs;
+  assert.ok(f.includes(String(t.fib4.low)) && f.includes(String(t.fib4.high)));
+  assert.ok(fib4({ ...labs, age: 70 }).cutoffs.includes(String(t.fib4.lowFrom65)));
+  const a = apri({ sgot: 40, platelets: 200 }).cutoffs;
+  assert.ok(a.includes(String(t.apri.low)) && a.includes(t.apri.high.toFixed(1)));
+});

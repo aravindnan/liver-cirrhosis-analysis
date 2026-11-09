@@ -6,6 +6,7 @@ const reportRouter = express.Router();
 
 reportRouter.post("/add-files-to-report/:userId", requireAuth, requireSelf, reportController.report_add_files);
 reportRouter.post("/analyze-report", requireAuth, reportController.analyze_report);
+reportRouter.get("/get-trends", requireAuth, reportController.get_trends);
 reportRouter.get("/get-report-by-id/:reportId", requireAuth, reportController.get_report);
 reportRouter.delete("/delete-report-by-id/:reportId", requireAuth, reportController.delete_report);
 

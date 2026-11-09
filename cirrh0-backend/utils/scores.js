@@ -11,6 +11,14 @@ const AST_ULN_DEFAULT = 40;
 // bilirubin: mg/dL x 17.104 = umol/L. albumin: g/dL x 10 = g/L.
 const BILIRUBIN_MGDL_TO_UMOLL = 17.104;
 
+// The one place the cut-offs live. Scoring, the explanation text and the trend chart reference lines
+// all read from here, so they cannot drift apart.
+const SCORE_THRESHOLDS = {
+  fib4: { low: 1.3, lowFrom65: 2.0, high: 2.67 },
+  apri: { low: 0.5, high: 2.0 },
+  albi: { grade1: -2.6, grade2: -1.39 },
+};
+
 const round = (n, places = 2) => Number(n.toFixed(places));
 
 const unavailable = (id, name, reason) => ({ id, name, value: null, band: null, unavailableReason: reason });
@@ -26,8 +34,9 @@ const fib4 = ({ age, sgot, alt, platelets }) => {
   if (!(alt > 0) || !(platelets > 0)) return unavailable("fib4", "FIB-4", "ALT and platelets must be above zero.");
   // Bands use the displayed (2 decimal) value so a shown score always agrees with its band.
   const value = round((age * sgot) / (platelets * Math.sqrt(alt)));
-  const lowCutoff = age >= 65 ? 2.0 : 1.3;
-  const highCutoff = 2.67;
+  const t = SCORE_THRESHOLDS.fib4;
+  const lowCutoff = age >= 65 ? t.lowFrom65 : t.low;
+  const highCutoff = t.high;
   const band = value < lowCutoff ? "low" : value > highCutoff ? "high" : "intermediate";
   return {
     id: "fib4",
@@ -42,7 +51,7 @@ const fib4 = ({ age, sgot, alt, platelets }) => {
       high: "Advanced scarring is more likely. Please see a liver specialist for further tests.",
     }[band],
     formula: "Age × AST ÷ (platelets × √ALT)",
-    cutoffs: `Below ${lowCutoff}: low. ${lowCutoff} to ${highCutoff}: indeterminate. Above ${highCutoff}: high.${age >= 65 ? " The lower cut-off is 2.0 from age 65." : ""}`,
+    cutoffs: `Below ${lowCutoff}: low. ${lowCutoff} to ${highCutoff}: indeterminate. Above ${highCutoff}: high.${age >= 65 ? ` The lower cut-off is ${t.lowFrom65} from age 65.` : ""}`,
     inputs: { age, "AST (U/L)": sgot, "ALT (U/L)": alt, "Platelets (10³/µL)": platelets },
     caveats: [
       "Validated mainly in hepatitis C and fatty liver disease, not in primary biliary cholangitis.",
@@ -58,7 +67,8 @@ const fib4 = ({ age, sgot, alt, platelets }) => {
 const apri = ({ sgot, platelets }) => {
   if (!(platelets > 0)) return unavailable("apri", "APRI", "Platelets must be above zero.");
   const value = round((sgot / AST_ULN_DEFAULT / platelets) * 100);
-  const band = value < 0.5 ? "low" : value > 2.0 ? "high" : "intermediate";
+  const t = SCORE_THRESHOLDS.apri;
+  const band = value < t.low ? "low" : value > t.high ? "high" : "intermediate";
   return {
     id: "apri",
     name: "APRI",
@@ -72,7 +82,7 @@ const apri = ({ sgot, platelets }) => {
       high: "Cirrhosis is possible. Please see a liver specialist.",
     }[band],
     formula: `(AST ÷ ${AST_ULN_DEFAULT}) ÷ platelets × 100`,
-    cutoffs: "Below 0.5: low. 0.5 to 2.0: intermediate. Above 2.0: high.",
+    cutoffs: `Below ${t.low}: low. ${t.low} to ${t.high.toFixed(1)}: intermediate. Above ${t.high.toFixed(1)}: high.`,
     inputs: { "AST (U/L)": sgot, "AST upper limit of normal (U/L), assumed": AST_ULN_DEFAULT, "Platelets (10³/µL)": platelets },
     caveats: [
       `Assumes an AST upper limit of normal of ${AST_ULN_DEFAULT} U/L. Your lab's own limit may differ.`,
@@ -88,7 +98,8 @@ const apri = ({ sgot, platelets }) => {
 const albi = ({ bilirubin, albumin }) => {
   if (!(bilirubin > 0) || !(albumin > 0)) return unavailable("albi", "ALBI", "Bilirubin and albumin must be above zero.");
   const value = round(0.66 * Math.log10(bilirubin * BILIRUBIN_MGDL_TO_UMOLL) - 0.085 * (albumin * 10));
-  const grade = value <= -2.6 ? 1 : value <= -1.39 ? 2 : 3;
+  const t = SCORE_THRESHOLDS.albi;
+  const grade = value <= t.grade1 ? 1 : value <= t.grade2 ? 2 : 3;
   const band = { 1: "low", 2: "intermediate", 3: "high" }[grade];
   return {
     id: "albi",
@@ -114,4 +125,4 @@ const albi = ({ bilirubin, albumin }) => {
 // Returns every score; ones that cannot be calculated say why.
 const computeScores = (labs) => [fib4(labs), apri(labs), albi(labs)];
 
-module.exports = { computeScores, fib4, apri, albi, SCORES_VERSION, AST_ULN_DEFAULT };
+module.exports = { computeScores, fib4, apri, albi, SCORES_VERSION, AST_ULN_DEFAULT, SCORE_THRESHOLDS };

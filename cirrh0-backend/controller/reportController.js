@@ -5,6 +5,7 @@ const { validateLabData, isAllowedUploadUrl } = require("../utils/validate");
 const ml = require("../utils/mlClient");
 const { buildReportFields, validStage } = require("../utils/reportFields");
 const { safeError } = require("../utils/logger");
+const { buildTrends } = require("../utils/trends");
 
 const MAX_FILES = 10;
 const DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
@@ -80,6 +81,24 @@ exports.analyze_report = async (req, res) => {
   } catch (error) {
     req.log.error({ err: safeError(error) }, "report analysis failed");
     res.status(502).json({ analysisSuccess: false, error: "Analysis failed. Please try again." });
+  }
+};
+
+// Score and lab history for the signed-in user, for the trends page.
+exports.get_trends = async (req, res) => {
+  try {
+    const reports = await ReportAnalysis.find({
+      userId: req.userId,
+      draftExpiresAt: null,
+      $or: [{ stage: { $ne: null } }, { "scores.0": { $exists: true } }],
+    })
+      .sort({ date: 1 })
+      .limit(200)
+      .lean();
+    res.status(200).json(buildTrends(reports));
+  } catch (error) {
+    req.log.error({ err: safeError(error) }, "trends request failed");
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
