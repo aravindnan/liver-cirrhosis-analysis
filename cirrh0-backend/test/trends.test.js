@@ -1,13 +1,13 @@
 require("./setup");
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const ReportAnalysis = require("../model/reportsAnalysis");
+const { stubModel } = require("./helpers/db");
 const { buildTrends } = require("../utils/trends");
 const { SCORE_THRESHOLDS } = require("../utils/scores");
 const { get_trends } = require("../controller/reportController");
 
-const ID = "64b7f0f2a1b2c3d4e5f60718";
-const raw = (id, date, extra = {}) => ({ _id: id, date, age: 50, sgot: 40, platelets: 200, bilirubin: 1, albumin: 4, alk_phos: 120, ...extra });
+const ID = "3f2b8c1e-9a4d-4e57-8b6a-1c2d3e4f5a6b";
+const raw = (id, date, extra = {}) => ({ id, date, age: 50, sgot: 40, platelets: 200, bilirubin: 1, albumin: 4, alk_phos: 120, ...extra });
 
 test("points are ordered oldest first and carry labs and scores", () => {
   const { points } = buildTrends([raw("b", "2026-06-01T00:00:00Z"), raw("a", "2026-01-01T00:00:00Z", { alt: 36 })]);
@@ -43,7 +43,7 @@ test("reports with no date or missing inputs are handled without errors", () => 
   const { points } = buildTrends([
     raw("nodate", undefined),
     raw("baddate", "not a date"),
-    { _id: "sparse", date: "2026-02-01T00:00:00Z" }, // no lab values at all
+    { id: "sparse", date: "2026-02-01T00:00:00Z" }, // no lab values at all
   ]);
   assert.deepEqual(points.map((p) => p.reportId), ["sparse"]);
   assert.deepEqual(points[0].scores, { fib4: null, apri: null, albi: null });
@@ -62,22 +62,23 @@ test("the response includes the score thresholds for chart reference lines", () 
 });
 
 test("get_trends queries only the caller's completed reports and returns the series", async (t) => {
-  let query; let sortArg; let limitArg;
-  t.mock.method(ReportAnalysis, "find", (q) => {
-    query = q;
-    return { sort: (s) => { sortArg = s; return { limit: (n) => { limitArg = n; return { lean: async () => [raw("a", "2026-01-01T00:00:00Z", { alt: 36 })] }; } }; } };
-  });
+  let query;
+  // A stored row, as Prisma returns it (camelCase columns)
+  const row = { id: "a", userId: ID, date: new Date("2026-01-01T00:00:00Z"), age: 50, sgot: 40, alt: 36, platelets: 200, bilirubin: 1, albumin: 4, alkPhos: 120, scores: null };
+  stubModel(t, "reportAnalysis", { findMany: async (q) => { query = q; return [row]; } });
   let body;
   await get_trends({ userId: ID, log: { error() {} } }, { status() { return this; }, json(b) { body = b; } });
-  assert.equal(query.userId, ID);
-  assert.equal(query.draftExpiresAt, null);
-  assert.deepEqual(sortArg, { date: 1 });
-  assert.equal(limitArg, 200);
+  assert.equal(query.where.userId, ID);
+  assert.equal(query.where.draftExpiresAt, null);
+  assert.deepEqual(query.orderBy, { date: "asc" });
+  assert.equal(query.take, 200);
   assert.equal(body.points.length, 1);
+  assert.equal(body.points[0].labs.alk_phos, 120);
+  assert.equal(body.points[0].scores.fib4.value, 1.67); // computed: stored scores were null
 });
 
 test("a database failure returns a clean 500 and logs only a safe error", async (t) => {
-  t.mock.method(ReportAnalysis, "find", () => { throw Object.assign(new Error("boom"), { config: { data: "secret lab values" } }); });
+  stubModel(t, "reportAnalysis", { findMany: async () => { throw Object.assign(new Error("boom"), { config: { data: "secret lab values" } }); } });
   const logged = []; let status; let body;
   await get_trends({ userId: ID, log: { error: (o) => logged.push(o) } }, { status(c) { status = c; return this; }, json(b) { body = b; } });
   assert.equal(status, 500);

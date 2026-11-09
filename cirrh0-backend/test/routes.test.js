@@ -22,7 +22,7 @@ const request = (server, method, path) =>
 test("protected routes return 401 without credentials, and the wipe route no longer exists", async () => {
   const server = app.listen(0);
   try {
-    const id = "64b7f0f2a1b2c3d4e5f60718";
+    const id = "3f2b8c1e-9a4d-4e57-8b6a-1c2d3e4f5a6b";
     const protectedRoutes = [
       ["GET", `/get-user-by-id/${id}`],
       ["POST", `/add-files-to-report/${id}`],

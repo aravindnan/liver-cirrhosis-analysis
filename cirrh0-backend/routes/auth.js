@@ -1,17 +1,12 @@
 const express = require("express");
-const rateLimit = require("express-rate-limit");
+const { createAuthLimiter } = require("../middleware/rateLimit");
+const { AUTH_RATE_LIMIT } = require("../env/dotenv");
 const authController = require("../controller/authController");
 const { requireAuth } = require("../middleware/auth");
 
 const authRouter = express.Router();
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 20,
-  standardHeaders: "draft-7",
-  legacyHeaders: false,
-  message: { error: "Too many attempts. Please try again in a few minutes." },
-});
+const authLimiter = createAuthLimiter(AUTH_RATE_LIMIT);
 
 authRouter.post("/register", authLimiter, authController.register);
 authRouter.post("/login", authLimiter, authController.login);

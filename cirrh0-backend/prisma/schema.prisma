@@ -1,0 +1,131 @@
+// Cirrh0 database schema (PostgreSQL).
+//
+// Table and column names are snake_case in the database and camelCase in code. The HTTP API keeps
+// its existing field names; the mapping lives in utils/serializers.js.
+
+generator client {
+  provider               = "prisma-client"
+  output                 = "../generated/prisma"
+  runtime                = "nodejs"
+  moduleFormat           = "cjs"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Gender {
+  male
+  female
+  other
+}
+
+enum YesNo {
+  Y
+  N
+}
+
+// Edema in the training data: N none, S present without diuretics (or resolved by them),
+// Y present despite diuretic therapy.
+enum Edema {
+  Y
+  S
+  N
+}
+
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username     String    @unique
+  // Stored lower-case by the API.
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  fullName     String    @map("full_name")
+  age          Int?
+  gender       Gender?
+  lastLoginAt  DateTime? @map("last_login_at") @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  reports       ReportAnalysis[]
+  imageAnalyses ImageAnalysis[]
+
+  @@map("users")
+}
+
+model ReportAnalysis {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  // The only record of ownership. Deleting a user deletes their analyses.
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  age   Int?
+  sex   Gender?
+  files String[] @default([])
+  date  DateTime @default(now()) @db.Timestamptz(3)
+
+  ascites       YesNo?
+  edema         Edema?
+  spiders       YesNo?
+  hepatomegaly  YesNo?
+  bilirubin     Float?
+  albumin       Float?
+  prothrombin   Float?
+  platelets     Float?
+  sgot          Float?
+  alt           Float?
+  copper        Float?
+  alkPhos       Float?  @map("alk_phos")
+  triglycerides Float?
+  cholesterol   Float?
+
+  // Estimated histologic stage 1 to 4 (a CHECK constraint enforces the range).
+  stage                    Int?
+  modelVersion             String?  @map("model_version")
+  analysis                 String?
+  lifestyleRecommendations String[] @default([]) @map("lifestyle_recommendations")
+  precautions              String[] @default([])
+  selfTreatmentPlan        String[] @default([]) @map("self_treatment_plan")
+  doctorType               String[] @default([]) @map("doctor_type")
+
+  // Deterministic guideline scores (see utils/scores.js), stored so history does not change if
+  // formulas are ever revised.
+  scores        Json?
+  scoresVersion String? @map("scores_version")
+
+  // Set while a report is only a draft (files extracted, not yet analysed) and cleared on analysis.
+  // PostgreSQL has no TTL index, so the API deletes expired drafts (utils/drafts.js).
+  draftExpiresAt DateTime? @map("draft_expires_at") @db.Timestamptz(3)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([userId, date(sort: Desc)])
+  @@index([draftExpiresAt])
+  @@map("report_analyses")
+}
+
+model ImageAnalysis {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  age  Int?
+  sex  String?
+  file String?
+  date DateTime @default(now()) @db.Timestamptz(3)
+
+  analysis                 String?
+  diagnosis                String[] @default([])
+  lifestyleRecommendations String[] @default([]) @map("lifestyle_recommendations")
+  precautions              String[] @default([])
+  medicalTreatments        String[] @default([]) @map("medical_treatments")
+  doctorType               String[] @default([]) @map("doctor_type")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([userId, date(sort: Desc)])
+  @@map("image_analyses")
+}

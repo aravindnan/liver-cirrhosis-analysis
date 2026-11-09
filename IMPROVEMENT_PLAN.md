@@ -416,7 +416,7 @@ Complexity: **Low** is under 1 day, **Medium** is 2–5 days, **High** is more t
 
 ## 11. Recommended architecture
 
-Keep the three services and MongoDB. A rewrite is not needed. The changes are about boundaries: the API owns identity, files and data; the ML service is private and stateless; deterministic logic is separated from LLM text.
+Keep the three services. (The database has since moved from MongoDB to PostgreSQL; see the progress notes.) A rewrite is not needed. The changes are about boundaries: the API owns identity, files and data; the ML service is private and stateless; deterministic logic is separated from LLM text.
 
 ```text
  Browser (React + Vite, TanStack Query, RHF + zod, lazy routes)
@@ -427,7 +427,7 @@ Keep the three services and MongoDB. A rewrite is not needed. The changes are ab
    ├─ /api/auth/*   /api/me   /api/reports   /api/labs   /api/share/:token
    ├─ uploads → private bucket (signed URLs, cascade delete)
    ├─ shared/  biomarkers.ts · scores.ts (FIB-4, APRI, ALBI, MELD-Na)   ← deterministic, unit-tested
-   └─ MongoDB: users · reports · labResults · files · auditLog
+   └─ PostgreSQL (via Prisma): users · report_analyses · image_analyses (· files · audit log still to come)
    │  internal network only (service token)
    ▼
  ML service (FastAPI + Pydantic, gunicorn/uvicorn, no public port)
@@ -473,6 +473,18 @@ The result moves from a demo that guesses a stage to a tool patients would trust
 - [x] Tests: 15 API (Node test runner), 33 ML (pytest), 9 web (Jest); GitHub Actions CI runs all three plus `tsc` and a production build
 - [x] API dependencies updated within semver ranges: `npm audit` now reports 0 vulnerabilities (was 12, 3 critical)
 - [ ] The media still exists in git history (`.git` is about 76 MB). Remove it in the same `git filter-repo` pass as the leaked secrets
+### Database: MongoDB to PostgreSQL and Prisma (branch `migrate/postgres-prisma`)
+
+- [x] Prisma 7 schema and migration: UUID keys, enums, foreign keys with cascade delete, indexes, CHECK constraints (stage 1 to 4, plausible ages, lower-case email)
+- [x] Every controller rewritten on Prisma; the HTTP field names are unchanged (a serializer maps them) except `id` replacing `_id`, and the web app was updated to match
+- [x] Verified against a real PostgreSQL 16: 96 API tests (25 integration tests covering constraints, cascades, per-user isolation, a sign-up race and the full register-to-delete flow) and a manual run of the real stack in a browser (sign-up, login, analysis with the real model, profile, trends, delete)
+- [x] Fix found on the way: Prisma error messages embed the failed query's values (lab values, personal data), so the logger no longer logs database error messages
+- [x] `/healthz`, graceful shutdown, `TRUST_PROXY` and `AUTH_RATE_LIMIT` settings, Docker Compose for local development, CI with a PostgreSQL service on Node 22 and 24, a check that fails if the schema changes without a migration
+- [x] One-off script to copy existing MongoDB data across (dry run by default, one transaction, keeps passwords)
+- [ ] The Compose file and the migration script's MongoDB reading code have not been run here (no Docker or MongoDB available); the mapping and the writing are tested
+- [ ] Existing sessions and old report links stop working at cut-over (new ids, new token format)
+- [ ] Needs a production PostgreSQL, a backup schedule, and a connection-pool size chosen for the host
+
 ### Lab trends (branch `improve/trends`)
 
 - [x] `GET /get-trends` and a "My trends" page: guideline scores and six lab values across all of a user's analysed reports, oldest to newest, with the change since the previous report
@@ -511,7 +523,7 @@ Checked in a real browser at 375 px and 1280 px against a mock API:
 
 - [x] One `AuthProvider` and `RequireAuth` replace Redux and seven copies of login bootstrap (net about 440 lines removed); a 401 clears the session and a network error no longer looks like a logout
 - [x] Data model: `userId` is the only ownership record (id arrays removed from `User`), lab values are numbers, enums and ranges enforced, indexes added, `createdAt`/`updatedAt` on every record
-- [x] Abandoned report drafts expire automatically after 24 hours (MongoDB TTL index)
+- [x] Abandoned report drafts expire automatically after 24 hours (was a MongoDB TTL index; now deleted by a scheduled cleanup in the API)
 - [x] Structured JSON logging with request ids; credentials and personal fields redacted; errors never log request bodies; central error handler
 - [x] API now has 26 tests, web has 20
 - [ ] Existing user documents still carry the old id arrays. They are ignored and replaced in responses; `$unset` them whenever convenient

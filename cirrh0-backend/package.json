@@ -5,13 +5,19 @@
   "scripts": {
     "test": "node --test \"test/*.test.js\"",
     "serve": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "db:generate": "prisma generate && node scripts/mark-generated-esm.js",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "postinstall": "npm run db:generate"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -20,14 +26,15 @@
     "express-rate-limit": "^8.7.3",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^8.5.1",
+    "pg": "^8.23.1",
     "pino": "^10.4.0",
-    "pino-http": "^11.0.0"
+    "pino-http": "^11.0.0",
+    "prisma": "^7.10.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.18"
   }
 }

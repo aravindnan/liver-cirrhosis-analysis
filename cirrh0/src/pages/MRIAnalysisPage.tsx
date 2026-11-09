@@ -85,7 +85,7 @@ const handleAnalyseMRI=async()=>{
         sex:myProfiledata?.gender
       }
 
-      return analyseMRIById(myProfiledata._id,MRIsendData);
+      return analyseMRIById(myProfiledata.id,MRIsendData);
     }).then(async (mriAnalyzeRes:any)=>{
       if (mriAnalyzeRes.analysisSuccess) {
         // Handle success

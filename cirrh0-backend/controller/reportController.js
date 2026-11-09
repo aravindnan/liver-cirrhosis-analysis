@@ -1,14 +1,15 @@
-const mongoose = require("mongoose");
-const ReportAnalysis = require("../model/reportsAnalysis");
+const { db } = require("../db/client");
 const { NLP_BASE_URL, REPORT_BASE_URL } = require("../env/dotenv");
 const { validateLabData, isAllowedUploadUrl } = require("../utils/validate");
 const ml = require("../utils/mlClient");
 const { buildReportFields, validStage } = require("../utils/reportFields");
-const { safeError } = require("../utils/logger");
+const { serializeReport } = require("../utils/serializers");
 const { buildTrends } = require("../utils/trends");
+const { isUuid } = require("../utils/ids");
+const { DRAFT_TTL_MS } = require("../utils/drafts");
+const { safeError } = require("../utils/logger");
 
 const MAX_FILES = 10;
-const DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
 
 exports.report_add_files = async (req, res) => {
   try {
@@ -27,14 +28,16 @@ exports.report_add_files = async (req, res) => {
     // Extract first so a failed extraction does not leave an empty record behind.
     const { data: extractedData } = await ml.post(NLP_BASE_URL, { pdf_urls: fileURLSet }, 60000);
 
-    const report = await new ReportAnalysis({
-      userId: req.userId,
-      files: fileURLSet,
-      date: new Date(),
-      draftExpiresAt: new Date(Date.now() + DRAFT_TTL_MS),
-    }).save();
+    const report = await db.reportAnalysis.create({
+      data: {
+        userId: req.userId,
+        files: fileURLSet,
+        date: new Date(),
+        draftExpiresAt: new Date(Date.now() + DRAFT_TTL_MS),
+      },
+    });
 
-    res.json({ extractSuccess: true, extractedData, reportId: report._id });
+    res.json({ extractSuccess: true, extractedData, reportId: report.id });
   } catch (error) {
     req.log.error({ err: safeError(error) }, "report extraction failed");
     res.status(502).json({ extractSuccess: false, error: "Could not read the uploaded reports" });
@@ -48,11 +51,11 @@ exports.analyze_report = async (req, res) => {
     const checked = validateLabData(validatedData);
     if (!checked.ok) return res.status(400).json({ analysisSuccess: false, error: checked.error });
 
-    let report = null;
+    let existing = null;
     if (reportId !== "new-report") {
-      if (!mongoose.isValidObjectId(reportId)) return res.status(404).json({ error: "Report not found" });
-      report = await ReportAnalysis.findOne({ _id: reportId, userId: req.userId });
-      if (!report) return res.status(404).json({ error: "Report not found" });
+      if (!isUuid(reportId)) return res.status(404).json({ error: "Report not found" });
+      existing = await db.reportAnalysis.findFirst({ where: { id: reportId, userId: req.userId } });
+      if (!existing) return res.status(404).json({ error: "Report not found" });
     }
 
     // The guideline scores need no ML, so a model outage must not lose the analysis: save the scores
@@ -68,16 +71,12 @@ exports.analyze_report = async (req, res) => {
     const modelAvailable = prediction !== null;
 
     const fields = buildReportFields(checked.value, prediction);
+    // Analysed, so it is no longer a draft.
+    const report = existing
+      ? await db.reportAnalysis.update({ where: { id: existing.id }, data: { ...fields, draftExpiresAt: null } })
+      : await db.reportAnalysis.create({ data: { ...fields, userId: req.userId, files: [], draftExpiresAt: null } });
 
-    if (report) {
-      report.set(fields);
-    } else {
-      report = new ReportAnalysis({ ...fields, userId: req.userId, files: [] });
-    }
-    report.draftExpiresAt = undefined; // analysed, so it is no longer a draft
-    await report.save();
-
-    res.json({ reportResult: report, analysisSuccess: true, reportId: report._id, modelAvailable });
+    res.json({ reportResult: serializeReport(report), analysisSuccess: true, reportId: report.id, modelAvailable });
   } catch (error) {
     req.log.error({ err: safeError(error) }, "report analysis failed");
     res.status(502).json({ analysisSuccess: false, error: "Analysis failed. Please try again." });
@@ -87,15 +86,12 @@ exports.analyze_report = async (req, res) => {
 // Score and lab history for the signed-in user, for the trends page.
 exports.get_trends = async (req, res) => {
   try {
-    const reports = await ReportAnalysis.find({
-      userId: req.userId,
-      draftExpiresAt: null,
-      $or: [{ stage: { $ne: null } }, { "scores.0": { $exists: true } }],
-    })
-      .sort({ date: 1 })
-      .limit(200)
-      .lean();
-    res.status(200).json(buildTrends(reports));
+    const rows = await db.reportAnalysis.findMany({
+      where: { userId: req.userId, draftExpiresAt: null },
+      orderBy: { date: "asc" },
+      take: 200,
+    });
+    res.status(200).json(buildTrends(rows.map(serializeReport)));
   } catch (error) {
     req.log.error({ err: safeError(error) }, "trends request failed");
     res.status(500).json({ error: "Internal Server Error" });
@@ -105,11 +101,11 @@ exports.get_trends = async (req, res) => {
 exports.get_report = async (req, res) => {
   try {
     const { reportId } = req.params;
-    const report = mongoose.isValidObjectId(reportId)
-      ? await ReportAnalysis.findOne({ _id: reportId, userId: req.userId })
+    const report = isUuid(reportId)
+      ? await db.reportAnalysis.findFirst({ where: { id: reportId, userId: req.userId } })
       : null;
     if (!report) return res.status(404).json({ message: "Report not found" });
-    res.status(200).json({ report });
+    res.status(200).json({ report: serializeReport(report) });
   } catch (error) {
     req.log.error({ err: safeError(error) }, "report request failed");
     res.status(500).json({ error: "Internal Server Error" });
@@ -119,14 +115,14 @@ exports.get_report = async (req, res) => {
 exports.delete_report = async (req, res) => {
   try {
     const { reportId } = req.params;
-    const deleted = mongoose.isValidObjectId(reportId)
-      ? await ReportAnalysis.findOneAndDelete({ _id: reportId, userId: req.userId })
-      : null;
-    if (!deleted) return res.status(404).json({ message: "Report not found", deleteSuccess: false });
-
+    // Scoped to the owner in the query itself, so another user's id simply matches nothing.
+    const { count } = isUuid(reportId)
+      ? await db.reportAnalysis.deleteMany({ where: { id: reportId, userId: req.userId } })
+      : { count: 0 };
+    if (count === 0) return res.status(404).json({ message: "Report not found", deleteSuccess: false });
     res.status(200).json({ message: "Report deleted successfully", deleteSuccess: true });
   } catch (error) {
-    req.log.error({ err: safeError(error) }, "report request failed");
+    req.log.error({ err: safeError(error) }, "report delete failed");
     res.status(500).json({ error: "Internal Server Error", deleteSuccess: false });
   }
 };

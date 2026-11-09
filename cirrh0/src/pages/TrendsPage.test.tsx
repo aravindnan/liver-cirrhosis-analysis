@@ -5,7 +5,7 @@ import TrendsPage from './TrendsPage'
 import { getTrends } from '../services/trendsServices'
 
 jest.mock('../services/trendsServices', () => ({ getTrends: jest.fn() }))
-jest.mock('../auth/AuthContext', () => ({ useAuth: () => ({ user: { _id: 'u1', fullName: 'Asha Menon' }, status: 'authenticated' }) }))
+jest.mock('../auth/AuthContext', () => ({ useAuth: () => ({ user: { id: 'u1', fullName: 'Asha Menon' }, status: 'authenticated' }) }))
 jest.mock('../modals/LogoutModal', () => () => null)
 const mockedGetTrends = getTrends as jest.Mock
 

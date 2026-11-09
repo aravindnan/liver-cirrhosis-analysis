@@ -14,7 +14,7 @@ type AuthValue = {
 
 const AuthContext = createContext<AuthValue | null>(null)
 
-const isUser = (value: any): value is UserProfile => typeof value?._id === 'string'
+const isUser = (value: any): value is UserProfile => typeof value?.id === 'string'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null)
@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
     try {
-      const profile = await getUserById(hint._id)
+      const profile = await getUserById(hint.id)
       if (!isUser(profile)) throw new Error('unexpected profile response')
       setUser(profile)
       setStatus('authenticated')

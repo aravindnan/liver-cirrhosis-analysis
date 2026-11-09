@@ -141,7 +141,7 @@ const handleExtractParameters = () => {
     .then((mediaRes: any) => {
 
       // Extract parameters from uploaded media
-      return getExtractedParameters(myProfiledata._id, mediaRes);
+      return getExtractedParameters(myProfiledata.id, mediaRes);
     })
     .then((extractedRes: any) => {
 
@@ -218,16 +218,15 @@ const handleAnalyzeReport = async () => {
       return; // Stop execution if validation fails
   }
 
-  if (myProfiledata?._id && validatedData) {
+  if (myProfiledata?.id && validatedData) {
       setLoading(true);
 
       try {
           const reportData = {
-              userId: myProfiledata._id,
               ...merged
           };
 
-          const response: any = await analyseReportById(reportId,myProfiledata?._id, reportData);
+          const response: any = await analyseReportById(reportId,myProfiledata?.id, reportData);
 
           if (response.analysisSuccess) {
               // Handle success

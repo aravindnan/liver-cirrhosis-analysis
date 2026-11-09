@@ -1,38 +1,56 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const User = require("../model/user");
+const { db, Prisma } = require("../db/client");
 const { JWT_SECRET } = require("../env/dotenv");
 const { validateRegistration } = require("../utils/validate");
 const { setSessionCookie, clearSessionCookie } = require("../middleware/auth");
 const { safeError } = require("../utils/logger");
+
+const BCRYPT_COST = 12;
+// Compared against when the username does not exist, so a login for an unknown user takes as long as
+// one with a wrong password and usernames cannot be discovered by timing.
+const DUMMY_HASH = bcrypt.hashSync("not-a-real-password", BCRYPT_COST);
+
+const isUniqueViolation = (error) =>
+  error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
 
 exports.register = async (req, res) => {
   try {
     const problem = validateRegistration(req.body);
     if (problem) return res.status(400).json({ error: problem, registerSuccess: false });
 
-    const { username, email, password, fullName, gender, age } = req.body;
+    const { username, password, fullName, gender, age } = req.body;
+    const email = req.body.email.toLowerCase();
 
-    if (await User.findOne({ username })) {
+    if (await db.user.findUnique({ where: { username } })) {
       return res.status(400).json({ error: "Username already exists", registerSuccess: false });
     }
-    if (await User.findOne({ email: email.toLowerCase() })) {
+    if (await db.user.findUnique({ where: { email } })) {
       return res.status(400).json({ error: "Email already exists", registerSuccess: false });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
-    await new User({
-      username,
-      email,
-      password: hashedPassword,
-      fullName: fullName.trim(),
-      age: Number(age),
-      gender,
-    }).save();
+    try {
+      await db.user.create({
+        data: {
+          username,
+          email,
+          passwordHash: await bcrypt.hash(password, BCRYPT_COST),
+          fullName: fullName.trim(),
+          age: Math.round(Number(age)),
+          gender,
+        },
+      });
+    } catch (error) {
+      // Two sign-ups racing past the checks above: the unique indexes are the real guarantee.
+      if (isUniqueViolation(error)) {
+        return res.status(400).json({ error: "Username or email already exists", registerSuccess: false });
+      }
+      throw error;
+    }
 
     res.status(201).json({ message: "User registered successfully", registerSuccess: true });
   } catch (error) {
-    req.log.error({ err: safeError(error) }, "auth request failed");
+    req.log.error({ err: safeError(error) }, "register failed");
     res.status(500).json({ error: "Internal Server Error", registerSuccess: false });
   }
 };
@@ -44,16 +62,14 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: "Username and password are required", success: false });
     }
 
-    const user = await User.findOne({ username }).select("+password");
-    // Same response for unknown user and wrong password so usernames cannot be enumerated.
-    const passwordMatch = user ? await bcrypt.compare(password, user.password) : false;
+    const user = await db.user.findUnique({ where: { username } });
+    const passwordMatch = await bcrypt.compare(password, user ? user.passwordHash : DUMMY_HASH);
     if (!user || !passwordMatch) {
       return res.status(401).json({ error: "Invalid credentials", success: false });
     }
 
-    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { algorithm: "HS256", expiresIn: "2h" });
-    user.lastLoginDate = new Date();
-    await user.save();
+    const token = jwt.sign({ sub: user.id }, JWT_SECRET, { algorithm: "HS256", expiresIn: "2h" });
+    await db.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
 
     // The token is delivered only as an HttpOnly cookie, never in the response body.
     setSessionCookie(res, token);
@@ -61,10 +77,10 @@ exports.login = async (req, res) => {
       success: true,
       loginStatus: true,
       message: "Login Successful",
-      userId: user._id,
+      userId: user.id,
     });
   } catch (error) {
-    req.log.error({ err: safeError(error) }, "auth request failed");
+    req.log.error({ err: safeError(error) }, "login failed");
     res.status(500).json({ error: "Internal Server Error", success: false });
   }
 };

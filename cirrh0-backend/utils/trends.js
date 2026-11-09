@@ -21,7 +21,7 @@ const buildTrends = (reports) => {
     .map((r) => {
       const byId = Object.fromEntries(scoresFor(r).map((s) => [s.id, s]));
       return {
-        reportId: String(r._id),
+        reportId: String(r.id),
         date: new Date(r.date).toISOString(),
         labs: Object.fromEntries(LAB_FIELDS.map((f) => [f, isNum(r[f]) ? r[f] : null])),
         scores: Object.fromEntries(

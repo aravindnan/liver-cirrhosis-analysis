@@ -5,8 +5,8 @@ const jwt = require("jsonwebtoken");
 const { requireAuth, requireSelf, setSessionCookie } = require("../middleware/auth");
 
 const SECRET = process.env.SECRET_KEY;
-const ID = "64b7f0f2a1b2c3d4e5f60718";
-const sign = (payload = { _id: ID }, opts = { expiresIn: "2h" }, key = SECRET) => jwt.sign(payload, key, opts);
+const ID = "3f2b8c1e-9a4d-4e57-8b6a-1c2d3e4f5a6b";
+const sign = (payload = { sub: ID }, opts = { expiresIn: "2h" }, key = SECRET) => jwt.sign(payload, key, opts);
 
 // Runs the middleware against a fake request and reports what happened.
 const run = (mw, req) => {
@@ -47,11 +47,12 @@ test("Bearer tokens work without an Origin header", () => {
 
 test("rejects expired, tampered, wrong-key and malformed tokens", () => {
   const bad = [
-    sign({ _id: ID }, { expiresIn: -10 }),
+    sign({ sub: ID }, { expiresIn: -10 }),
     sign().slice(0, -2) + "xx",
-    sign({ _id: ID }, { expiresIn: "2h" }, "k".repeat(48)),
+    sign({ sub: ID }, { expiresIn: "2h" }, "k".repeat(48)),
     "not-a-token",
-    sign({ _id: "not-an-object-id" }),
+    sign({ sub: "not-a-uuid" }),
+    sign({ sub: "64b7f0f2a1b2c3d4e5f60718" }), // a legacy MongoDB ObjectId is not a valid subject
     sign({}),
   ];
   for (const token of bad) {
@@ -61,14 +62,14 @@ test("rejects expired, tampered, wrong-key and malformed tokens", () => {
 
 test("rejects tokens signed with the none algorithm", () => {
   const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
-  const body = Buffer.from(JSON.stringify({ _id: ID })).toString("base64url");
+  const body = Buffer.from(JSON.stringify({ sub: ID })).toString("base64url");
   const out = run(requireAuth, { method: "GET", headers: { authorization: `Bearer ${header}.${body}.` } });
   assert.equal(out.status, 401);
 });
 
 test("requireSelf only lets a user act on their own id", () => {
   assert.equal(run(requireSelf, { params: { userId: ID }, userId: ID }).nexted, true);
-  assert.equal(run(requireSelf, { params: { userId: "64b7f0f2a1b2c3d4e5f60999" }, userId: ID }).status, 403);
+  assert.equal(run(requireSelf, { params: { userId: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e5f" }, userId: ID }).status, 403);
 });
 
 test("session cookie is HttpOnly with the expected attributes", () => {

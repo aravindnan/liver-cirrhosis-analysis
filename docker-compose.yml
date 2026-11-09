@@ -1,0 +1,28 @@
+# Local development database. Not for production: the credentials are public.
+#
+#   docker compose up -d
+#   cd cirrh0-backend && cp .env.example .env     # DATABASE_URL below is already the default in the example
+#   npm install && npm run db:migrate
+#
+# Data lives in the named volume `cirrh0-pgdata`. Reset it with: docker compose down -v
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cirrh0
+      POSTGRES_PASSWORD: cirrh0
+      POSTGRES_DB: cirrh0
+    ports:
+      - "127.0.0.1:5432:5432" # only reachable from this machine
+    volumes:
+      - cirrh0-pgdata:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cirrh0 -d cirrh0"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  cirrh0-pgdata:
