@@ -23,7 +23,7 @@ function HomePage() {
   return (
     <>
       {pageLoading === "loaded" ? (
-        <div className="flex flex-col justify-between h-screen">
+        <div className="flex flex-col justify-between min-h-screen">
           <Navbar activePage="home" />
           <div className="flex flex-col flex-1">
             {/* Home Page Hero */}
@@ -32,7 +32,7 @@ function HomePage() {
               <div
                 data-aos="fade-up"
                 data-aos-duration="700"
-                className="text-[70px] pt-[70px] mx-auto text-center text-white font-bold league-spartan"
+                className="text-[40px] md:text-[70px] pt-[110px] md:pt-[70px] px-4 mx-auto text-center text-white font-bold league-spartan"
               >
                 Redefining Liver Cirrhosis Analysis
               </div>
@@ -40,7 +40,7 @@ function HomePage() {
               <div
                 data-aos="fade-up"
                 data-aos-duration="600"
-                className="w-[60%] mx-auto text-[20px] text-white font"
+                className="w-[90%] md:w-[60%] mx-auto text-[16px] md:text-[20px] text-white font"
               >
                 Cirrh0 helps you read your liver lab reports. Upload a report, check the values we extract, and get an educational summary and questions to take to your doctor. It is a college research project and does not provide a diagnosis.
               </div>
@@ -53,7 +53,7 @@ function HomePage() {
               {/* <div
                 data-aos="fade-up"
                 data-aos-duration="500"
-                className="text-[14px] w-[50%] mx-auto text-C11"
+                className="text-[14px] w-[90%] md:w-[50%] mx-auto text-C11"
               >
               Advanced Insights and Suggestions for Cirrhosis
            </div> */}
@@ -61,7 +61,7 @@ function HomePage() {
             </div>
 
             {/* Section 2 */}
-            <div className="mx-auto w-[80%]  my-[50px] flex flex-row-reverse mt-[100px] gap-[50px] items-center">
+            <div className="mx-auto w-[90%] md:w-[80%] my-[50px] flex flex-col md:flex-row-reverse mt-[60px] md:mt-[100px] gap-[30px] md:gap-[50px] items-center">
               <div
                 data-aos="fade-up"
                 data-aos-duration="900"
@@ -69,7 +69,7 @@ function HomePage() {
                 className="  bg-gray-100  rounded-[2px] justify-center items-center flex border-C11 border-[1px]"
               >
                 <img
-                  className=" aspect-auto min-w-[400px]"
+                  className=" aspect-auto w-full md:min-w-[400px]"
                   src={require("../assets/cirr1.jpg")}
                 />
               </div>
@@ -78,7 +78,7 @@ function HomePage() {
                   data-aos="fade-up"
                   data-aos-duration="700"
                   data-aos-once
-                  className="text-C11 font-semibold text-[45px] league-spartan"
+                  className="text-C11 font-semibold text-[30px] md:text-[45px] league-spartan"
                 >
                   Liver Cirrhosis
                 </div>
@@ -86,7 +86,7 @@ function HomePage() {
                   data-aos="fade-up"
                   data-aos-duration="600"
                   data-aos-once
-                  className="text-[20px]"
+                  className="text-[16px] md:text-[20px]"
                 >
                   Liver cirrhosis is a progressive condition characterized by
                   the scarring of liver tissue, which impairs its ability to
@@ -112,7 +112,7 @@ function HomePage() {
             </div>
 
             {/* Section 1 */}
-            <div className="mx-auto w-[80%] my-[50px] flex flex-row mt-[100px] gap-[50px] items-center">
+            <div className="mx-auto w-[90%] md:w-[80%] my-[50px] flex flex-col md:flex-row mt-[60px] md:mt-[100px] gap-[30px] md:gap-[50px] items-center">
               <div
                 data-aos="fade-up"
                 data-aos-duration="900"
@@ -120,13 +120,13 @@ function HomePage() {
                 className="  bg-gray-100 rounded-[2px] justify-center items-center flex border-C11 border-[1px]"
               >
                 <img
-                  className=" aspect-auto min-w-[400px]"
+                  className=" aspect-auto w-full md:min-w-[400px]"
                   src={require("../assets/norm4.jpg")}
                 />
               </div>
               <div className="flex flex-col gap-[20px]">
                 <div
-                  className="text-C11 font-semibold text-[45px] league-spartan"
+                  className="text-C11 font-semibold text-[30px] md:text-[45px] league-spartan"
                   data-aos="fade-up"
                   data-aos-once
                   data-aos-duration="700"
@@ -136,7 +136,7 @@ function HomePage() {
                 <div
                   data-aos="fade-up"
                   data-aos-duration="600"
-                  className="text-[20px]"
+                  className="text-[16px] md:text-[20px]"
                   data-aos-once
                 >
                   Maintaining a healthy liver is essential for overall
@@ -165,13 +165,13 @@ function HomePage() {
           <Footer />
         </div>
       ) : pageLoading === "not-loaded" ? (
-        <div className="w-[100vw] h-[100vh] flex justify-center items-center">
+        <div className="w-full min-h-screen flex justify-center items-center">
           <div className="flex justify-center text-[16px] font-light flex-col ">
             <Loader />
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-center flex-1 w-full h-[100vh]">
+        <div className="flex items-center justify-center flex-1 w-full min-h-screen">
           <APIResponseStatus
             status={false}
             message={`${networkError ? "Network Error" : "An Error Occured"}`}

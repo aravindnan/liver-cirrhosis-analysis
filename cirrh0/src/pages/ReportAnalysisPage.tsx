@@ -267,23 +267,23 @@ useEffect(() => {
   return (
     <>{
       pageLoading==="loaded"?
-      <div className="flex flex-col justify-between h-screen">
+      <div className="flex flex-col justify-between min-h-screen">
          {
             loading?
-            <div className="fixed inset-0 min-w-[100vw] top-0 left-0 backdrop-blur-[3px] bg-[#0000006c] z-[100] min-h-[100vh]  justify-center flex items-center">
+            <div className="fixed inset-0 backdrop-blur-[3px] bg-[#0000006c] z-[100] justify-center flex items-center">
               <Loader/>
             </div>:
             null
           }
       <Navbar activePage="report-analysis" />
       <div className="flex flex-col flex-1 pt-[70px] ">
-        <div className={`flex flex-col justify-center text-center ${myProfiledata?.username?"mt-[50px]":"mt-[155px]"} mt-[50px] lg:w-[80%] mx-auto relative`}>
+        <div className={`flex flex-col justify-center text-center ${myProfiledata?.username?"mt-[50px]":"mt-[155px]"} mt-[50px] px-4 lg:px-0 lg:w-[80%] mx-auto relative`}>
 
 
           <div
             data-aos="fade-up"
             data-aos-duration="800"
-            className="text-[50px] text-C11 font-bold league-spartan"
+            className="text-[32px] md:text-[50px] text-C11 font-bold league-spartan"
           >
             Report Analysis
           </div>
@@ -317,7 +317,7 @@ useEffect(() => {
             {
               reportId==="new-report"?
               <div className="flex flex-col items-center justify-between gap-3 px-2 py-5 ">
-                <div className="min-w-[49%] justify-center flex flex-col gap-[10px]   mx-auto">
+                <div className="w-full md:w-auto md:min-w-[49%] justify-center flex flex-col gap-[10px]   mx-auto">
                   <input
                     type="file"
                     ref={fileTestInputRef}
@@ -395,8 +395,8 @@ useEffect(() => {
               </div>:null
             }
 
-              <div className="flex flex-row justify-between gap-[20px]   px-[100px] mt-[50px]">
-                <div className="flex flex-col gap-[20px] w-[60%]">
+              <div className="flex flex-col md:flex-row justify-between gap-[20px] px-4 md:px-[100px] mt-[50px]">
+                <div className="flex flex-col gap-[20px] w-full md:w-[60%]">
                   <div
                   data-aos="fade-up" 
                   data-aos-duration="1000" 
@@ -410,6 +410,7 @@ useEffect(() => {
                     Abnormal fluid buildup in the abdominal cavity, causing swelling. Often linked to liver disease, heart failure, or kidney problems. Diagnosed through imaging and treated based on cause
                     </div>
                     <select
+                    aria-label="Ascites"
                     name="ascites" 
                     value={validatedData.ascites}
                     onChange={handleInputChange}
@@ -433,6 +434,7 @@ useEffect(() => {
                     Swelling due to excess fluid in body tissues. Common causes include injury, heart failure, kidney disease, or medications. Treatment focuses on the underlying condition.
                     </div>
                     <select 
+                    aria-label="Edema" 
                     name="edema"
                     value={validatedData.edema}
                     onChange={handleInputChange}
@@ -458,6 +460,7 @@ useEffect(() => {
                     Small, dilated blood vessels on the skin resembling spider webs. Often linked to hormonal changes or liver disease. Treatment is typically cosmetic or aimed at underlying causes
                     </div>
                     <select
+                    aria-label="Spiders"
                     name="spiders"
                     value={validatedData.spiders}
                     onChange={handleInputChange}
@@ -481,6 +484,7 @@ useEffect(() => {
                     Enlarged liver often due to liver disease, heart failure, or cancer. Diagnosed via physical exam and imaging; treatment addresses the underlying condition causing the enlargement.
                     </div>
                     <select 
+                    aria-label="Hepatomegaly" 
                     name="hepatomegaly"
                     value={validatedData.hepatomegaly}
                     onChange={handleInputChange}
@@ -496,7 +500,7 @@ useEffect(() => {
                 data-aos="fade-up" 
                 data-aos-duration="800" 
                 data-aos-once 
-                className="flex flex-col pt-[50px] w-1/2">
+                className="flex flex-col pt-[20px] md:pt-[50px] w-full md:w-1/2">
                   <div className="font-bold league-spartan text-C11 text-[25px]">
                     Analysis Parameters
                   </div>
@@ -509,10 +513,8 @@ useEffect(() => {
                     <div
                  
                      className="flex flex-col justify-start w-[100px] mt-3">
-                      <div className="text-left text-C11  text-[10px]">
-                        Bilirubin
-                      </div>
-                      <input
+                      <label htmlFor="bilirubin" className="text-left text-C11 text-[12px]">Bilirubin</label>
+                      <input id="bilirubin"
                         type="text"
                         name="bilirubin"
                         value={validatedData?.bilirubin}
@@ -522,10 +524,8 @@ useEffect(() => {
                     </div>
 
                     <div className="flex flex-col justify-start w-[100px] mt-3 ">
-                      <div className="text-left text-C11  text-[10px]">
-                        Albumin
-                      </div>
-                      <input
+                      <label htmlFor="albumin" className="text-left text-C11 text-[12px]">Albumin</label>
+                      <input id="albumin"
                        name="albumin"
                         type="text"
                         onChange={handleInputChange}
@@ -535,10 +535,8 @@ useEffect(() => {
                     </div>
 
                     <div className="flex flex-col justify-start w-[100px] mt-3">
-                      <div className="text-left text-C11  text-[10px]">
-                        Copper
-                      </div>
-                      <input
+                      <label htmlFor="copper" className="text-left text-C11 text-[12px]">Copper</label>
+                      <input id="copper"
                       name="copper"
                         type="text"
                         value={validatedData?.copper}
@@ -548,10 +546,8 @@ useEffect(() => {
                     </div>
 
                     <div className="flex flex-col justify-start w-[100px] mt-3">
-                      <div className="text-left text-C11  text-[10px]">
-                        Cholesterol
-                      </div>
-                      <input
+                      <label htmlFor="cholesterol" className="text-left text-C11 text-[12px]">Cholesterol</label>
+                      <input id="cholesterol"
                         name="cholesterol"
                         type="text"
                         value={validatedData?.cholesterol}
@@ -561,10 +557,8 @@ useEffect(() => {
                     </div>
 
                     <div className="flex flex-col justify-start w-[100px] mt-3">
-                      <div className="text-left text-C11  text-[10px]">
-                        Alk_Phos
-                      </div>
-                      <input
+                      <label htmlFor="alk_phos" className="text-left text-C11 text-[12px]">Alk_Phos</label>
+                      <input id="alk_phos"
                         name="alk_phos"
                         type="text"
                         value={validatedData?.alk_phos}
@@ -574,10 +568,8 @@ useEffect(() => {
                     </div>
 
                     <div className="flex flex-col justify-start w-[100px] mt-3">
-                      <div className="text-left text-C11  text-[10px]">
-                        SGOT
-                      </div>
-                      <input
+                      <label htmlFor="sgot" className="text-left text-C11 text-[12px]">SGOT</label>
+                      <input id="sgot"
                         type="text"
                         name="sgot"
                         value={validatedData?.sgot}
@@ -604,10 +596,8 @@ useEffect(() => {
                     </div>
 
                     <div className="flex flex-col justify-start w-[100px] mt-3">
-                      <div className="text-left text-C11  text-[10px]">
-                        Tryglycerides
-                      </div>
-                      <input
+                      <label htmlFor="tryglycerides" className="text-left text-C11 text-[12px]">Tryglycerides</label>
+                      <input id="tryglycerides"
                         type="text"
                         name="tryglycerides"
                         value={validatedData?.tryglycerides}
@@ -617,10 +607,8 @@ useEffect(() => {
                     </div>
 
                     <div className="flex flex-col justify-start w-[100px] mt-3">
-                      <div className="text-left text-C11  text-[10px]">
-                        Platelets
-                      </div>
-                      <input
+                      <label htmlFor="platelets" className="text-left text-C11 text-[12px]">Platelets</label>
+                      <input id="platelets"
                         type="text"
                         name="platelets"
                         value={validatedData?.platelets}
@@ -630,10 +618,8 @@ useEffect(() => {
                     </div>
 
                     <div className="flex flex-col justify-start w-[100px] mt-3">
-                      <div className="text-left text-C11  text-[10px]">
-                        Prothrombin
-                      </div>
-                      <input
+                      <label htmlFor="prothrombin" className="text-left text-C11 text-[12px]">Prothrombin</label>
+                      <input id="prothrombin"
                         type="text"
                         name="prothrombin"
                         value={validatedData?.prothrombin}
@@ -678,12 +664,12 @@ useEffect(() => {
       <Footer />
     </div>:
      pageLoading==="not-loaded"?
-     <div className="w-[100vw] h-[100vh] flex justify-center items-center">
+     <div className="w-full min-h-screen flex justify-center items-center">
      <div className="flex justify-center text-[16px] font-light flex-col ">
          <Loader/>
      </div>
      </div>:
-       <div className="flex items-center justify-center flex-1 w-full h-[100vh]">
+       <div className="flex items-center justify-center flex-1 w-full min-h-screen">
        <APIResponseStatus status={false} message={`${networkError?"Network Error":"An Error Occured"}`}/>
        </div>
 

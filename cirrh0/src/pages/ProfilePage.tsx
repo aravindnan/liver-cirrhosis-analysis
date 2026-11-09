@@ -41,19 +41,19 @@ function ProfilePage() {
 
   
   return (
-    <div className='flex flex-col justify-between h-screen'>
+    <div className='flex flex-col justify-between min-h-screen'>
       <Navbar activePage ="profile"/>
-      <div className='flex-1 pt-[70px] lg:px-[100px] xl:px-[150px] justify-center flex flex-col md:flex-row gap-2'>
-        <div className='lg:w-1/2 p-10 mt-10  rounded-[2px] items-center flex'>
+      <div className='flex-1 pt-[70px] px-4 lg:px-[100px] xl:px-[150px] justify-center flex flex-col md:flex-row gap-2'>
+        <div className='md:w-1/2 p-4 md:p-10 mt-6 md:mt-10  rounded-[2px] items-center flex'>
         <div>
-        <div className='p-1 font-bold  w-fit league-spartan text-[50px] text-C11' data-aos="fade-up" data-aos-duration="800">{myProfiledata?.fullName}</div>
-        <div className='flex flex-row gap-1 p-1 text-[16px]  px-2 rounded-[2px]'data-aos="fade-up" data-aos-duration="900"><div className='font-semibold text-gray-400 w-[150px]'>Username</div><div className="text-C11 w-[200px]">{myProfiledata?.username}</div></div>
-        <div className='flex flex-row gap-1 p-1 text-[16px]  px-2 rounded-[2px]'data-aos="fade-up" data-aos-duration="1000"><div className='font-semibold text-gray-400 w-[150px]'>Age</div><div className="text-C11 w-[200px]">{`${myProfiledata?.age} yrs`}</div></div>
-        <div className='flex flex-row gap-1 p-1 text-[16px]  px-2 rounded-[2px]'data-aos="fade-up" data-aos-duration="1200"><div className='font-semibold text-gray-400 w-[150px]'>Email</div><div className="text-C11 w-[200px]">{myProfiledata?.email}</div></div>
-        <div className='flex flex-row gap-1 p-1 text-[16px]  px-2 rounded-[2px]'data-aos="fade-up" data-aos-duration="1300"><div className='font-semibold text-gray-400 w-[150px]'>Gender</div><div className="text-C11 w-[200px] capitalize">{myProfiledata?.gender}</div></div>
+        <div className='p-1 font-bold  max-w-full break-words league-spartan text-[32px] md:text-[50px] text-C11' data-aos="fade-up" data-aos-duration="800">{myProfiledata?.fullName}</div>
+        <div className='flex flex-row gap-1 p-1 text-[16px]  px-2 rounded-[2px]'data-aos="fade-up" data-aos-duration="900"><div className='font-semibold text-gray-400 w-[90px] sm:w-[150px] shrink-0'>Username</div><div className="text-C11 min-w-0 break-all sm:w-[200px]">{myProfiledata?.username}</div></div>
+        <div className='flex flex-row gap-1 p-1 text-[16px]  px-2 rounded-[2px]'data-aos="fade-up" data-aos-duration="1000"><div className='font-semibold text-gray-400 w-[90px] sm:w-[150px] shrink-0'>Age</div><div className="text-C11 min-w-0 break-all sm:w-[200px]">{`${myProfiledata?.age} yrs`}</div></div>
+        <div className='flex flex-row gap-1 p-1 text-[16px]  px-2 rounded-[2px]'data-aos="fade-up" data-aos-duration="1200"><div className='font-semibold text-gray-400 w-[90px] sm:w-[150px] shrink-0'>Email</div><div className="text-C11 min-w-0 break-all sm:w-[200px]">{myProfiledata?.email}</div></div>
+        <div className='flex flex-row gap-1 p-1 text-[16px]  px-2 rounded-[2px]'data-aos="fade-up" data-aos-duration="1300"><div className='font-semibold text-gray-400 w-[90px] sm:w-[150px] shrink-0'>Gender</div><div className="text-C11 min-w-0 break-all sm:w-[200px] capitalize">{myProfiledata?.gender}</div></div>
         </div>
         </div>
-        <div className='lg:w-1/2 p-10 mt-10  rounded-[2px]'>
+        <div className='md:w-1/2 p-4 md:p-10 mt-6 md:mt-10  rounded-[2px]'>
         <div>
           <div className='font-bold league-spartan text-[20px] text-C11 flex flex-row gap-1 items-center ' data-aos="fade-up" data-aos-duration="800"><FindInPage sx={{fontSize:20}}/><div>All Test Analysis Results</div> </div>
           <div data-aos="fade-up" data-aos-duration="900" className='flex flex-col gap-2 max-h-[150px] overflow-y-auto pl-[20px] mt-[10px]'>
@@ -64,7 +64,7 @@ function ProfilePage() {
               </Link>
               <button
               onClick={()=>handleDeleteReport(node._id)}
-               title="Delete Report" className='hidden group-hover:block text-C11'>
+               title="Delete Report" className='block md:hidden md:group-hover:block md:group-focus-within:block text-C11'>
                 <Delete sx={{fontSize:20}}/>
               </button>
             </div>
@@ -93,7 +93,7 @@ function ProfilePage() {
             </Link>
             <button 
             onClick={()=>handleDeleteMRI(node._id)}
-            title="Delete Report" className='hidden group-hover:block text-C11'>
+            title="Delete Report" className='block md:hidden md:group-hover:block md:group-focus-within:block text-C11'>
               <Delete sx={{fontSize:20}}/>
             </button>
           </div>
