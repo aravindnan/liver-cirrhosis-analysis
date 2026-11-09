@@ -82,7 +82,7 @@ function ReportAnalysisPage() {
     cholesterol:"",
 })
 
-const validateData = () => {
+const validateData = (data:any = validatedData) => {
   let missingFields:any = [];
   const requiredFields = [
     'ascites',
@@ -103,7 +103,7 @@ const validateData = () => {
   ];
 
   requiredFields.forEach(field => {
-    if (!validatedData[field] || validatedData[field] === ' ') {
+    if (!data[field] || String(data[field]).trim() === '') {
       missingFields.push(field);
     }
   });
@@ -154,9 +154,7 @@ const validateData = () => {
   
       return uploadedMediaData;
     } catch (error:any) {
-      console.log("ERROR IN UPLOADING TO CLOUDINARY", error);
-      setLoading(false);
-      setError(error?.message || "Could not Upload To Cloud");
+      throw new Error(error?.message || "Could not upload the files. Please try again.");
     }
 }
 
@@ -172,13 +170,11 @@ const handleExtractParameters = () => {
   // Upload files to Cloudinary
   uploadToCloudinary()
     .then((mediaRes: any) => {
-      console.log("MEDIA UPLOAD RESULT: ", mediaRes);
 
       // Extract parameters from uploaded media
       return getExtractedParameters(myProfiledata._id, mediaRes);
     })
     .then((extractedRes: any) => {
-      console.log("(IN REACT) EXTRACTED PARAMETERS RESULT: ", extractedRes);
 
       if (extractedRes && extractedRes.extractSuccess) {
         setFileList([]); // Clear the file list after successful extraction
@@ -187,19 +183,19 @@ const handleExtractParameters = () => {
             ...prevData,
             age:myProfiledata?.age,
             sex:myProfiledata?.gender,
-            ascites:extractedRes.extractedData.ascites,
-            edema:extractedRes.extractedData.edema,
-            spiders:extractedRes.extractedData.spiders,
-            hepatomegaly:extractedRes.extractedData.hepatomegaly,
-            bilirubin:extractedRes.extractedData.bilirubin,
-            albumin:extractedRes.extractedData.albumin,
-            prothrombin:extractedRes.extractedData.prothrombin,
-            copper:extractedRes.extractedData.copper,
-            alk_phos:extractedRes.extractedData.alk_phos,
-            platelets:extractedRes.extractedData.platelets,
-            tryglycerides:extractedRes.extractedData.tryglycerides,
-            sgot:extractedRes.extractedData.sgot,
-            cholesterol:extractedRes.extractedData.cholesterol
+            ascites:extractedRes.extractedData.ascites ?? "",
+            edema:extractedRes.extractedData.edema ?? "",
+            spiders:extractedRes.extractedData.spiders ?? "",
+            hepatomegaly:extractedRes.extractedData.hepatomegaly ?? "",
+            bilirubin:extractedRes.extractedData.bilirubin ?? "",
+            albumin:extractedRes.extractedData.albumin ?? "",
+            prothrombin:extractedRes.extractedData.prothrombin ?? "",
+            copper:extractedRes.extractedData.copper ?? "",
+            alk_phos:extractedRes.extractedData.alk_phos ?? "",
+            platelets:extractedRes.extractedData.platelets ?? "",
+            tryglycerides:extractedRes.extractedData.tryglycerides ?? "",
+            sgot:extractedRes.extractedData.sgot ?? "",
+            cholesterol:extractedRes.extractedData.cholesterol ?? ""
 
 
           })
@@ -211,7 +207,7 @@ const handleExtractParameters = () => {
     })
     .catch((err: any) => {
       console.error("Error: ", err);
-      setError(err?.message || "Something went wrong during the process");
+      setError(err?.response?.data?.error || err?.message || "Something went wrong during the process");
     })
     .finally(() => {
       setLoading(false); // Ensure loading state is reset
@@ -240,15 +236,14 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
 
 
 const handleAnalyzeReport = async () => {
-  console.log("VAlidated Data : ",validatedData)
-  // set age and sex for the validation state variable using the setValiadatedData
-  setValidatedData((prevData:any) => ({
-    ...prevData,
-    age: myProfiledata.age || 0,
-    sex: myProfiledata.gender || ''
-    }));
+  const merged = {
+    ...validatedData,
+    age: myProfiledata?.age || 0,
+    sex: myProfiledata?.gender || ''
+  };
+  setValidatedData(merged);
 
-  if (!validateData()) {
+  if (!validateData(merged)) {
       setError("Validation failed. Please check your input.");
       return; // Stop execution if validation fails
   }
@@ -259,7 +254,7 @@ const handleAnalyzeReport = async () => {
       try {
           const reportData = {
               userId: myProfiledata._id,
-              ...validatedData
+              ...merged
           };
 
           const response: any = await analyseReportById(reportId,myProfiledata?._id, reportData);
@@ -273,7 +268,7 @@ const handleAnalyzeReport = async () => {
           }
       } catch (err: any) {
           console.error("Error: ", err);
-          setError(err?.message || "Something went wrong");
+          setError(err?.response?.data?.error || err?.message || "Something went wrong");
       } finally {
           setLoading(false);
       }
@@ -327,23 +322,14 @@ useEffect(() => {
             data-aos-duration="700"
             className="text-[16px]"
           >
-         Elevate your diagnostic precision with our advanced report analysis platform. 
-         Simply upload your PDF reports, including blood tests, liver function tests, 
-         and cirrhosis-related evaluations, and let our cutting-edge technology extract
-          and analyze the data. Our platform meticulously identifies key liver conditions 
-          such as fibrosis, cirrhosis, inflammation, steatosis, and ballooning, providing
-           clear, actionable insights into the stage of liver cirrhosis and recommended 
-           management strategies. With our expert integration of technology and clinical
-            expertise, you can trust us to deliver detailed, accurate interpretations that
-             support informed medical decisions and effective liver health management.
+         Upload your lab report PDFs (liver function and blood tests). We read the values for you to check and edit, then an automated research model estimates a disease stage and explains the result in plain language. This is general education, not a diagnosis, and it does not replace a doctor's advice.
           </div>
           <div
             data-aos="fade-up"
             data-aos-duration="600"
             className="mt-[20px] text-[14px] w-[80%] mx-auto text-C11"
           >
-            Expert report analysis for precise liver condition insights: Advanced 
-            evaluation of Stage of  the cirrhosis and the relevant suggestions and treatment plans
+            Check the extracted values, answer four questions, and get an educational summary to discuss with your doctor
           </div>
           {!myProfiledata?.username ? (
             <>
@@ -386,8 +372,8 @@ useEffect(() => {
 
             {fileList.length > 0 && (
           <div className="flex flex-col  gap-1 max-h-[150px] overflow-y-auto">
-            {fileList?.reverse().map((node: any) => (
-              <div className="flex items-center justify-between flex-row  px-2 py-1 text-[12px] font-semibold bg-gray-100 w-fit gap-5 mx-auto hover:bg-inactiveC11 text-C11 rounded-[4px]">
+            {[...fileList].reverse().map((node: any, index: number) => (
+              <div key={`${node.name}-${index}`} className="flex items-center justify-between flex-row  px-2 py-1 text-[12px] font-semibold bg-gray-100 w-fit gap-5 mx-auto hover:bg-inactiveC11 text-C11 rounded-[4px]">
                 <div className="flex flex-row gap-1 item-center">
                   <div className="w-fit">
                       <InsertDriveFile sx={{ fontSize: 15 }} />
@@ -675,7 +661,7 @@ useEffect(() => {
                      data-aos-once 
                    className="flex flex-row items-center gap-1 mt-5 text-C11">
                   <div className=" flex flex-col text-[12px] justify-center gap-[5px]">
-                  Please Note that all values are authentic and please cross check with the actual document 
+                  Values are read automatically and can be wrong. Please check each one against your original report before analysing.
                 </div>
                   </div>
                 </div>

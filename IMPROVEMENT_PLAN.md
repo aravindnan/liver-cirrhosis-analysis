@@ -12,6 +12,26 @@ Findings cite file and line as of commit `4ed50db`. Labels used:
 
 ---
 
+## Progress
+
+Branch `improve/p1-critical-fixes` (Priority 1 code fixes). Checked means done in code and tested as noted.
+
+- [x] Auth middleware, ownership scoping, password hash hidden, `/delete-all-data` removed (API)
+- [x] JWT secret, DB and service config read from env; fail fast when missing
+- [x] Helmet, CORS allowlist, rate limiting on login and register, input validation (API)
+- [x] `eval()` removed; LLM output parsed as JSON and validated (ML)
+- [x] Keys moved to env, Flask debug off by default, upload URL allowlist, TLS verification on, size cap (ML)
+- [x] Stage comes from the model, separate from LLM text; labels no longer claim a diagnosis (ML)
+- [x] Disclaimer and urgent-care note; image tool relabelled as slide-image analysis (UI)
+- [x] Listed bugs fixed (MRI delete, null checks, stale validation, error handling, missing `return`)
+- [x] Missing `environment.ts`, `.env.example` files and `requirements.txt` added
+- [ ] **Rotate the Gemini and Roboflow keys and the JWT secret, then purge git history** (must be done by the repo owner)
+- [ ] Private file storage with signed URLs, delete files with the record, consent step
+- [ ] HttpOnly cookie session (the token is still in a short-lived JS-readable cookie)
+- [ ] Retrain the model without the SMOTE leak; the headline accuracy is still unverified
+
+---
+
 ## ⚠️ Act first: leaked secrets
 
 This repository is **public** on GitHub. Three secrets are committed in plain text and must be treated as compromised **[Verified]**:

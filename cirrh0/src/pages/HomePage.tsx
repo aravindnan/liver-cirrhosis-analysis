@@ -81,12 +81,7 @@ function HomePage() {
                 data-aos-duration="600"
                 className="w-[60%] mx-auto text-[20px] text-white font"
               >
-                Welcome to Cirrh0, where cutting-edge machine learning redefines liver cirrhosis
-                 management. Our advanced platform provides real-time predictions and actionable 
-                 insights, seamlessly integrating into your healthcare routine. Empower both 
-                   patients and professionals with precision tools for proactive, effective
-                     management and enhanced liver health outcomes. Experience innovation
-                                           and ease with Cirrh0
+                Cirrh0 helps you read your liver lab reports. Upload a report, check the values we extract, and get an educational summary and questions to take to your doctor. It is a college research project and does not provide a diagnosis.
               </div>
              { !myProfiledata?.username&&
                 <Link

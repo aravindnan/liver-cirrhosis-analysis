@@ -1,127 +1,90 @@
 import axios from 'axios'
-import { ENV} from '../env/environment';
+import { ENV } from '../env/environment';
 import { jwtDecode } from 'jwt-decode'
+
+const TOKEN_COOKIE = 'userToken'
+
 // AUTH SERVICES
 export const loginUser = async(loginData:any)=>{
     try {
-        // Make a POST request to the login API endpoint
-        // console.log("Inside Login Service Frontend");
-        
         const response = await axios.post(`${ENV}/login`, loginData);
-    
-        // console.log("RESPONSE.DATA : ",response.data);
-
-        const { token, loginStatus } = response.data; 
-        if (loginStatus) {
-          // Assuming you have a cookie library or a function to set cookies
-          // Replace 'setCookieFunction' with the actual function you are using
-          setCookieFunction('userToken', token, { path: '/' });
+        const { token, loginStatus } = response.data;
+        if (loginStatus && token) {
+          setCookieFunction(TOKEN_COOKIE, token, { path: '/' });
         }
-    
-        
-        // Return the response data
         return response.data;
       } catch (error:any) {
-        // Handle errors and return an error object
+        // Callers inspect the returned error (error.response.data.error)
         return error;
       }
 }
 
 export const registerUser = async(registerData:any)=>{
-   
   let registrationResult
-        // Make a POST request to the register API endpoint
-        await axios.post(`${ENV}/register`, registerData).then((res:any)=>{
-          // console.log("(inservice) RESGISTRATION SUCCESS",res)
-          registrationResult =res.data
-        }).catch((err:any)=>{
-          console.error("ERROR",err)
-          registrationResult= err
-        })
-        return registrationResult
+  await axios.post(`${ENV}/register`, registerData).then((res:any)=>{
+    registrationResult = res.data
+  }).catch((err:any)=>{
+    console.error("Registration failed", err?.response?.data?.error || err?.message)
+    registrationResult = err
+  })
+  return registrationResult
 }
 
-const clearCookie=(name:any)=>{
-  const expirationTime = new Date();
-    expirationTime.setMinutes(expirationTime.getMinutes() + 1);
-    // Format the expiration time for the cookie
-    const formattedExpirationTime = expirationTime.toUTCString();
-    // Set the cookie with the calculated expiration time
-    document.cookie = `${name}=; expires=${formattedExpirationTime}; path=/;`
+const clearCookie=(name:string)=>{
+  // Expire in the past so the browser removes the cookie immediately
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`
 }
-
 
 export const logoutUser = async(userId:any)=> {
-
   let logoutStatus;
-    await axios.post(`${ENV}/logout`,{"userId": userId}).then((res:any)=>{
-        clearCookie('userToken')
-        // console.log("inside Logged out Successfully",res.data)
-        logoutStatus = (res)
-       
-    }).catch((err:any)=>{
-      console.error("Error ",err);
-      logoutStatus = err
-    })
+  await axios.post(`${ENV}/logout`,{"userId": userId}).then((res:any)=>{
+    clearCookie(TOKEN_COOKIE)
+    logoutStatus = res
+  }).catch((err:any)=>{
+    console.error("Logout failed", err?.message);
+    logoutStatus = err
+  })
+  return logoutStatus
+}
 
-    return logoutStatus
-  }
-
-
-
+// The token lives in a JS-readable cookie until the API sets an HttpOnly session cookie.
+// Keep it short-lived, SameSite=Lax, and Secure on https.
 export const setCookieFunction=(name:any, value:any, options:any)=> {
     let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
-  
-    if (options.expires) {
-      const expires = new Date();
-      expires.setDate(expires.getDate() + options.expires);
-      cookieString += `;expires=${expires.toUTCString()}`;
+    cookieString += `;max-age=${options?.maxAge ?? 2 * 60 * 60}`;
+    cookieString += `;path=${options?.path || '/'}`;
+    cookieString += ';SameSite=Lax';
+    if (window.location.protocol === 'https:') {
+      cookieString += ';Secure';
     }
-  
-    if (options.path) {
-      cookieString += `;path=${options.path}`;
-    }
-  
     document.cookie = cookieString;
-  }
-export const getUserDetailsFromToken = ()=> { 
-    // Replace 'getCookieFunction' with the actual function you are using to get cookies
-    const token = getCookieFunction('userToken');
-  
-    if (token) {
-      try {
-        // Replace 'your-secret-key' with the secret key used for JWT encoding on the server
-        const decoded =  jwtDecode(token);
-        // 'decoded' will contain the payload of the JWT token
-        // console.log('Decoded Token:', decoded);
-  
-        return decoded;
-      } catch (error) {
-        // Handle token verification errors, e.g., token expired, invalid signature, etc.
-        // console.error('Token verification failed:', error);
+}
+
+export const getAuthToken = (): string | null => getCookieFunction(TOKEN_COOKIE)
+
+// Returns the token payload, or null when there is no token, it is malformed, or it has expired.
+export const getUserDetailsFromToken = ()=> {
+    const token = getAuthToken();
+    if (!token) return null;
+    try {
+      const decoded = jwtDecode(token);
+      if (typeof decoded.exp === 'number' && decoded.exp * 1000 <= Date.now()) {
+        clearCookie(TOKEN_COOKIE)
         return null;
       }
-    } else {
-      // Handle the case when the token is not present in the cookie
-      // console.error('Token not found in the cookie');
+      return decoded;
+    } catch (error) {
       return null;
     }
-  }
+}
 
-function getCookieFunction(name:any) {
-    const decodedName = decodeURIComponent(name);
-    const cookieArray = document.cookie.split(';');
-  
-    for (let i = 0; i < cookieArray.length; i++) {
-      let cookie = cookieArray[i].trim();
-  
-      // Check if the cookie starts with the provided name
-      if (cookie.indexOf(`${decodedName}=`) === 0) {
-        // Return the value of the cookie
-        return cookie.substring(decodedName.length + 1);
+function getCookieFunction(name:string) {
+    const prefix = `${decodeURIComponent(name)}=`;
+    for (const part of document.cookie.split(';')) {
+      const cookie = part.trim();
+      if (cookie.indexOf(prefix) === 0) {
+        return decodeURIComponent(cookie.substring(prefix.length));
       }
     }
-  
-    // Return null if the cookie with the provided name is not found
     return null;
-  }
+}

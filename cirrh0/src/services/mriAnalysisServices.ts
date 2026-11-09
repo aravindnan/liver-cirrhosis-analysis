@@ -4,7 +4,6 @@ import { ENV } from "../env/environment"
 export const  analyseMRIById =async (userId:String,data:any)=>{
     try {
         const response = await axios.post(`${ENV}/analyze-mri/${userId}`,data);
-        console.log("Analyse MRI (IN SERVICE):", response);
         return response.data;
     } catch (error:any) {
         console.error("API Error: ", error);
@@ -15,7 +14,6 @@ export const  analyseMRIById =async (userId:String,data:any)=>{
 // Function to fetch mri result by ID
 export const getMRIResultById = async (mriId: string) => {
     try {
-        console.log("Inservice mriid",mriId)
         const response = await axios.get(`${ENV}/get-mri-by-id/${mriId}`);
         return response.data.mriReport;
     } catch (error:any) {

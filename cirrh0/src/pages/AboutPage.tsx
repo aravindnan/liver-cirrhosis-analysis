@@ -74,8 +74,8 @@ function AboutPage() {
             Welcome to Cirrh0, a college project dedicated to advancing liver
             cirrhosis prediction. Created by <strong className="text-C11">Aravind Nandakumar</strong>, <strong className="text-C11">Joe
             Payyappilly</strong>, and <strong className="text-C11">Mohit P</strong>, MCA 2nd-year students from <strong className="text-C11"> CHRIST (Deemed
-              to be University)</strong>, our platform aims to provide precise insights for
-            early detection and management of liver cirrhosis.{" "}
+              to be University)</strong>, our platform explores how machine learning can help people understand
+            liver health. It is a research project, not a medical device.{" "}
           </div>
         </div>
         <div
@@ -143,7 +143,7 @@ function AboutPage() {
           >
             Our goal is to enhance <strong className="text-C11">liver cirrhosis</strong> management through innovative
             predictive tools, utilizing advanced data analysis and <strong className="text-C11">machine
-            learning</strong>  to deliver accurate, actionable insights.
+            learning</strong>  to produce educational insights to discuss with a doctor.
           </div>
         </div>
         <div

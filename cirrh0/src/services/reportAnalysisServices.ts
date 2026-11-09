@@ -4,10 +4,8 @@ import { ENV } from "../env/environment"
 export const getExtractedParameters = async (userId: String, fileURLSet: Array<String>) => {
     try {
         const res = await axios.post(`${ENV}/add-files-to-report/${userId}`, { fileURLSet });
-        console.log("Extract Parameter (IN SERVICE):", res);
         return res.data;
     } catch (err: any) {
-        console.log(err);
         throw err; // Rethrow the error so it can be caught in the React component
     }
 };
@@ -15,7 +13,6 @@ export const getExtractedParameters = async (userId: String, fileURLSet: Array<S
 export const analyseReportById = async (reportId: string, userId:string,validatedData: any) => {
     try {
         const response = await axios.post(`${ENV}/analyze-report`, {reportId:reportId,userId:userId, validatedData:validatedData });
-        console.log("Analyse Report (IN SERVICE):", response);
         return response.data;
     } catch (error) {
         console.error("API Error: ", error);

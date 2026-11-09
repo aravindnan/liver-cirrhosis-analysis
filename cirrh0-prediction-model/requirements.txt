@@ -1,0 +1,12 @@
+# Pin exact versions from the environment that trained model.pkl (run `pip freeze` there):
+# a CatBoost or scikit-learn version mismatch can break unpickling or change predictions.
+flask>=3.0
+gunicorn>=22.0
+joblib>=1.4
+numpy
+scikit-learn
+catboost
+requests>=2.32
+pdfplumber>=0.11
+google-generativeai>=0.8
+inference-sdk>=0.20

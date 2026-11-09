@@ -1,17 +1,12 @@
 const express = require("express");
-const reportRouter = express.Router();
 const reportController = require("../controller/reportController");
+const { requireAuth, requireSelf } = require("../middleware/auth");
 
-// Add file to report
-reportRouter.post("/add-files-to-report/:userId", reportController.report_add_files);
+const reportRouter = express.Router();
 
-// analyse report
-reportRouter.post("/analyze-report", reportController.analyze_report);
-
-// get report
-reportRouter.get("/get-report-by-id/:reportId",reportController.get_report)
-
-// Delete  report
-reportRouter.delete("/delete-report-by-id/:reportId",reportController.delete_report)
+reportRouter.post("/add-files-to-report/:userId", requireAuth, requireSelf, reportController.report_add_files);
+reportRouter.post("/analyze-report", requireAuth, reportController.analyze_report);
+reportRouter.get("/get-report-by-id/:reportId", requireAuth, reportController.get_report);
+reportRouter.delete("/delete-report-by-id/:reportId", requireAuth, reportController.delete_report);
 
 module.exports = reportRouter;

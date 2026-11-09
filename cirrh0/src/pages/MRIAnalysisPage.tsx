@@ -96,23 +96,20 @@ const uploadToCloudinary = async()=>{
 
     return uploadedMediaData;
   } catch (error:any) {
-    console.log("ERROR IN UPLOADING TO CLOUDINARY", error);
-    setLoading(false);
-    setError(error?.message || "Could not Upload To Cloud");
+    throw new Error(error?.message || "Could not upload the file. Please try again.");
   }
 }
 
 const handleAnalyseMRI=async()=>{
   setError(""); // Clear any previous errors
   if (fileList.length === 0) {
-    setError("Add MRI Image");
+    setError("Add a slide image");
     return; // Early return if no media files
   }
   setLoading(true)
   // Upload file to Cloudinary
   uploadToCloudinary()
     .then((mediaRes: any) => {
-      console.log("MEDIA UPLOAD RESULT: ", mediaRes);
 
       var MRIsendData = {
         imageURL:mediaRes[0],
@@ -131,6 +128,10 @@ const handleAnalyseMRI=async()=>{
     }
 
     })
+    .catch((err:any)=>{
+      setError(err?.response?.data?.error || err?.message || "Analysis failed. Please try again.")
+    })
+    .finally(()=>setLoading(false))
 
 }
 
@@ -162,17 +163,17 @@ useEffect(() => {
             <div 
              data-aos="fade-up" 
              data-aos-duration="700" 
-            className='text-[50px] text-C11 font-bold league-spartan'> MRI Image Analysis</div>
+            className='text-[50px] text-C11 font-bold league-spartan'> Liver Slide Image Analysis</div>
             <div 
              data-aos="fade-up" 
              data-aos-duration="600" 
             className='text-[16px] w-[95%] mx-auto'>
-Our state-of-the-art MRI analysis platform offers comprehensive evaluation of liver health through detailed scans. We expertly analyze images to detect and assess conditions such as fibrosis, cirrhosis, inflammation, steatosis, and ballooning. Utilizing advanced imaging techniques and sophisticated algorithms, we provide precise and actionable insights to support accurate diagnosis and effective management of liver diseases. Rely on our expertise for thorough and professional analysis, ensuring optimal care and informed decision-making.              </div>
+Upload a stained liver tissue slide image, such as a biopsy slide. An automated model looks for features like fibrosis, inflammation, steatosis and ballooning and explains in plain language what they generally mean. This is not an MRI, ultrasound or CT tool, and it does not replace a pathologist's review.              </div>
             <div 
              data-aos="fade-up" 
              data-aos-duration="500" 
             className='mt-[20px] text-[14px] w-[80%] mx-auto text-C11'>
-Precision in liver health assessment: Advanced MRI analysis for accurate detection of fibrosis, cirrhosis, inflammation, and more.              </div>
+Research tool for tissue slide images. Results are automated detections, not a diagnosis.              </div>
 
 
             {
@@ -211,7 +212,7 @@ Precision in liver health assessment: Advanced MRI analysis for accurate detecti
                  }
                  
                 <div className='font-semibold text-gray-400 text-[12px]'>
-                {fileList.length>0?"Remove the existing file to upload another":"Upload Your Liver MRI image"}
+                {fileList.length>0?"Remove the existing file to upload another":"Upload a liver tissue slide image"}
                 </div>
             </button>
             }  
@@ -238,10 +239,13 @@ Precision in liver health assessment: Advanced MRI analysis for accurate detecti
             ))}
             <div className='font-semibold mt-5 text-gray-300 text-[12px] gap-1'>
               <InfoOutlined sx={{fontSize:20}}/>
-                {fileList.length>0?"Remove the existing file to upload another":"Upload Your Liver MRI image"}
+                {fileList.length>0?"Remove the existing file to upload another":"Upload a liver tissue slide image"}
                 </div>
           </div>
         )}
+            {error && (
+              <div role="alert" className="text-red-600 text-[14px] text-center mt-4">{error}</div>
+            )}
             <button
               data-aos="fade-up" 
               data-aos-duration="700" 
@@ -253,7 +257,7 @@ Precision in liver health assessment: Advanced MRI analysis for accurate detecti
                 <Troubleshoot sx={{color:"white"}}/>
                </div>
                <div>
-                Analyze MRI
+                Analyze Image
                </div>
             </button>
                 </>
