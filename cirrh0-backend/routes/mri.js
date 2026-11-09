@@ -1,14 +1,11 @@
 const express = require("express");
-const mriRouter = express.Router();
 const mriController = require("../controller/mriController");
+const { requireAuth, requireSelf } = require("../middleware/auth");
 
-// Register a new user
-mriRouter.post("/analyze-mri/:userId", mriController.analyze_mri)
+const mriRouter = express.Router();
 
-// get mri
-mriRouter.get("/get-mri-by-id/:mriId",mriController.get_mri)
-
-// Delete  report
-mriRouter.delete("/delete-mri-by-id/:mriId",mriController.delete_mri)
+mriRouter.post("/analyze-mri/:userId", requireAuth, requireSelf, mriController.analyze_mri);
+mriRouter.get("/get-mri-by-id/:mriId", requireAuth, mriController.get_mri);
+mriRouter.delete("/delete-mri-by-id/:mriId", requireAuth, mriController.delete_mri);
 
 module.exports = mriRouter;
