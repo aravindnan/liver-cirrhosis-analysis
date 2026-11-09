@@ -46,7 +46,13 @@ exports.validateLabData = (input) => {
 exports.isAllowedUploadUrl = (candidate) => {
   try {
     const url = new URL(candidate);
-    return url.protocol === "https:" && UPLOAD_HOSTS.includes(url.hostname.toLowerCase());
+    return (
+      url.protocol === "https:" &&
+      UPLOAD_HOSTS.includes(url.hostname.toLowerCase()) &&
+      !url.username &&
+      !url.password &&
+      (url.port === "" || url.port === "443")
+    );
   } catch (e) {
     return false;
   }
