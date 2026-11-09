@@ -473,4 +473,12 @@ The result moves from a demo that guesses a stage to a tool patients would trust
 - [x] Tests: 15 API (Node test runner), 33 ML (pytest), 9 web (Jest); GitHub Actions CI runs all three plus `tsc` and a production build
 - [x] API dependencies updated within semver ranges: `npm audit` now reports 0 vulnerabilities (was 12, 3 critical)
 - [ ] The media still exists in git history (`.git` is about 76 MB). Remove it in the same `git filter-repo` pass as the leaked secrets
-- [ ] Remaining Priority 2: `AuthProvider` and server-state cache, shared biomarker config, data-model clean-up, responsive layout and accessibility pass, design tokens, structured logging, Vite migration (also resolves the `react-scripts` audit findings)
+### Priority 2 progress (branch `improve/auth-provider`)
+
+- [x] One `AuthProvider` and `RequireAuth` replace Redux and seven copies of login bootstrap (net about 440 lines removed); a 401 clears the session and a network error no longer looks like a logout
+- [x] Data model: `userId` is the only ownership record (id arrays removed from `User`), lab values are numbers, enums and ranges enforced, indexes added, `createdAt`/`updatedAt` on every record
+- [x] Abandoned report drafts expire automatically after 24 hours (MongoDB TTL index)
+- [x] Structured JSON logging with request ids; credentials and personal fields redacted; errors never log request bodies; central error handler
+- [x] API now has 26 tests, web has 20
+- [ ] Existing user documents still carry the old id arrays. They are ignored and replaced in responses; `$unset` them whenever convenient
+- [ ] Remaining Priority 2: shared biomarker config (client and server), server-state cache (TanStack Query), responsive layout and accessibility pass, design tokens, Vite migration (also resolves the `react-scripts` audit findings), unused-variable lint warnings
