@@ -21,7 +21,8 @@ const ReportResultPage = lazy(() => import('./pages/ReportResultPage'));
 
 function App() {
   useEffect(()=>{
-    AOS.init();
+    // People who ask their device for less motion get the page without the fade-in animations
+    AOS.init({ disable: () => window.matchMedia('(prefers-reduced-motion: reduce)').matches });
   },[])
   return (
     <AuthProvider>

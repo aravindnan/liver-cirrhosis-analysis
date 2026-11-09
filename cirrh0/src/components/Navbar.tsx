@@ -1,97 +1,188 @@
-import React, { useState } from 'react'
-import { LogoIcon } from './LogoIcon'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Logout, Menu, Close, Person } from '@mui/icons-material'
+import { LogoIcon } from './LogoIcon'
 import LogoText from './LogoText'
-import { useAuth } from '../auth/AuthContext'
-import { Logout, Person } from '@mui/icons-material'
-import { colors } from '../assets/Constants'
 import LogoutModal from '../modals/LogoutModal'
+import { useAuth } from '../auth/AuthContext'
 
-function Navbar(props:any) {
-  const{activePage} = props
-  const [showProductsMenu,setShowProductsMenu] = useState<Boolean>(false)
-  const [showUserMenu,setShowUserMenu] = useState<Boolean>(false)
-  const [logoutModal,setLogoutModal] = useState<Boolean>(false)
+type NavbarProps = { activePage?: string }
 
+function Navbar({ activePage }: NavbarProps) {
+  const { user } = useAuth()
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [productsOpen, setProductsOpen] = useState(false)
+  const [userOpen, setUserOpen] = useState(false)
+  const [logoutModal, setLogoutModal] = useState(false)
+  const productsRef = useRef<HTMLLIElement>(null)
+  const userRef = useRef<HTMLDivElement>(null)
 
-  const { user: myProfiledata } = useAuth();
+  const onHome = activePage === 'home'
+  const linkColor = onHome ? 'text-white' : 'text-black'
+  const menuSurface = onHome
+    ? 'bg-[#000000e6] text-white'
+    : 'bg-white text-black border-gray-200 border-[0.5px]'
+  const itemClass = 'px-3 py-2 hover:bg-[#a9030628] focus-visible:bg-[#a9030628] rounded-[2px] flex items-center gap-2 w-full text-left'
 
-  // console.log("My profile data",myProfiledata)
-  return (
-    <div
-    data-aos="fade-down" 
-    data-aos-duration="900"
-    className={`min-h-[70px]  z-10  text-[14px] fixed backdrop-blur-[30px] min-w-[100vw] z[100] flex items-center ${activePage==="home"?"bg-[#00000080]":"bg-[#f7f7f788]"}`}>
-      <div className='relative z-10 flex flex-row items-center justify-center w-full h-full '>
-      <div className='flex flex-row mx-auto w-[80%] justify-between items-center absolute z-20'>
-        <Link to='/'>
-        <div className='flex flex-row'>
-        <div className='rotate-infinte mb-[5px]'>
-         <LogoIcon/>
-        </div>
-        <LogoText look={`${activePage==="home"?"text-white":"text-C11"} text-[30px] `}/>
-        </div>
-        </Link>
-            <div className='flex flex-row gap-[50px] font-semibold relative'>
-                <div className={`cursor-pointer ${showProductsMenu?"underline":""}   underline-offset-2 decoration-C11 decoration-2 ${activePage==="home"?"text-white":"text-black"}`} onMouseEnter={()=>setShowProductsMenu(true)} >Products</div>
-                {
-                  showProductsMenu&&
-                  <div 
-                  onMouseEnter={()=>setShowProductsMenu(true)} 
-                  onMouseLeave={()=>setShowProductsMenu(false)}
-                  className={`min-w-[200px] absolute rounded-[2px]  flex flex-col p-2 top-[30px] ${activePage==="home"?"bg-[#000000c3] backdrop-blur-[30px] text-white":"bg-white border-gray-200 border-[0.5px]"}   shadow-lg left-[-10px]`}>
-                  <Link to="/mri-analysis" className='px-2 py-1 hover:bg-[#a9030628] rounded-[2px]'>Slide Image Analysis</Link>
-                  <Link to="/report-analysis" className='px-2 py-1 hover:bg-[#a9030628] rounded-[2px]'>Report Analysis</Link>
-
-                 </div>
-                }
-             
-                <Link to="/about" className={`${activePage==="about"?"underline":""} ${activePage==="home"?"text-white":"text-black"} cursor-pointer hover:underline    underline-offset-2 decoration-C11 decoration-2`} onMouseEnter={()=>setShowProductsMenu(false)}>About</Link>
-            </div>
-            {
-              myProfiledata?.username?
-              <div className='relative flex flex-row items-center gap-2 font-semibold'>
-                <div className={`w-[35px] h-[35px] flex text-[18px] justify-center items-center rounded-full ${activePage!=="home"?"bg-C11 text-white":"bg-white text-C11"}   font-semibold `} onMouseEnter={()=>setShowUserMenu(true)}>{myProfiledata?.fullName[0].toUpperCase()}</div>
-                {
-                  showUserMenu&&
-                  <div 
-                  onMouseEnter={()=>setShowUserMenu(true)} 
-                  onMouseLeave={()=>setShowUserMenu(false)}
-                  className={`min-w-[150px] absolute rounded-[2px] text-[14px]  flex flex-col p-2 top-[43px] ${activePage==="home"?"bg-[#000000c3] backdrop-blur-[30px] text-white":"bg-white border-gray-200 border-[0.5px]"} shadow-lg left-[-2px]`}>
-                  <Link to="/profile" className='flex items-center flex-row gap-2 px-2 py-1 hover:bg-[#a9030628] rounded-[2px]'>
-                  <Person sx={{fontSize:"16px"}}/>
-                  <div className=''>
-                  My Profile
-                  </div>
-                  </Link>
-                  {
-                                      <div
-                  onClick={()=>setLogoutModal(true)}
-                    className='px-2 py-1 hover:bg-[#a9030628] rounded-[2px] flex flex-row gap-2 items-center cursor-pointer'>
-                    <Logout sx={{fontSize:"16px"}}/>
-                    <div  className=''>Logout</div>
-                  </div>
-                  }
-
-                 </div>
-                }
-
-              </div>:
-              <div className='flex flex-row gap-[10px] font-semibold'>
-                  <Link to="/login" className={`flex items-center px-3 border border-transparent hover:border transition-all duration-[0.5s] ease-in  ${activePage==="home"?"hover:border-white text-white":"hover:border-C11 text-C11"}  py-[2px] rounded-[2px] font-semibold`}>Login</Link>
-                  <Link to="/signup" className='flex items-center px-3 font-semibold bg-C11  py-[2px] text-white rounded-[2px]'>Sign Up</Link>
-              </div>
-            }
-
-        </div>
-      </div>
-      {
-        logoutModal&&
-        <LogoutModal setLogoutModal={setLogoutModal}/>
+  // Escape closes any open menu, and returns to the page behind it.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setProductsOpen(false)
+        setUserOpen(false)
+        setMobileOpen(false)
       }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [])
 
-      
-    </div>
+  // Close a desktop menu when focus or the pointer leaves it.
+  const closeOnLeave = (setter: (v: boolean) => void) => (e: React.FocusEvent) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setter(false)
+  }
+
+  const initial = user?.fullName?.trim()?.[0]?.toUpperCase() ?? '?'
+
+  return (
+    <header
+      className={`fixed top-0 inset-x-0 z-20 text-[14px] backdrop-blur-[30px] ${onHome ? 'bg-[#00000080]' : 'bg-[#f7f7f788]'}`}
+    >
+      <nav aria-label="Main" className="mx-auto flex h-[70px] w-[92%] md:w-[80%] items-center justify-between">
+        <Link to="/" aria-label="Cirrh0 home" className="flex flex-row items-center">
+          <div className="rotate-infinte mb-[5px]" aria-hidden="true">
+            <LogoIcon />
+          </div>
+          <LogoText look={`${linkColor} text-[26px] md:text-[30px]`} />
+        </Link>
+
+        {/* Desktop links */}
+        <ul className="hidden md:flex flex-row items-center gap-[50px] font-semibold">
+          <li
+            ref={productsRef}
+            className="relative"
+            onMouseEnter={() => setProductsOpen(true)}
+            onMouseLeave={() => setProductsOpen(false)}
+            onBlur={closeOnLeave(setProductsOpen)}
+          >
+            <button
+              type="button"
+              aria-haspopup="true"
+              aria-expanded={productsOpen}
+              onClick={() => setProductsOpen((v) => !v)}
+              className={`${linkColor} underline-offset-2 decoration-C11 decoration-2 ${productsOpen ? 'underline' : ''}`}
+            >
+              Products
+            </button>
+            {productsOpen && (
+              <div className={`absolute left-[-10px] top-[100%] min-w-[220px] rounded-[2px] p-2 shadow-lg backdrop-blur-[30px] ${menuSurface}`}>
+                <Link to="/mri-analysis" className={itemClass}>Slide Image Analysis</Link>
+                <Link to="/report-analysis" className={itemClass}>Report Analysis</Link>
+              </div>
+            )}
+          </li>
+          <li>
+            <Link
+              to="/about"
+              aria-current={activePage === 'about' ? 'page' : undefined}
+              className={`${activePage === 'about' ? 'underline' : ''} ${linkColor} hover:underline underline-offset-2 decoration-C11 decoration-2`}
+            >
+              About
+            </Link>
+          </li>
+        </ul>
+
+        {/* Desktop account area */}
+        <div className="hidden md:flex flex-row items-center gap-2 font-semibold">
+          {user ? (
+            <div
+              ref={userRef}
+              className="relative"
+              onMouseEnter={() => setUserOpen(true)}
+              onMouseLeave={() => setUserOpen(false)}
+              onBlur={closeOnLeave(setUserOpen)}
+            >
+              <button
+                type="button"
+                aria-label="Account menu"
+                aria-haspopup="true"
+                aria-expanded={userOpen}
+                onClick={() => setUserOpen((v) => !v)}
+                className={`w-[35px] h-[35px] flex text-[18px] justify-center items-center rounded-full font-semibold ${onHome ? 'bg-white text-C11' : 'bg-C11 text-white'}`}
+              >
+                {initial}
+              </button>
+              {userOpen && (
+                <div className={`absolute right-0 top-[100%] min-w-[170px] rounded-[2px] p-2 shadow-lg backdrop-blur-[30px] ${menuSurface}`}>
+                  <Link to="/profile" className={itemClass}>
+                    <Person sx={{ fontSize: '16px' }} /> My Profile
+                  </Link>
+                  <button type="button" onClick={() => setLogoutModal(true)} className={itemClass}>
+                    <Logout sx={{ fontSize: '16px' }} /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-row gap-[10px]">
+              <Link
+                to="/login"
+                className={`flex items-center px-3 py-[2px] border border-transparent rounded-[2px] ${onHome ? 'hover:border-white text-white' : 'hover:border-C11 text-C11'}`}
+              >
+                Login
+              </Link>
+              <Link to="/signup" className="flex items-center px-3 py-[2px] bg-C11 text-white rounded-[2px]">
+                Sign Up
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Phone menu button */}
+        <button
+          type="button"
+          className={`md:hidden p-2 ${linkColor}`}
+          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-menu"
+          onClick={() => setMobileOpen((v) => !v)}
+        >
+          {mobileOpen ? <Close /> : <Menu />}
+        </button>
+      </nav>
+
+      {/* Phone menu */}
+      {mobileOpen && (
+        <div id="mobile-menu" className={`md:hidden px-[4%] pb-4 ${menuSurface}`}>
+          <ul className="flex flex-col gap-1 font-semibold text-[16px]">
+            <li><Link to="/mri-analysis" className={itemClass}>Slide Image Analysis</Link></li>
+            <li><Link to="/report-analysis" className={itemClass}>Report Analysis</Link></li>
+            <li><Link to="/about" className={itemClass}>About</Link></li>
+            {user ? (
+              <>
+                <li><Link to="/profile" className={itemClass}><Person sx={{ fontSize: '18px' }} /> My Profile</Link></li>
+                <li>
+                  <button
+                    type="button"
+                    className={itemClass}
+                    onClick={() => { setMobileOpen(false); setLogoutModal(true) }}
+                  >
+                    <Logout sx={{ fontSize: '18px' }} /> Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li><Link to="/login" className={itemClass}>Login</Link></li>
+                <li><Link to="/signup" className={`${itemClass} bg-C11 text-white`}>Sign Up</Link></li>
+              </>
+            )}
+          </ul>
+        </div>
+      )}
+
+      {logoutModal && <LogoutModal setLogoutModal={setLogoutModal} />}
+    </header>
   )
 }
 

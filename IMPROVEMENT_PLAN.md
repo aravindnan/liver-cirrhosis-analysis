@@ -473,6 +473,20 @@ The result moves from a demo that guesses a stage to a tool patients would trust
 - [x] Tests: 15 API (Node test runner), 33 ML (pytest), 9 web (Jest); GitHub Actions CI runs all three plus `tsc` and a production build
 - [x] API dependencies updated within semver ranges: `npm audit` now reports 0 vulnerabilities (was 12, 3 critical)
 - [ ] The media still exists in git history (`.git` is about 76 MB). Remove it in the same `git filter-repo` pass as the leaked secrets
+### Responsive layout and accessibility (branch `improve/responsive-a11y`)
+
+Checked in a real browser at 375 px and 1280 px against a mock API:
+
+- [x] Every route fits a 375 px screen with no horizontal overflow (it did not before: result pages were squeezed into a narrow column by fixed 120 px padding, and Home, About, Login and Signup overflowed)
+- [x] New Navbar: phone menu with `aria-expanded`/`aria-controls`, real buttons instead of clickable divs, Escape closes menus, labelled `nav`, `aria-current`; Logout is available on every page
+- [x] Two-column layouts stack on phones; `h-screen` replaced by `min-h-screen`, `100vw` widths removed; wide lab table scrolls inside its own box
+- [x] Lab inputs have real `<label>`s; login and signup inputs, password toggles and selects have accessible names
+- [x] Logout dialog: `role="dialog"`, Escape to close, focus moves in
+- [x] Delete buttons on the profile page are visible on touch screens (they only appeared on hover before)
+- [x] Fade-in animations are disabled for people who ask for reduced motion
+- [ ] Not yet covered: tablet widths between phone and desktop, focus trapping in the dialog, colour contrast audit (crimson on grey labels), keyboard check of the file upload, other browsers, screen reader testing
+- [ ] Remaining design work: design tokens and shared components, a calmer palette
+
 ### Priority 4 progress (branch `improve/guideline-scores`)
 
 - [x] Guideline scores panel: FIB-4, APRI and ALBI, computed on the API from the user's own values (no ML, no LLM), each with formula, cut-offs, values used, caveats and source. Bands are written out as well as coloured, and graded on the displayed value

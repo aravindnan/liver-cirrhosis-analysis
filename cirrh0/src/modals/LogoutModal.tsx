@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router';
 import { logoutUser } from '../services/authServices';
@@ -18,6 +18,15 @@ function LogoutModal(props:any) {
 
     
     const navigate=useNavigate()
+    const dialogRef = useRef<HTMLDivElement>(null)
+
+    // Escape closes the dialog; focus moves into it when it opens.
+    useEffect(() => {
+      const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setLogoutModal(false) }
+      document.addEventListener('keydown', onKey)
+      dialogRef.current?.querySelector('button')?.focus()
+      return () => document.removeEventListener('keydown', onKey)
+    }, [setLogoutModal])
     const handleModalClose =()=>{
       setLogoutStatus("not-loggedout")
       setError(null)
@@ -59,12 +68,16 @@ function LogoutModal(props:any) {
   return (
 <div
 onClick={handleModalClose}
-className='top-0 left-0 absolute w-[100vw] z-[50] h-[100vh] bg-[#00000054] flex justify-center items-center'>
+className='fixed inset-0 z-[50] bg-[#00000054] flex justify-center items-center'>
     <div 
+    ref={dialogRef}
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="logout-title"
     onClick={(e)=>e.stopPropagation()}
     className={`bg-C55 rounded-[4px] p-5 shadow-xl ${logoutStatus==="logout-loading"?"w-full bg-[#00000014] h-full  justify-center flex items-center text-center":"w-[90%] md:max-w-[500px] max-h-[300px]"}`} >
     <div className='flex flex-row items-center justify-between'>
-      <div className='font-bold text-[20px] text-C11 '>
+      <div id="logout-title" className='font-bold text-[20px] text-C11 '>
       {logoutStatus==="not-loggedout"&&"Logout"} 
       {logoutStatus==="logout-loading"&&<Loader/>}
       </div>

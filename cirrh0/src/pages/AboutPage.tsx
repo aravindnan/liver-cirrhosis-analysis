@@ -14,17 +14,17 @@ function AboutPage() {
 
 
   return (
-    <div className="flex flex-col justify-between h-screen">
+    <div className="flex flex-col justify-between min-h-screen">
       <Navbar activePage="about" />
-      <div className="flex flex-col flex-1 pt-[250px] pb-[100px] mx-auto w-[70%] gap-[250px]">
-        <div className="flex flex-row justify-between ">
-        <div className="flex flex-col justify-left text-left mt-[50px] w-[60%] ">
+      <div className="flex flex-col flex-1 pt-[110px] md:pt-[250px] pb-[60px] md:pb-[100px] mx-auto w-[88%] md:w-[70%] gap-[70px] md:gap-[250px]">
+        <div className="flex flex-col md:flex-row justify-between gap-8">
+        <div className="flex flex-col justify-left text-left mt-[50px] w-full md:w-[60%] ">
           <div
             data-aos="fade-up"
             data-aos-duration="700"
             data-aos-once
 
-            className="text-[50px] text-C11 font-bold league-spartan"
+            className="text-[32px] md:text-[50px] text-C11 font-bold league-spartan"
           >
             Our Team
           </div>
@@ -48,27 +48,27 @@ function AboutPage() {
         data-aos-once
  
         className="">
-        <TeamIcon/>
+        <div className="w-full max-w-[300px] mx-auto md:mx-0 md:max-w-none [&>svg]:w-full [&>svg]:h-auto md:[&>svg]:w-auto md:[&>svg]:h-auto" aria-hidden="true"><TeamIcon/></div>
         </div>
         </div>
 
-        <div className="flex flex-row justify-between ">
+        <div className="flex flex-col md:flex-row justify-between gap-8">
         <div
         data-aos="fade-up"
         data-aos-duration="800"
         data-aos-once
 
         >
-        <VisionIcon/>
+        <div className="w-full max-w-[300px] mx-auto md:mx-0 md:max-w-none [&>svg]:w-full [&>svg]:h-auto md:[&>svg]:w-auto md:[&>svg]:h-auto" aria-hidden="true"><VisionIcon/></div>
 
         </div>
-        <div className="flex flex-col justify-right text-right mt-[50px] ml-auto  w-[60%]">
+        <div className="flex flex-col justify-right text-left md:text-right mt-[50px] md:ml-auto w-full md:w-[60%]">
           <div
             data-aos="fade-up"
             data-aos-duration="800"
             data-aos-once
 
-            className="text-[50px] text-C11 font-bold league-spartan"
+            className="text-[32px] md:text-[50px] text-C11 font-bold league-spartan"
           >
             Our Vision
           </div>
@@ -86,15 +86,15 @@ function AboutPage() {
        
         </div>
 
-        <div className="flex flex-row justify-between ">
+        <div className="flex flex-col md:flex-row justify-between gap-8">
 
-        <div className="flex flex-col justify-left text-left mt-[50px]  w-[60%]">
+        <div className="flex flex-col justify-left text-left mt-[50px] w-full md:w-[60%]">
           <div
             data-aos="fade-up"
             data-aos-duration="1200"
             data-aos-once
 
-            className="text-[50px] text-C11 font-bold league-spartan"
+            className="text-[32px] md:text-[50px] text-C11 font-bold league-spartan"
           >
             Our Mission
           </div>
@@ -117,7 +117,7 @@ function AboutPage() {
 
         >
 
-        <MissionIcon/>
+        <div className="w-full max-w-[300px] mx-auto md:mx-0 md:max-w-none [&>svg]:w-full [&>svg]:h-auto md:[&>svg]:w-auto md:[&>svg]:h-auto" aria-hidden="true"><MissionIcon/></div>
         </div>
         </div>
 

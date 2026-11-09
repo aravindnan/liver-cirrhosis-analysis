@@ -55,7 +55,7 @@ function ReportResultPage() {
 
     if (loading) {
         return (
-            <div className="h-[100vh] w-[100vw] justify-center flex items-center">
+            <div className="min-h-screen w-full justify-center flex items-center">
                 <Loader />
             </div>
         );
@@ -63,7 +63,7 @@ function ReportResultPage() {
 
     if (error) {
         return (
-            <div className="h-[100vh] w-[100vw] justify-center flex items-center flex-col">
+            <div className="min-h-screen w-full justify-center flex items-center flex-col">
               <p>{error}</p>
               <Link
                to="/"
@@ -77,16 +77,16 @@ function ReportResultPage() {
 
     return (
         <>
-            <div className="flex flex-col justify-between h-screen">
+            <div className="flex flex-col justify-between min-h-screen">
                 <Navbar activePage="mri-result" />
                 {
                   myProfiledata?._id===reportResult?.userId?
-                <div className="flex-1 pt-[120px] px-[120px] justify-center flex flex-col gap-2">
+                <div className="flex-1 pt-[100px] md:pt-[120px] px-4 md:px-[120px] justify-center flex flex-col gap-2">
                     <div
                     data-aos="fade-up"
                     data-aos-duration="600"
                     data-aos-once
-                     className="league-spartan font-bold text-[50px] text-C11">
+                     className="league-spartan font-bold text-[32px] md:text-[50px] text-C11">
                         Report Result
                     </div>
                     <Disclaimer extra={reportResult?.stage ? "How reliable is this estimate? On patients it had not seen during testing, the model picked the right stage about half the time (roughly 50%, compared with 38% for always guessing the most common stage), and it is least reliable for stage 1. It was trained on a 1970s-80s study of one liver disease (primary biliary cholangitis)." : undefined}/>
@@ -95,7 +95,7 @@ function ReportResultPage() {
                     data-aos-duration="900"
                     data-aos-once
 
-                    className="flex flex-row gap-[60px]">
+                    className="flex flex-wrap gap-x-8 gap-y-2 md:gap-[60px]">
 
                     <div className="flex flex-row items-center gap-1">
                       <div className="text-C11">
@@ -170,8 +170,8 @@ function ReportResultPage() {
                     data-aos-duration="800"
                     data-aos-once
 
-                    className="my-10 flex flex-row gap-[100px] ">
-                        <div className="flex flex-col gap-[30px] w-1/2">
+                    className="my-10 flex flex-col md:flex-row gap-8 md:gap-[100px] ">
+                        <div className="flex flex-col gap-[30px] w-full md:w-1/2">
                             {/* Stage */}
                             {reportResult.stage && (
                                 <div className="flex flex-col px-5 py-3 rounded-[6px]">
@@ -230,13 +230,15 @@ function ReportResultPage() {
 
                         </div>
 
-                        <div className="flex flex-col gap-[30px] w-1/2">
+                        <div className="flex flex-col gap-[30px] w-full md:w-1/2">
+                            {/* Scrolls sideways inside this box on narrow screens instead of widening the page */}
+                            <div className="overflow-x-auto max-w-full" role="region" aria-label="Lab values" tabIndex={0}>
                             <table 
                     data-aos="fade-up"
                     data-aos-duration="700"
                     data-aos-once
 
-                            className="w-full border border-C11 text-C11">
+                            className="w-full min-w-[560px] border border-C11 text-C11">
                                 <thead>
                                     <tr className="text-[12px] text-center">
                                         <th>Albumin</th>
@@ -247,6 +249,7 @@ function ReportResultPage() {
                                         <th>Tryglycerides</th>
                                         <th>SGOT</th>
                                         <th>Alk_Phos</th>
+                                        {reportResult.alt != null && <th>ALT</th>}
                                         <th>Cholesterol</th>
                                     </tr>
                                 </thead>
@@ -260,10 +263,12 @@ function ReportResultPage() {
                                         <td>{reportResult.tryglycerides}</td>
                                         <td>{reportResult.sgot}</td>
                                         <td>{reportResult.alk_phos}</td>
+                                        {reportResult.alt != null && <td>{reportResult.alt}</td>}
                                         <td>{reportResult.cholesterol}</td>
                                     </tr>
                                 </tbody>
                             </table>
+                            </div>
 
                             {/* Precautions */}
                             {reportResult.precautions.length>0 && (

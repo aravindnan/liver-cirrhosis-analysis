@@ -115,12 +115,12 @@ function LoginPage() {
 
   return (
     <div className='flex justify-center'>
-      <div className='flex flex-col mx-auto  min-w-[400px] mt-[150px] gap-3 p-2'>
+      <div className='flex flex-col mx-auto w-full max-w-[400px] md:min-w-[400px] mt-[110px] md:mt-[150px] gap-3 p-4 md:p-2'>
         <div className='text-center'
         data-aos="fade-up" 
         data-aos-duration="700" 
         >
-        <LogoText look={"text-C11 text-[70px] "}/>
+        <LogoText look={"text-C11 text-[48px] md:text-[70px] "}/>
         </div>
 
         {
@@ -135,7 +135,7 @@ function LoginPage() {
 
             data-aos="fade-up" 
             data-aos-duration="750" 
-    type="text" className='px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11' placeholder='Username' />
+    type="text" className='px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11' placeholder='Username' aria-label="Username" />
     <div 
      data-aos="fade-up" 
      data-aos-duration="800" 
@@ -147,8 +147,8 @@ function LoginPage() {
      onChange={handleInputChange}
      onKeyPress={handleKeyPress}
 
-    type={`${showPassword?"text":"password"}`} className='  flex-1 px-3 py-2 bg-gray-100 outline-none rounded-[2px] ' placeholder='Password' />
-    <button onClick={()=>setShowPassword(!showPassword)} className='flex items-center hover:bg-gray-200 p-[6px] rounded-full' >
+    type={`${showPassword?"text":"password"}`} className='  flex-1 px-3 py-2 bg-gray-100 outline-none rounded-[2px] ' placeholder='Password' aria-label="Password" />
+    <button type="button" aria-label={showPassword?"Hide password":"Show password"} aria-pressed={!!showPassword} onClick={()=>setShowPassword(!showPassword)} className='flex items-center hover:bg-gray-200 p-[6px] rounded-full' >
     {
       showPassword?
       <VisibilityOff sx={{fontSize:20, color:"#9ca3af"}}/>:

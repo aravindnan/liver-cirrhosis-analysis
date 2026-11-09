@@ -55,7 +55,7 @@ useEffect(() => {
 
   if (loading) {
       return (
-          <div className="h-[100vh] w-[100vw] justify-center flex items-center">
+          <div className="min-h-screen w-full justify-center flex items-center">
               <Loader />
           </div>
       );
@@ -63,7 +63,7 @@ useEffect(() => {
 
   if (error) {
       return (
-          <div className="h-[100vh] w-[100vw] justify-center flex items-center">
+          <div className="min-h-screen w-full justify-center flex items-center">
               <p>{error}</p>
               <Link
                to="/"
@@ -76,16 +76,16 @@ useEffect(() => {
   }
 
   return (
-    <div className="flex flex-col justify-between h-screen">
+    <div className="flex flex-col justify-between min-h-screen">
     <Navbar activePage="mri-result" />
     {
       myProfiledata?._id===mriResult?.userId?
-    <div className="flex-1 pt-[120px] px-[120px] justify-center flex flex-col gap-2">
+    <div className="flex-1 pt-[100px] md:pt-[120px] px-4 md:px-[120px] justify-center flex flex-col gap-2">
         <div
         data-aos="fade-up"
         data-aos-duration="600"
         data-aos-once
-         className="league-spartan font-bold text-[50px] text-C11">
+         className="league-spartan font-bold text-[32px] md:text-[50px] text-C11">
             Image Analysis Result
         </div>
         <Disclaimer/>
@@ -94,7 +94,7 @@ useEffect(() => {
         data-aos-duration="650"
         data-aos-once
 
-        className="flex flex-row gap-[60px]">
+        className="flex flex-wrap gap-x-8 gap-y-2 md:gap-[60px]">
 
         <div className="flex flex-row items-center gap-1">
           <div className="text-C11">
@@ -136,8 +136,8 @@ useEffect(() => {
 
         <div 
 
-        className="my-10 flex flex-row gap-[250px] ">
-            <div className="flex flex-col gap-[30px] w-1/2">
+        className="my-10 flex flex-col md:flex-row gap-8 md:gap-[100px] ">
+            <div className="flex flex-col gap-[30px] w-full md:w-1/2">
                 {/* Stage */}
                 {mriResult.diagnosis && (
                     <div
@@ -227,7 +227,7 @@ useEffect(() => {
                             )}
 
             </div>
-            <div className='w-1/2 flex flex-col gap-[50px]'>
+            <div className='w-full md:w-1/2 flex flex-col gap-[50px]'>
             <div 
           data-aos="fade-up"
         data-aos-duration="700"
@@ -240,7 +240,7 @@ useEffect(() => {
           <img
           src={mriResult?.file}
           alt="Uploaded liver slide"
-          className='w-[300px] aspect-auto border border-C11'
+          className='w-full max-w-[300px] aspect-auto border border-C11'
           />
         </div>
            

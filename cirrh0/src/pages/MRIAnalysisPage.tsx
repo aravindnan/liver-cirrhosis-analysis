@@ -117,21 +117,21 @@ useEffect(() => {
   return (
     <>{
       pageLoading==="loaded" ?
-      <div className={`flex flex-col justify-between h-screen`}>
+      <div className={`flex flex-col justify-between min-h-screen`}>
         {
             loading?
-            <div className="fixed min-w-[100vw] top-0 left-0 bg-[#0000006c] backdrop-blur-[3px]  z-[100] min-h-[100vh]  justify-center flex items-center">
+            <div className="fixed inset-0 bg-[#0000006c] backdrop-blur-[3px]  z-[100] justify-center flex items-center">
               <Loader/>
             </div>:
             null
          }
       <Navbar activePage ="mri-analysis"/>
       <div className='flex flex-col flex-1 pt-[70px] '>
-        <div className={`flex flex-col justify-center text-center ${myProfiledata?.username?"mt-[50px]":"mt-[155px]"}  w-[80%] mx-auto`}>
+        <div className={`flex flex-col justify-center text-center ${myProfiledata?.username?"mt-[50px]":"mt-[155px]"}  w-[92%] md:w-[80%] mx-auto`}>
             <div 
              data-aos="fade-up" 
              data-aos-duration="700" 
-            className='text-[50px] text-C11 font-bold league-spartan'> Liver Slide Image Analysis</div>
+            className='text-[32px] md:text-[50px] text-C11 font-bold league-spartan'> Liver Slide Image Analysis</div>
             <div 
              data-aos="fade-up" 
              data-aos-duration="600" 
@@ -169,7 +169,7 @@ Research tool for tissue slide images. Results are automated detections, not a d
              data-aos-once
              onClick={handleFileUpload}
              disabled={fileList.length>0}
-             className={`${fileList.length>0?"cursor-not-allowed":"hover:bg-gray-100 "} mt-[50px] gap-2 border-dashed border-spacing-3 flex-col  w-full max-w-[60%]  h-[200px]  border-[3px] border-gray-200 rounded-[8px] mx-auto justify-center items-center flex`}>
+             className={`${fileList.length>0?"cursor-not-allowed":"hover:bg-gray-100 "} mt-[50px] gap-2 border-dashed border-spacing-3 flex-col  w-full md:max-w-[60%]  h-[200px]  border-[3px] border-gray-200 rounded-[8px] mx-auto justify-center items-center flex`}>
                  {
                   fileList.length>0?
                     <InfoOutlined sx={{fontSize:35,color:"#9ca3af"}}/>
@@ -185,7 +185,7 @@ Research tool for tissue slide images. Results are automated detections, not a d
             </button>
             }  
             {fileList.length > 0 && (
-          <div className="flex flex-col mt-[60px]  gap-1 max-h-[150px] overflow-y-auto max-w-[60%] mx-auto">
+          <div className="flex flex-col mt-[60px]  gap-1 max-h-[150px] overflow-y-auto md:max-w-[60%] mx-auto">
             {fileList?.map((node: any) => (
               <div className="flex items-center justify-between flex-row gap-5 px-2 py-1 text-[12px] font-semibold bg-gray-100     hover:bg-inactiveC11 text-C11 rounded-[4px]">
                 <div className="flex flex-row gap-1 item-center">
@@ -236,12 +236,12 @@ Research tool for tissue slide images. Results are automated detections, not a d
     
     </div>:
     pageLoading==="not-loaded"?
-    <div className="w-[100vw] h-[100vh] flex justify-center items-center">
+    <div className="w-full min-h-screen flex justify-center items-center">
     <div className="flex justify-center text-[16px] font-light flex-col ">
         <Loader/>
     </div>
     </div>:
-      <div className="flex items-center justify-center flex-1 w-full h-[100vh]">
+      <div className="flex items-center justify-center flex-1 w-full min-h-screen">
       <APIResponseStatus status={false} message={`${networkError?"Network Error":"An Error Occured"}`}/>
       </div>
     }

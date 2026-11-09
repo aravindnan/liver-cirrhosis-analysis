@@ -128,9 +128,9 @@ function SignupPage() {
 
   return (
     <div className="flex justify-center">
-      <div className="flex flex-col mx-auto  w-[450px] mt-[100px] gap-3 p-2">
+      <div className="flex flex-col mx-auto w-full max-w-[450px] mt-[90px] md:mt-[100px] gap-3 p-4 md:p-2">
         <div data-aos="fade-up" data-aos-duration="500" className="text-center">
-          <LogoText look={"text-C11 text-[70px] "} />
+          <LogoText look={"text-C11 text-[48px] md:text-[70px] "} />
         </div>
         {registerStatus === "not-registered" ? (
         <>
@@ -146,7 +146,7 @@ function SignupPage() {
               value={registerFormData.fullName}
               onChange={handleInputChange}
               className="flex-1 w-[80%] px-3 py-2 border border-gray-300 outline-none focus:border-C11 bg-gray-100"
-              placeholder="Full Name"
+              placeholder="Full Name" aria-label="Full Name"
             />
             <input
               name="age"
@@ -155,7 +155,7 @@ function SignupPage() {
               onChange={handleInputChange}
               type="number"
               className="px-3 w-[100px] py-2 border border-gray-300 outline-none focus:border-C11 bg-gray-100"
-              placeholder="Age"
+              placeholder="Age" aria-label="Age"
             />
           </div>
           <div
@@ -169,9 +169,10 @@ function SignupPage() {
               value={registerFormData.email}
               onChange={handleInputChange}
               type="text"
-              className='flex-1 px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11'              placeholder="Email"
+              className='flex-1 min-w-0 px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11'              placeholder="Email" aria-label="Email"
             />
             <select
+              aria-label="Gender"
               className="px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11"
               value={registerFormData.gender}
               onChange={handleInputChange}
@@ -193,7 +194,7 @@ function SignupPage() {
             data-aos="fade-up"
             data-aos-duration="650"
             type="text"
-            className='px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11'            placeholder="Username"
+            className='px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11'            placeholder="Username" aria-label="Username"
           />
           <div
             data-aos="fade-up"
@@ -206,10 +207,13 @@ function SignupPage() {
               value={registerFormData.password}
               onChange={handleInputChange}
               type={`${showPassword ? "text" : "password"}`}
-              className="flex-1 px-3 py-2 bg-gray-100 outline-none rounded-[3px] "
-              placeholder="Password"
+              className="flex-1 min-w-0 px-3 py-2 bg-gray-100 outline-none rounded-[3px] "
+              placeholder="Password" aria-label="Password"
             />
             <button
+              type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={!!showPassword}
               onClick={() => setShowPassword(!showPassword)}
               className="flex items-center hover:bg-gray-200 p-[6px] rounded-full"
             >
@@ -230,7 +234,7 @@ function SignupPage() {
             onChange={handleInputChange}
             type="password"
             className='px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11'
-            placeholder="Confirm Password"
+            placeholder="Confirm Password" aria-label="Confirm Password"
           />
 
           <button
