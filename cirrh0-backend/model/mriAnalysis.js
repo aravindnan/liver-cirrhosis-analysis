@@ -1,21 +1,23 @@
-    const mongoose = require("mongoose");
-    const mriAnalysisSchema = new mongoose.Schema({
+const mongoose = require("mongoose");
 
-        userId: { type: mongoose.Schema.Types.ObjectId,ref: 'User'},
-        age:{type:Number},
-        sex:{type:String},
-        file: { type: String },
-        analysis: {type: String},
-        diagnosis:[{type:String}],
-        lifestyle_recommendations:[{type:String}],
-        precautions:[{type:String}],
-        date:{type:Date},
-        medical_treatments:[{type:String}],
-        doctor_type:[{type:String}]
-        
-    });
-    // Add any additional user-related fields here
+const mriAnalysisSchema = new mongoose.Schema(
+  {
+    // The single source of truth for ownership. The user document no longer lists image ids.
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    age: Number,
+    sex: String,
+    file: String,
+    date: Date,
+    analysis: String,
+    diagnosis: [String],
+    lifestyle_recommendations: [String],
+    precautions: [String],
+    medical_treatments: [String],
+    doctor_type: [String],
+  },
+  { timestamps: true }
+);
 
-    const MRIAnalysis = mongoose.model("MRIAnalysis", mriAnalysisSchema);
+mriAnalysisSchema.index({ userId: 1, date: -1 });
 
-    module.exports = MRIAnalysis;
+module.exports = mongoose.model("MRIAnalysis", mriAnalysisSchema);

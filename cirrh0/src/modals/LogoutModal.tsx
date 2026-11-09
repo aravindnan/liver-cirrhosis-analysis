@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
-import { useDispatch } from 'react-redux';
+import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router';
-import { getUserDetailsFromToken, logoutUser } from '../services/authServices';
-import * as authActions from "../redux/actions"
+import { logoutUser } from '../services/authServices';
 import { Close } from '@mui/icons-material';
 import APIResponseStatus from '../components/APIResponseStatus';
 import Loader from '../assets/Loader';
@@ -10,7 +9,7 @@ import Loader from '../assets/Loader';
 
 function LogoutModal(props:any) {
 
-    const dispatch =  useDispatch()
+    const { user, signedOut } = useAuth()
     const {setLogoutModal}= props
 
     const [error, setError] = useState<string | null>(null);
@@ -28,14 +27,13 @@ function LogoutModal(props:any) {
 
     const handleLogout= async()=>{
         setLogoutStatus("logout-loading")
-        const userData:any = getUserDetailsFromToken()
-        if(userData){
-          await logoutUser(userData?._id).then((res:any)=>{
+        if(user){
+          await logoutUser(user._id).then((res:any)=>{
             // console.log("Logout Response In REACT : ",res)
             if(res.code!=="ERR_NETWORK"){
             setLogoutStatus("logout-success")
             // window.location.reload()
-            dispatch(authActions.logoutAction())
+            signedOut()
             setLogoutModal(false)
             navigate("/")
 

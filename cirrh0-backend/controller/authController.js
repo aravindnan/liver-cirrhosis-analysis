@@ -4,6 +4,7 @@ const User = require("../model/user");
 const { JWT_SECRET } = require("../env/dotenv");
 const { validateRegistration } = require("../utils/validate");
 const { setSessionCookie, clearSessionCookie } = require("../middleware/auth");
+const { safeError } = require("../utils/logger");
 
 exports.register = async (req, res) => {
   try {
@@ -22,7 +23,7 @@ exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 12);
     await new User({
       username,
-      email: email.toLowerCase(),
+      email,
       password: hashedPassword,
       fullName: fullName.trim(),
       age: Number(age),
@@ -31,7 +32,7 @@ exports.register = async (req, res) => {
 
     res.status(201).json({ message: "User registered successfully", registerSuccess: true });
   } catch (error) {
-    console.error(error.message);
+    req.log.error({ err: safeError(error) }, "auth request failed");
     res.status(500).json({ error: "Internal Server Error", registerSuccess: false });
   }
 };
@@ -63,7 +64,7 @@ exports.login = async (req, res) => {
       userId: user._id,
     });
   } catch (error) {
-    console.error(error.message);
+    req.log.error({ err: safeError(error) }, "auth request failed");
     res.status(500).json({ error: "Internal Server Error", success: false });
   }
 };

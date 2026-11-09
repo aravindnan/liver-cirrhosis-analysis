@@ -2,11 +2,8 @@ import React, { useEffect, useState } from "react";
 import LogoText from "../components/LogoText";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowForwardRounded, ReplayRounded, RestartAltRounded, Visibility, VisibilityOff } from "@mui/icons-material";
-import {
-  getUserDetailsFromToken,
-  registerUser,
-} from "../services/authServices";
-import { useSelector } from "react-redux";
+import { registerUser } from "../services/authServices";
+import { useAuth } from "../auth/AuthContext";
 import ErrorBox from "../components/ErrorBox";
 import APIResponseStatus from "../components/APIResponseStatus";
 import Loader from "../assets/Loader";
@@ -20,21 +17,10 @@ function SignupPage() {
     useState<string>("not-registered");
   const [apiResponseMessage, setApiResponseMessage] = useState<string>("Something wrong happend");
 
-  useEffect(() => {
-    const existingUser: any = getUserDetailsFromToken();
-    // console.log("EXISITING USER ID : ", existingUser);
-
-    if (existingUser?._id) {
-      navigate("/");
-    }
-  }, [navigate]);
-
   const retryRegister = () => {
     setRegisterStatus("not-registered");
   };
-  const myProfiledata = useSelector(
-    (state: any) => state.authReducer.myUserProfile
-  );
+  const { user } = useAuth();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -46,10 +32,10 @@ function SignupPage() {
   }, [error]);
 
   useEffect(() => {
-    if (myProfiledata?._id) {
+    if (user) {
       navigate("/");
     }
-  }, [myProfiledata?._id, navigate]);
+  }, [user, navigate]);
 
   const emptyState = {
     username: "", //

@@ -1,66 +1,30 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useAuthPage } from '../auth/AuthContext'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { Close, InfoOutlined, InsertDriveFile, Troubleshoot, Upload } from '@mui/icons-material'
-import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { Tooltip } from '@mui/material'
-import { getUserDetailsFromToken } from '../services/authServices'
-import { getUserById } from '../services/userServices'
-import * as authActions from "../redux/actions"
 import Loader from '../assets/Loader'
 import APIResponseStatus from '../components/APIResponseStatus'
 import axios from 'axios'
 import { analyseMRIById } from '../services/mriAnalysisServices'
 
 function MRIAnalysisPage() {
+  const { myProfiledata, pageLoading, networkError } = useAuthPage();
 useEffect(()=>{
         window.scrollTo(0,0)
     },[])
 const fileTestInputRef = useRef<any>(null);
 const [fileList, setFileList] = useState<any>([]);
-const [rerender, setRerender] = useState(false);
-const [networkError,setNetworkError] = useState<Boolean>(false)
-const [pageLoading, setPageLoading] = useState<any>("not-loaded")
 const [loading, setLoading] = useState<Boolean>(false);
 const [error, setError] = useState<string | null>(null);
 const CLOUDINARY_CLOUDNAME = process.env.REACT_APP_CLOUDINARY_CLOUDNAME;
 
-const dispatch = useDispatch()
 const navigate = useNavigate()
 
-const myProfiledata = useSelector(
-  (state: any) => state.authReducer.myUserProfile
-);
 
-useEffect(() => {
-  const existingUser:any = getUserDetailsFromToken()
-  // console.log("EXISITING USER ID : ",existingUser)
 
-  if (existingUser?._id) {
-    getMyProfileData(existingUser._id)
-  }
-  else{
-    setPageLoading("loaded")
-  }
-
-}, [rerender]);
-
-const getMyProfileData =async(myUserId:any)=>{
-  await getUserById(myUserId).then((res:any)=>{
-    if(res.code==="ERR_NETWORK"){
-      setNetworkError(true)
-      console.error("NETWORK ERROR ")
-      setPageLoading("error")
-    }
-    else{
-      setPageLoading("loaded")
-      dispatch(authActions.loginAction(res))
-    }
-  }).catch((err:any)=>{
-    console.error(err)
-  })
-}
 
 const handleFileUpload = () => {
   fileTestInputRef.current.click();
@@ -105,6 +69,10 @@ const handleAnalyseMRI=async()=>{
   if (fileList.length === 0) {
     setError("Add a slide image");
     return; // Early return if no media files
+  }
+  if (!myProfiledata) {
+    setError("Please log in again to analyse an image");
+    return;
   }
   setLoading(true)
   // Upload file to Cloudinary

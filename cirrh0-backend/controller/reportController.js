@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
 const ReportAnalysis = require("../model/reportsAnalysis");
-const User = require("../model/user");
 const { NLP_BASE_URL, REPORT_BASE_URL } = require("../env/dotenv");
 const { validateLabData, isAllowedUploadUrl } = require("../utils/validate");
 const ml = require("../utils/mlClient");
+const { safeError } = require("../utils/logger");
 
 const MAX_FILES = 10;
+const DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
 
 exports.report_add_files = async (req, res) => {
   try {
@@ -28,12 +29,12 @@ exports.report_add_files = async (req, res) => {
       userId: req.userId,
       files: fileURLSet,
       date: new Date(),
+      draftExpiresAt: new Date(Date.now() + DRAFT_TTL_MS),
     }).save();
-    await User.findByIdAndUpdate(req.userId, { $push: { reportAnalysisSet: report._id } });
 
     res.json({ extractSuccess: true, extractedData, reportId: report._id });
   } catch (error) {
-    console.error("Extract failure:", error.message);
+    req.log.error({ err: safeError(error) }, "report extraction failed");
     res.status(502).json({ extractSuccess: false, error: "Could not read the uploaded reports" });
   }
 };
@@ -75,13 +76,12 @@ exports.analyze_report = async (req, res) => {
     } else {
       report = new ReportAnalysis({ ...fields, userId: req.userId, files: [] });
     }
-    const isNew = report.isNew;
+    report.draftExpiresAt = undefined; // analysed, so it is no longer a draft
     await report.save();
-    if (isNew) await User.findByIdAndUpdate(req.userId, { $push: { reportAnalysisSet: report._id } });
 
     res.json({ reportResult: report, analysisSuccess: true, reportId: report._id });
   } catch (error) {
-    console.error("Analyze report failure:", error.message);
+    req.log.error({ err: safeError(error) }, "report analysis failed");
     res.status(502).json({ analysisSuccess: false, error: "Analysis failed. Please try again." });
   }
 };
@@ -95,7 +95,7 @@ exports.get_report = async (req, res) => {
     if (!report) return res.status(404).json({ message: "Report not found" });
     res.status(200).json({ report });
   } catch (error) {
-    console.error(error.message);
+    req.log.error({ err: safeError(error) }, "report request failed");
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -108,10 +108,9 @@ exports.delete_report = async (req, res) => {
       : null;
     if (!deleted) return res.status(404).json({ message: "Report not found", deleteSuccess: false });
 
-    await User.findByIdAndUpdate(req.userId, { $pull: { reportAnalysisSet: deleted._id } });
     res.status(200).json({ message: "Report deleted successfully", deleteSuccess: true });
   } catch (error) {
-    console.error(error.message);
+    req.log.error({ err: safeError(error) }, "report request failed");
     res.status(500).json({ error: "Internal Server Error", deleteSuccess: false });
   }
 };

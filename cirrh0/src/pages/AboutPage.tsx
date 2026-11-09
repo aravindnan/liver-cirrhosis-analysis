@@ -1,53 +1,17 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import { getUserDetailsFromToken } from "../services/authServices";
-import { getUserById } from "../services/userServices";
-import * as authActions from "../redux/actions";
 import { MissionIcon, TeamIcon, VisionIcon } from "../assets/Icons";
 
 function AboutPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const [rerender, setRerender] = useState(false);
-  const [networkError, setNetworkError] = useState<Boolean>(false);
-  const [pageLoading, setPageLoading] = useState<any>("not-loaded");
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const existingUser: any = getUserDetailsFromToken();
-    // console.log("EXISITING USER ID : ",existingUser)
 
-    if (existingUser?._id) {
-      getMyProfileData(existingUser._id);
-    } else {
-      // navigate("/");
-      setPageLoading("loaded");
-    }
-  }, [rerender]);
-
-  const getMyProfileData = async (myUserId: any) => {
-    await getUserById(myUserId)
-      .then((res: any) => {
-        // console.log("in TASKPAGE RETURNED TASK ",res.code);
-        if (res.code === "ERR_NETWORK") {
-          setNetworkError(true);
-          console.error("NETWORK ERROR ");
-          setPageLoading("error");
-        } else {
-          setPageLoading("loaded");
-          dispatch(authActions.loginAction(res));
-        }
-      })
-      .catch((err: any) => {
-        console.error(err);
-      });
-  };
 
   return (
     <div className="flex flex-col justify-between h-screen">

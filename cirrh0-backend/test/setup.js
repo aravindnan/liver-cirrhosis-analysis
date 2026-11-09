@@ -8,3 +8,4 @@ process.env.REPORT_BASE_URL = "http://ml.invalid/predict";
 process.env.IMAGE_BASE_URL = "http://ml.invalid/image";
 process.env.CLIENT_ORIGINS = "http://localhost:3000";
 process.env.UPLOAD_HOSTS = "res.cloudinary.com";
+process.env.LOG_LEVEL = "silent";

@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 const MRIAnalysis = require("../model/mriAnalysis");
-const User = require("../model/user");
 const { IMAGE_BASE_URL } = require("../env/dotenv");
 const { isAllowedUploadUrl } = require("../utils/validate");
 const ml = require("../utils/mlClient");
+const { safeError } = require("../utils/logger");
 
 exports.analyze_mri = async (req, res) => {
   try {
@@ -31,11 +31,10 @@ exports.analyze_mri = async (req, res) => {
       medical_treatments: ml.asList(result.medical_treatments),
       doctor_type: ml.asList(result.doctor_type),
     }).save();
-    await User.findByIdAndUpdate(req.userId, { $push: { mriAnalysisSet: mri._id } });
 
     res.json({ mriResult: mri, analysisSuccess: true, mriId: mri._id });
   } catch (error) {
-    console.error("Analyze image failure:", error.message);
+    req.log.error({ err: safeError(error) }, "image analysis failed");
     res.status(502).json({ analysisSuccess: false, error: "Analysis failed. Please try again." });
   }
 };
@@ -49,7 +48,7 @@ exports.get_mri = async (req, res) => {
     if (!mriReport) return res.status(404).json({ message: "MRI report not found" });
     res.status(200).json({ mriReport });
   } catch (error) {
-    console.error(error.message);
+    req.log.error({ err: safeError(error) }, "image request failed");
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -62,10 +61,9 @@ exports.delete_mri = async (req, res) => {
       : null;
     if (!deleted) return res.status(404).json({ message: "MRI report not found", deleteSuccess: false });
 
-    await User.findByIdAndUpdate(req.userId, { $pull: { mriAnalysisSet: deleted._id } });
     res.status(200).json({ message: "MRI report was deleted successfully", deleteSuccess: true });
   } catch (error) {
-    console.error(error.message);
+    req.log.error({ err: safeError(error) }, "image request failed");
     res.status(500).json({ error: "Internal Server Error", deleteSuccess: false });
   }
 };
