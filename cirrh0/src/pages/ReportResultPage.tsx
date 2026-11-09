@@ -10,6 +10,7 @@ import { CalendarMonth, CalendarViewMonth, Female, InfoOutlined, Male, Person, P
 import { Link } from "react-router-dom";
 import { Tooltip } from "@mui/material";
 import Disclaimer from "../components/Disclaimer";
+import ScoresPanel from "../components/ScoresPanel";
 
 
 function ReportResultPage() {
@@ -88,7 +89,7 @@ function ReportResultPage() {
                      className="league-spartan font-bold text-[50px] text-C11">
                         Report Result
                     </div>
-                    <Disclaimer extra="How reliable is this estimate? On patients it had not seen during testing, the model picked the right stage about half the time (roughly 50%, compared with 38% for always guessing the most common stage), and it is least reliable for stage 1. It was trained on a 1970s-80s study of one liver disease (primary biliary cholangitis)."/>
+                    <Disclaimer extra={reportResult?.stage ? "How reliable is this estimate? On patients it had not seen during testing, the model picked the right stage about half the time (roughly 50%, compared with 38% for always guessing the most common stage), and it is least reliable for stage 1. It was trained on a 1970s-80s study of one liver disease (primary biliary cholangitis)." : undefined}/>
                     <div 
                     data-aos="fade-up"
                     data-aos-duration="900"
@@ -155,6 +156,15 @@ function ReportResultPage() {
                         }
                       </div>
                     </div>
+                    <div className="mt-10">
+                      <ScoresPanel scores={reportResult?.scores} />
+                    </div>
+                    {!reportResult?.stage && (
+                      <p role="status" className="mt-4 text-[14px] border-l-4 border-[#9a5b00] bg-[#fdf1dc] px-4 py-3 max-w-[70ch]">
+                        The research-model stage estimate was not available for this report. The guideline
+                        scores above do not depend on it.
+                      </p>
+                    )}
                     <div 
                        data-aos="fade-up"
                     data-aos-duration="800"

@@ -473,6 +473,16 @@ The result moves from a demo that guesses a stage to a tool patients would trust
 - [x] Tests: 15 API (Node test runner), 33 ML (pytest), 9 web (Jest); GitHub Actions CI runs all three plus `tsc` and a production build
 - [x] API dependencies updated within semver ranges: `npm audit` now reports 0 vulnerabilities (was 12, 3 critical)
 - [ ] The media still exists in git history (`.git` is about 76 MB). Remove it in the same `git filter-repo` pass as the leaked secrets
+### Priority 4 progress (branch `improve/guideline-scores`)
+
+- [x] Guideline scores panel: FIB-4, APRI and ALBI, computed on the API from the user's own values (no ML, no LLM), each with formula, cut-offs, values used, caveats and source. Bands are written out as well as coloured, and graded on the displayed value
+- [x] Optional ALT field (enables FIB-4)
+- [x] An ML outage no longer fails an analysis: the scores are saved and the page says the model estimate was unavailable
+- [x] Lab extraction fixed on the real sample reports (AST, ALP and bilirubin on the `test3` layout, ALT added, platelets per uL normalised) with golden tests on `testing-assets/`
+- [ ] FIB-4 cut-offs follow McPherson 2017 (1.3, 2.67, and 2.0 from age 65). Sterling's original 2006 cut-offs were 1.45 and 3.25. APRI thresholds follow WHO hepatitis B guidance and vary by cause of liver disease. A clinician should review the wording before any public launch
+- [ ] APRI assumes an AST upper limit of normal of 40 U/L; take it from the report when available
+- [ ] Not yet viewed in a browser against live data
+
 ### Priority 2 progress (branch `improve/auth-provider`)
 
 - [x] One `AuthProvider` and `RequireAuth` replace Redux and seven copies of login bootstrap (net about 440 lines removed); a 401 clears the session and a network error no longer looks like a logout
