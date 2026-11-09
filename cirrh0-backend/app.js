@@ -2,12 +2,14 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const pinoHttp = require("pino-http");
-const { CLIENT_ORIGINS } = require("./env/dotenv");
-const { logger, requestId } = require("./utils/logger");
+const { CLIENT_ORIGINS, TRUST_PROXY } = require("./env/dotenv");
+const { logger, requestId, safeError } = require("./utils/logger");
+const { db } = require("./db/client");
 
 const app = express();
 
 app.disable("x-powered-by");
+if (TRUST_PROXY > 0) app.set("trust proxy", TRUST_PROXY);
 app.use(
   pinoHttp({
     logger,
@@ -35,6 +37,17 @@ app.use(
 );
 app.use(express.json({ limit: "100kb" }));
 
+// Liveness and database readiness for load balancers and container orchestrators.
+app.get("/healthz", async (req, res) => {
+  try {
+    await db.$queryRaw`SELECT 1`;
+    res.status(200).json({ status: "ok" });
+  } catch (error) {
+    req.log.error({ err: { name: error.name } }, "health check failed");
+    res.status(503).json({ status: "unavailable" });
+  }
+});
+
 app.use(require("./routes/auth"));
 app.use(require("./routes/user"));
 app.use(require("./routes/report"));
@@ -51,7 +64,7 @@ app.use((err, req, res, next) => {
   else if (err.type === "entity.too.large") { status = 413; message = "Request body too large"; }
   else if (status === 403) message = "Origin not allowed";
   else if (status < 500) message = "Bad request";
-  req.log.error({ err: { name: err.name, message: String(err.message).slice(0, 200) }, status }, "request failed");
+  req.log.error({ err: safeError(err), status }, "request failed");
   res.status(status).json({ error: message });
 });
 

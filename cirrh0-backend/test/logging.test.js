@@ -75,3 +75,59 @@ test("the app returns a request id header, JSON errors and no stack traces", asy
     server.close();
   }
 });
+
+test("/healthz reports ok when the database answers and 503 when it does not", async (t) => {
+  const { stubClientMethod } = require("./helpers/db");
+  const app = require("../app");
+  const server = app.listen(0);
+  const get = () => new Promise((resolve, reject) => {
+    http.get({ port: server.address().port, path: "/healthz" }, (res) => {
+      let data = ""; res.on("data", (c) => (data += c)); res.on("end", () => resolve({ status: res.statusCode, body: JSON.parse(data) }));
+    }).on("error", reject);
+  });
+  try {
+    stubClientMethod(t, "$queryRaw", async () => [{ "?column?": 1 }]);
+    assert.deepEqual(await get(), { status: 200, body: { status: "ok" } });
+    stubClientMethod(t, "$queryRaw", async () => { throw new Error("connection refused: secret-host"); });
+    const down = await get();
+    assert.deepEqual(down, { status: 503, body: { status: "unavailable" } });
+    assert.ok(!JSON.stringify(down).includes("secret-host"), "no internal details in the response");
+  } finally {
+    server.close();
+  }
+});
+
+test("database errors are logged by name and code only, because their messages contain the query values", () => {
+  const prismaLike = Object.assign(new Error('Invalid `prisma.reportAnalysis.create()` invocation: { data: { analysis: "PATIENT-SECRET-TEXT", bilirubin: 1.2345 } }'), {
+    name: "PrismaClientValidationError",
+  });
+  const out = JSON.stringify(safeError(prismaLike));
+  assert.ok(!out.includes("PATIENT-SECRET-TEXT") && !out.includes("1.2345"));
+  assert.match(out, /PrismaClientValidationError/);
+  // other errors keep a short message, which is useful and not sensitive
+  assert.match(JSON.stringify(safeError(new Error("connect ECONNREFUSED"))), /ECONNREFUSED/);
+});
+
+test("the central error handler never logs a database error's message", async () => {
+  const app = require("../app");
+  const lines = [];
+  const express = require("express");
+  const probe = express();
+  const logged = [];
+  probe.use((req, res, next) => { req.log = { error: (o) => logged.push(o) }; next(); });
+  probe.get("/boom", () => { throw Object.assign(new Error('{ data: { analysis: "PATIENT-SECRET-TEXT" } }'), { name: "PrismaClientValidationError" }); });
+  // reuse the real handler: it is the last layer registered on the app
+  const layers = app._router.stack; // Express 4
+  const handler = layers[layers.length - 1].handle;
+  probe.use(handler);
+  const server = probe.listen(0);
+  try {
+    const res = await fetch(`http://127.0.0.1:${server.address().port}/boom`);
+    assert.equal(res.status, 500);
+    assert.deepEqual(await res.json(), { error: "Internal Server Error" });
+    assert.ok(!JSON.stringify(logged).includes("PATIENT-SECRET-TEXT"));
+    assert.equal(logged.length, 1);
+  } finally {
+    server.close();
+  }
+});

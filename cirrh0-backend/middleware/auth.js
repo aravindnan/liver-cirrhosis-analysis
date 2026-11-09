@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
+const { isUuid } = require("../utils/ids");
 const { JWT_SECRET, CLIENT_ORIGINS, COOKIE_SAMESITE, COOKIE_SECURE } = require("../env/dotenv");
 
 const COOKIE_NAME = "cirrh0_session";
@@ -51,8 +51,8 @@ exports.requireAuth = (req, res, next) => {
 
   try {
     const payload = jwt.verify(token, JWT_SECRET, { algorithms: ["HS256"] });
-    if (!mongoose.isValidObjectId(payload._id)) throw new Error("invalid subject");
-    req.userId = String(payload._id);
+    if (!isUuid(payload.sub)) throw new Error("invalid subject");
+    req.userId = payload.sub;
     return next();
   } catch (err) {
     return res.status(401).json({ error: "Invalid or expired session" });

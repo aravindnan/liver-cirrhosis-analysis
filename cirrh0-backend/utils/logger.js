@@ -20,13 +20,19 @@ const options = {
 const buildLogger = (destination, overrides = {}) => pino({ ...options, ...overrides }, destination);
 const logger = buildLogger();
 
-// Axios and Mongoose errors carry the request body (lab values) and document values. Never log the
-// error object as-is: keep only fields that identify what failed.
+// Errors can carry patient data: axios errors include the request body (lab values), and Prisma
+// errors, especially validation errors, print the arguments of the failed query in their message.
+// Never log an error object as-is. Keep only fields that identify what failed, and for database
+// errors do not log the message at all.
+const isDatabaseError = (err) =>
+  Boolean(err) && typeof err.name === "string" && err.name.startsWith("PrismaClient");
+
 const safeError = (err) => ({
   name: err && err.name,
   code: err && err.code,
   status: err && err.response && err.response.status,
-  message: err && typeof err.message === "string" ? err.message.slice(0, 200) : undefined,
+  message:
+    !err || isDatabaseError(err) || typeof err.message !== "string" ? undefined : err.message.slice(0, 200),
 });
 
 // Reuse a well-formed incoming id so a request can be traced across services; otherwise make one.
