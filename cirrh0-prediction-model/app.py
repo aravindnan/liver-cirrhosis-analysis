@@ -16,6 +16,7 @@ import math
 import os
 import re
 from datetime import datetime
+from pathlib import Path
 from urllib.parse import urlparse
 
 import joblib
@@ -42,9 +43,10 @@ MAX_FILES = 10
 MAX_DOWNLOAD_BYTES = 10 * 1024 * 1024
 DOWNLOAD_TIMEOUT_S = 20
 
-model = joblib.load("model.pkl")
-scaler = joblib.load("scaler.bin")
-with open("model_card.json") as _f:
+BASE_DIR = Path(__file__).resolve().parent  # artifacts load the same way from any working directory
+model = joblib.load(BASE_DIR / "model.pkl")
+scaler = joblib.load(BASE_DIR / "scaler.bin")
+with open(BASE_DIR / "model_card.json") as _f:
     MODEL_CARD = json.load(_f)  # feature order, version and evaluation, written by train_model.py
 
 # model_card feature name -> request field. The row is built in the card's order, so the training

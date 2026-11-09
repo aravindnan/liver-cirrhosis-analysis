@@ -464,3 +464,13 @@ The result moves from a demo that guesses a stage to a tool patients would trust
 - [FDA 510(k) K253413: LiverMultiScan v6.0](https://fda.innolitics.com/device/K253413)
 - [FDA 510(k) K202170: LiverMultiScan v4](https://fda.innolitics.com/device/K202170)
 - [Perspectum: LiverMultiScan product overview](https://perspectum.com/clinical-solutions/livermultiscan-healthcare-professionals)
+
+### Priority 2 progress (branch `improve/p2-cleanup-tests-ci`)
+
+- [x] Hero GIF (27.8 MB) replaced by a 12 KB still frame; unused 46 MB MP4 deleted; main bundle 337 kB to 80 kB gzipped
+- [x] Lazy-loaded routes; logo split from the 488 KB illustrations file; `moment`, `three` and react-three removed
+- [x] Dead code removed (unused modals, logo, NLP scripts, old notebook, CatBoost logs, duplicate route)
+- [x] Tests: 15 API (Node test runner), 33 ML (pytest), 9 web (Jest); GitHub Actions CI runs all three plus `tsc` and a production build
+- [x] API dependencies updated within semver ranges: `npm audit` now reports 0 vulnerabilities (was 12, 3 critical)
+- [ ] The media still exists in git history (`.git` is about 76 MB). Remove it in the same `git filter-repo` pass as the leaked secrets
+- [ ] Remaining Priority 2: `AuthProvider` and server-state cache, shared biomarker config, data-model clean-up, responsive layout and accessibility pass, design tokens, structured logging, Vite migration (also resolves the `react-scripts` audit findings)
