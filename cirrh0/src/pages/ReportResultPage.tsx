@@ -127,7 +127,7 @@ function ReportResultPage() {
                      className="league-spartan font-bold text-[50px] text-C11">
                         Report Result
                     </div>
-                    <Disclaimer/>
+                    <Disclaimer extra="How reliable is this estimate? On patients it had not seen during testing, the model picked the right stage about half the time (roughly 50%, compared with 38% for always guessing the most common stage), and it is least reliable for stage 1. It was trained on a 1970s-80s study of one liver disease (primary biliary cholangitis)."/>
                     <div 
                     data-aos="fade-up"
                     data-aos-duration="900"

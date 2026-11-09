@@ -63,6 +63,7 @@ exports.analyze_report = async (req, res) => {
       date: new Date(),
       analysis: typeof prediction.analysis === "string" ? prediction.analysis : "",
       stage: prediction.stage,
+      model_version: typeof prediction.model_version === "string" ? prediction.model_version : undefined,
       lifestyle_recommendations: ml.asList(prediction.lifestyle_recommendations),
       precautions: ml.asList(prediction.precautions),
       self_treatment_plan: ml.asList(prediction.self_treatment_plan),

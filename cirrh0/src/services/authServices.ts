@@ -1,16 +1,30 @@
 import axios from 'axios'
 import { ENV } from '../env/environment';
-import { jwtDecode } from 'jwt-decode'
 
-const TOKEN_COOKIE = 'userToken'
+// The real credential is an HttpOnly cookie set by the API; page scripts cannot read it.
+// We only keep a non-secret "session hint" (user id and expiry) so the UI knows whether to
+// show the logged-in state. The server decides what the user may actually do.
+const HINT_KEY = 'cirrh0_session_hint'
+const SESSION_MS = 2 * 60 * 60 * 1000
+
+type SessionHint = { _id: string; exp: number }
+
+const writeHint = (userId: string) => {
+  try {
+    localStorage.setItem(HINT_KEY, JSON.stringify({ _id: userId, exp: Date.now() + SESSION_MS }))
+  } catch (e) { /* storage unavailable: user simply appears logged out */ }
+}
+
+export const clearSessionHint = () => {
+  try { localStorage.removeItem(HINT_KEY) } catch (e) { /* ignore */ }
+}
 
 // AUTH SERVICES
 export const loginUser = async(loginData:any)=>{
     try {
         const response = await axios.post(`${ENV}/login`, loginData);
-        const { token, loginStatus } = response.data;
-        if (loginStatus && token) {
-          setCookieFunction(TOKEN_COOKIE, token, { path: '/' });
+        if (response.data?.loginStatus && response.data?.userId) {
+          writeHint(response.data.userId)
         }
         return response.data;
       } catch (error:any) {
@@ -30,15 +44,10 @@ export const registerUser = async(registerData:any)=>{
   return registrationResult
 }
 
-const clearCookie=(name:string)=>{
-  // Expire in the past so the browser removes the cookie immediately
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`
-}
-
 export const logoutUser = async(userId:any)=> {
   let logoutStatus;
   await axios.post(`${ENV}/logout`,{"userId": userId}).then((res:any)=>{
-    clearCookie(TOKEN_COOKIE)
+    clearSessionHint()
     logoutStatus = res
   }).catch((err:any)=>{
     console.error("Logout failed", err?.message);
@@ -47,44 +56,18 @@ export const logoutUser = async(userId:any)=> {
   return logoutStatus
 }
 
-// The token lives in a JS-readable cookie until the API sets an HttpOnly session cookie.
-// Keep it short-lived, SameSite=Lax, and Secure on https.
-export const setCookieFunction=(name:any, value:any, options:any)=> {
-    let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
-    cookieString += `;max-age=${options?.maxAge ?? 2 * 60 * 60}`;
-    cookieString += `;path=${options?.path || '/'}`;
-    cookieString += ';SameSite=Lax';
-    if (window.location.protocol === 'https:') {
-      cookieString += ';Secure';
-    }
-    document.cookie = cookieString;
-}
-
-export const getAuthToken = (): string | null => getCookieFunction(TOKEN_COOKIE)
-
-// Returns the token payload, or null when there is no token, it is malformed, or it has expired.
-export const getUserDetailsFromToken = ()=> {
-    const token = getAuthToken();
-    if (!token) return null;
+// Returns { _id } while the session hint is present and unexpired, otherwise null.
+export const getUserDetailsFromToken = (): SessionHint | null => {
     try {
-      const decoded = jwtDecode(token);
-      if (typeof decoded.exp === 'number' && decoded.exp * 1000 <= Date.now()) {
-        clearCookie(TOKEN_COOKIE)
-        return null;
+      const raw = localStorage.getItem(HINT_KEY)
+      if (!raw) return null
+      const hint = JSON.parse(raw) as SessionHint
+      if (typeof hint?._id !== 'string' || typeof hint.exp !== 'number' || hint.exp <= Date.now()) {
+        clearSessionHint()
+        return null
       }
-      return decoded;
-    } catch (error) {
-      return null;
+      return hint
+    } catch (e) {
+      return null
     }
-}
-
-function getCookieFunction(name:string) {
-    const prefix = `${decodeURIComponent(name)}=`;
-    for (const part of document.cookie.split(';')) {
-      const cookie = part.trim();
-      if (cookie.indexOf(prefix) === 0) {
-        return decodeURIComponent(cookie.substring(prefix.length));
-      }
-    }
-    return null;
 }

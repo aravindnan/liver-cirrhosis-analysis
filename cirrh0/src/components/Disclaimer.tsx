@@ -1,8 +1,8 @@
 import React from 'react'
 
-type DisclaimerProps = { className?: string }
+type DisclaimerProps = { className?: string; extra?: string }
 
-function Disclaimer({ className = '' }: DisclaimerProps) {
+function Disclaimer({ className = '', extra }: DisclaimerProps) {
   return (
     <div
       role="note"
@@ -13,6 +13,7 @@ function Disclaimer({ className = '' }: DisclaimerProps) {
         research model. It is not a medical diagnosis and does not replace advice from a qualified
         doctor. Please discuss your results with a doctor.
       </p>
+      {extra && <p className="mt-1">{extra}</p>}
       <p className="mt-1">
         Seek urgent medical care for vomiting blood, black or bloody stools, confusion or
         unusual sleepiness, fainting, or a rapidly swelling abdomen.

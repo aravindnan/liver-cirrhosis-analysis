@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../model/user");
 const { JWT_SECRET } = require("../env/dotenv");
 const { validateRegistration } = require("../utils/validate");
+const { setSessionCookie, clearSessionCookie } = require("../middleware/auth");
 
 exports.register = async (req, res) => {
   try {
@@ -53,10 +54,11 @@ exports.login = async (req, res) => {
     user.lastLoginDate = new Date();
     await user.save();
 
+    // The token is delivered only as an HttpOnly cookie, never in the response body.
+    setSessionCookie(res, token);
     res.status(200).json({
       success: true,
       loginStatus: true,
-      token,
       message: "Login Successful",
       userId: user._id,
     });
@@ -66,7 +68,8 @@ exports.login = async (req, res) => {
   }
 };
 
-// Tokens are stateless and expire after 2h; the client discards its token on logout.
+// Tokens are stateless and expire after 2h; logout clears the session cookie.
 exports.logout = async (req, res) => {
+  clearSessionCookie(res);
   res.status(200).json({ message: "Logout successful", logoutStatus: true });
 };

@@ -15,6 +15,7 @@ app.use(
       if (!origin || CLIENT_ORIGINS.includes(origin)) return cb(null, true);
       return cb(new Error("Origin not allowed by CORS"));
     },
+    credentials: true, // lets the browser send the session cookie
   })
 );
 app.use(express.json({ limit: "100kb" }));

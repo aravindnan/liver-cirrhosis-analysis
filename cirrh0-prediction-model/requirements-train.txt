@@ -1,0 +1,4 @@
+# Only needed to retrain (python train_model.py --save); the service itself needs requirements.txt
+-r requirements.txt
+pandas
+imbalanced-learn
