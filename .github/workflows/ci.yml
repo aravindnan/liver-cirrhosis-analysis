@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: API tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cirrh0-backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cirrh0-backend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+  ml:
+    name: ML service tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cirrh0-prediction-model
+    steps:
+      - uses: actions/checkout@v4
+      # model.pkl was trained on Python 3.14 with the versions pinned in requirements-test.txt
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: cirrh0-prediction-model/requirements-test.txt
+      - run: pip install -r requirements-test.txt
+      - run: python -m pytest -q
+
+  frontend:
+    name: Web app checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cirrh0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cirrh0/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test -- --watchAll=false
+        env:
+          CI: "true"
+      - run: npm run build
+        env:
+          CI: "false" # lint warnings predate CI and are tracked in IMPROVEMENT_PLAN.md

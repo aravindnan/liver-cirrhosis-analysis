@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { LogoIcon } from '../assets/Icons'
+import { LogoIcon } from './LogoIcon'
 import { Link } from 'react-router-dom'
 import LogoText from './LogoText'
 import { useSelector } from 'react-redux'

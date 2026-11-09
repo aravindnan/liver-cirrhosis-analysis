@@ -1,27 +1,29 @@
-import React, { useEffect } from 'react';
-import logo from './logo.svg';
+import React, { Suspense, lazy, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import ErrorPage from './pages/ErrorPage';
 import "aos/dist/aos.css"
 import AOS from "aos";
-import AboutPage from './pages/AboutPage';
-import MRIAnalysisPage from './pages/MRIAnalysisPage';
-import ReportAnalysisPage from './pages/ReportAnalysisPage';
-import ProfilePage from './pages/ProfilePage';
-import MRIResultPage from './pages/MRIResultPage';
-import ReportResultPage from './pages/ReportResultPage';
+import Loader from './assets/Loader';
+
+// One chunk per page so the first load only downloads what the visitor opens.
+const HomePage = lazy(() => import('./pages/HomePage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignupPage = lazy(() => import('./pages/SignupPage'));
+const ErrorPage = lazy(() => import('./pages/ErrorPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const MRIAnalysisPage = lazy(() => import('./pages/MRIAnalysisPage'));
+const ReportAnalysisPage = lazy(() => import('./pages/ReportAnalysisPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const MRIResultPage = lazy(() => import('./pages/MRIResultPage'));
+const ReportResultPage = lazy(() => import('./pages/ReportResultPage'));
 
 function App() {
   useEffect(()=>{
     AOS.init();
   },[])
   return (
-    <>
-      <BrowserRouter>
+    <BrowserRouter>
+      <Suspense fallback={<div className="w-[100vw] h-[100vh] flex justify-center items-center"><Loader/></div>}>
         <Routes>
           <Route path="/" element={<HomePage/>}/>
           <Route path="/login" element={<LoginPage/>}/>
@@ -33,10 +35,9 @@ function App() {
           <Route path="/mri-result" element={<MRIResultPage/>}/>
           <Route path="/report-result" element={<ReportResultPage/>}/>
           <Route path="*" element={<ErrorPage/>}/>
-          <Route path ="*" element={<ErrorPage/>}/>
         </Routes>
-      </BrowserRouter>
-    </>
+      </Suspense>
+    </BrowserRouter>
   );
 }
 

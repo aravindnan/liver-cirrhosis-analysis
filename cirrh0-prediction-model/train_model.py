@@ -15,6 +15,7 @@ import json
 import sys
 import warnings
 from datetime import date
+from pathlib import Path
 
 import joblib
 import numpy as np
@@ -30,7 +31,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 warnings.filterwarnings("ignore")
-DATA = "cirrhosis.csv"
+HERE = Path(__file__).resolve().parent  # works from any working directory
+DATA = HERE / "cirrhosis.csv"
 SEED = 42
 
 # Order matters: app.py builds the feature row in exactly this order.
@@ -117,8 +119,8 @@ def main():
     steps = dict(pipe.named_steps)
     medians = steps["impute"].statistics_
     model_pipe_scaler, model = steps["scale"], steps["model"]
-    joblib.dump(model, "model.pkl")
-    joblib.dump(model_pipe_scaler, "scaler.bin")
+    joblib.dump(model, HERE / "model.pkl")
+    joblib.dump(model_pipe_scaler, HERE / "scaler.bin")
     card = {
         "model_version": f"catboost-{best}-{date.today().isoformat()}",
         "features": FEATURES,
@@ -136,7 +138,7 @@ def main():
             "Not validated on other liver diseases, other populations or modern patients; not a diagnosis.",
         ],
     }
-    json.dump(card, open("model_card.json", "w"), indent=2)
+    json.dump(card, open(HERE / "model_card.json", "w"), indent=2)
     print("saved model.pkl, scaler.bin, model_card.json")
     return 0
 

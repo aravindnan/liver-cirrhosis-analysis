@@ -9,7 +9,7 @@ import * as authActions from "../redux/actions"
 import { Add, AddCircle, AddRoadOutlined, Delete, FindInPage, ImageSearch, Title } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { Tooltip } from '@mui/material';
-import moment from 'moment';
+import { formatDateTime } from '../utils/formatDate';
 import { deleteReportById } from '../services/reportAnalysisServices';
 import { deleteMRIById } from '../services/mriAnalysisServices';
 
@@ -98,7 +98,7 @@ function ProfilePage() {
             {myProfiledata?.reportAnalysisSet.slice().reverse().map((node:any, index:any) => (
             <div className='flex flex-row justify-between group cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold ' key={index} >
               <Link title='View Report' to={`/report-result?id=${node._id}`}  className='hover:underline underline-offset-1'>
-              {`${moment(node.date).format('llll')}`}
+              {`${formatDateTime(node.date)}`}
               </Link>
               <button
               onClick={()=>handleDeleteReport(node._id)}
@@ -127,7 +127,7 @@ function ProfilePage() {
           {myProfiledata?.mriAnalysisSet.slice().reverse().map((node:any, index:any) => (
             <div className='flex flex-row justify-between group cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold ' key={index} >
             <Link title='View Report' to={`/mri-result?id=${node._id}`}  className='hover:underline underline-offset-1'>
-            {`${moment(node.date).format('llll')}`}
+            {`${formatDateTime(node.date)}`}
             </Link>
             <button 
             onClick={()=>handleDeleteMRI(node._id)}

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { ENV } from '../env/environment'
-import { clearSessionHint } from './authServices'
+import { clearSessionHint } from './sessionHint'
 
 const isOurApi = (url?: string) => typeof url === 'string' && url.startsWith(ENV)
 
