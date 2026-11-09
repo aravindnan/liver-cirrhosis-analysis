@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import LogoText from "../components/LogoText";
+import DemoNotice from "../components/DemoNotice";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowForwardRounded, ReplayRounded, RestartAltRounded, Visibility, VisibilityOff } from "@mui/icons-material";
 import { registerUser } from "../services/authServices";
@@ -131,6 +132,7 @@ function SignupPage() {
       <div className="flex flex-col mx-auto w-full max-w-[450px] mt-[90px] md:mt-[100px] gap-3 p-4 md:p-2">
         <div data-aos="fade-up" data-aos-duration="500" className="text-center">
           <LogoText look={"text-C11 text-[48px] md:text-[70px] "} />
+        <DemoNotice />
         </div>
         {registerStatus === "not-registered" ? (
         <>

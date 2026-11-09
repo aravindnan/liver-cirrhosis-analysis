@@ -1,10 +1,37 @@
+const fs = require("node:fs");
+const path = require("node:path");
 const express = require("express");
+const compression = require("compression");
 const cors = require("cors");
 const helmet = require("helmet");
 const pinoHttp = require("pino-http");
-const { CLIENT_ORIGINS, TRUST_PROXY } = require("./env/dotenv");
+const { CLIENT_ORIGINS, TRUST_PROXY, API_BASE_PATH, WEB_DIR } = require("./env/dotenv");
 const { logger, requestId, safeError } = require("./utils/logger");
 const { db } = require("./db/client");
+
+// Fail at start-up, not on the first visit, if the web build is missing.
+const WEB_INDEX = WEB_DIR ? path.join(WEB_DIR, "index.html") : "";
+if (WEB_DIR && !fs.existsSync(WEB_INDEX)) {
+  throw new Error(`WEB_DIR is set but ${WEB_INDEX} does not exist. Build the web app first (npm run build in cirrh0).`);
+}
+
+// What the built web app loads. Everything is same-origin except Google Fonts (index.html) and
+// Cloudinary (report and image uploads and the images shown from them). No inline or remote scripts.
+const contentSecurityPolicy = {
+  useDefaults: false,
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // MUI injects inline styles
+    fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+    imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com"],
+    connectSrc: ["'self'", "https://api.cloudinary.com"],
+    objectSrc: ["'none'"],
+    baseUri: ["'self'"],
+    formAction: ["'self'"],
+    frameAncestors: ["'none'"],
+  },
+};
 
 const app = express();
 
@@ -22,7 +49,8 @@ app.use(
     customLogLevel: (req, res, err) => (err || res.statusCode >= 500 ? "error" : res.statusCode >= 400 ? "warn" : "info"),
   })
 );
-app.use(helmet());
+app.use(helmet(WEB_DIR ? { contentSecurityPolicy } : {}));
+app.use(compression());
 app.use(
   cors({
     origin: (origin, cb) => {
@@ -48,10 +76,33 @@ app.get("/healthz", async (req, res) => {
   }
 });
 
-app.use(require("./routes/auth"));
-app.use(require("./routes/user"));
-app.use(require("./routes/report"));
-app.use(require("./routes/mri"));
+const api = express.Router();
+api.use(require("./routes/auth"));
+api.use(require("./routes/user"));
+api.use(require("./routes/report"));
+api.use(require("./routes/mri"));
+app.use(API_BASE_PATH || "/", api);
+
+if (WEB_DIR) {
+  // Hashed build files never change, so they can be cached for a year; index.html must always be fresh.
+  app.use(
+    express.static(WEB_DIR, {
+      index: false,
+      setHeaders: (res, filePath) => {
+        const hashed = filePath.includes(`${path.sep}static${path.sep}`);
+        res.setHeader("Cache-Control", hashed ? "public, max-age=31536000, immutable" : "public, max-age=3600");
+      },
+    })
+  );
+  const isApiPath = (p) => Boolean(API_BASE_PATH) && (p === API_BASE_PATH || p.startsWith(`${API_BASE_PATH}/`));
+  // Any other page address is a route of the single-page app. Missing files (an extension) and
+  // unknown API paths stay real 404s instead of returning the page.
+  app.get("*", (req, res, next) => {
+    if (isApiPath(req.path) || path.extname(req.path) || !req.accepts("html")) return next();
+    res.setHeader("Cache-Control", "no-cache");
+    return res.sendFile(WEB_INDEX);
+  });
+}
 
 app.use((req, res) => res.status(404).json({ error: "Not found" }));
 
