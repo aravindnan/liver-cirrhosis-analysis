@@ -24,6 +24,12 @@ const reportAnalysisSchema = new mongoose.Schema(
     alk_phos: Number,
     tryglycerides: Number,
     cholesterol: Number,
+    alt: Number, // optional; enables FIB-4
+
+    // Deterministic guideline scores (see utils/scores.js), stored so history does not change if
+    // formulas are ever revised.
+    scores: [mongoose.Schema.Types.Mixed],
+    scores_version: String,
 
     stage: { type: Number, min: 1, max: 4 },
     model_version: String,

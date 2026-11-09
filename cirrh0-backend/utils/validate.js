@@ -12,6 +12,8 @@ const NUMERIC_RANGES = {
   tryglycerides: [0, 5000],
   cholesterol: [0, 2000],
 };
+// Optional: not needed by the stage model, but it enables the FIB-4 score.
+const OPTIONAL_NUMERIC_RANGES = { alt: [0, 5000] };
 const YES_NO = ["Y", "N"];
 const EDEMA = ["Y", "S", "N"];
 const SEX = ["male", "female", "other"];
@@ -28,6 +30,15 @@ exports.validateLabData = (input) => {
     }
     if (n < min || n > max) {
       return { ok: false, error: `${field} must be between ${min} and ${max}` };
+    }
+    value[field] = n;
+  }
+  for (const [field, [min, max]] of Object.entries(OPTIONAL_NUMERIC_RANGES)) {
+    const raw = input[field];
+    if (raw === "" || raw === null || raw === undefined) continue;
+    const n = typeof raw === "number" ? raw : Number(String(raw).trim());
+    if (!Number.isFinite(n) || n < min || n > max) {
+      return { ok: false, error: `${field} must be a number between ${min} and ${max}, or left empty` };
     }
     value[field] = n;
   }
