@@ -14,20 +14,47 @@ concurrency:
 
 jobs:
   backend:
-    name: API tests
+    name: API tests (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 22.18 is the oldest Node that runs the generated Prisma client (TypeScript) unmodified.
+        node: [22, 24]
     defaults:
       run:
         working-directory: cirrh0-backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: cirrh0
+          POSTGRES_PASSWORD: cirrh0
+          POSTGRES_DB: cirrh0_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cirrh0 -d cirrh0_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://cirrh0:cirrh0@localhost:5432/cirrh0_test
+      TEST_DATABASE_URL: postgresql://cirrh0:cirrh0@localhost:5432/cirrh0_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ matrix.node }}
           cache: npm
           cache-dependency-path: cirrh0-backend/package-lock.json
       - run: npm ci
-      - run: npm test
+      - name: Apply database migrations
+        run: npx prisma migrate deploy
+      - name: Fail if schema.prisma has changes that no migration covers
+        run: npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+      - name: Tests (unit and integration, against PostgreSQL)
+        run: npm test
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
 

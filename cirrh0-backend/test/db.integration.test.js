@@ -288,7 +288,8 @@ it("trends are ordered by report date and capped to the caller's own", async () 
   ] });
   const { json } = await call("GET", "/get-trends", { cookie: a.cookie });
   assert.deepEqual(json.points.map((p) => p.labs.sgot), [30, 40]);
-  assert.ok(!JSON.stringify(json).includes("99"), "no data from another user");
+  // Compare values, not text: a random UUID can contain any digits, so searching the JSON for "99" is flaky.
+  assert.ok(json.points.every((p) => p.labs.sgot !== 99 && p.labs.bilirubin !== 5), "no data from another user");
 });
 
 it("image analyses: create, read, and delete are scoped to the owner", async () => {
