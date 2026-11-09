@@ -151,3 +151,48 @@ def test_service_token_is_enforced_when_configured(client, service, monkeypatch,
     assert client.post("/predict", json=lab, headers={"X-Service-Token": "nope"}).status_code == 401
     assert client.post("/predict", json=lab, headers={"X-Service-Token": "s3cret"}).status_code == 200
     assert client.get("/").status_code == 200  # health check stays open
+
+
+# ---- extraction against the real sample reports in testing-assets/ -------------------
+ASSETS = __import__("pathlib").Path(__file__).resolve().parents[2] / "testing-assets"
+
+
+def _extract_from(service, name):
+    import pdfplumber
+
+    with pdfplumber.open(ASSETS / name) as pdf:
+        text = "".join((page.extract_text() or "") for page in pdf.pages)
+    return service.extract_details(text)
+
+
+@pytest.mark.parametrize(
+    "report,expected",
+    [
+        ("WM17S.pdf", {"bilirubin": "0.20", "albumin": "4.00", "platelets": "200", "sgot": "11.0", "alt": "21.0", "alk_phos": "150.00"}),
+        ("LFT2.pdf", {"bilirubin": "0.90", "albumin": "2.00", "sgot": "<10", "alt": "<10", "alk_phos": "<30"}),
+        ("test3.pdf", {"bilirubin": "1.37", "albumin": "3.9", "platelets": "213", "sgot": "13", "alt": "15", "alk_phos": "80"}),
+        ("LFT.pdf", {"bilirubin": "1.1", "albumin": "4.5"}),
+    ],
+)
+def test_extraction_on_real_lab_reports(service, report, expected):
+    details = _extract_from(service, report)
+    for key, value in expected.items():
+        assert details[key] == value, f"{report}: {key}"
+
+
+def test_platelets_reported_per_microlitre_are_normalised(service):
+    assert _extract_from(service, "cbc1.pdf")["platelets"] == "1550"
+    assert service.normalise_platelets("250") == "250"
+    assert service.normalise_platelets("450000") == "450"
+    assert service.normalise_platelets("not a number") == "not a number"
+
+
+def test_section_headers_without_numbers_do_not_produce_values(service):
+    text = "ALKALINE PHOSPHATASE, SERUM\nALANINE AMINOTRANSFERASE (ALT/SGPT), SERUM\nBILIRUBIN (TOTAL, DIRECT, INDIRECT), SERUM"
+    details = service.extract_details(text)
+    assert details["alk_phos"] is None and details["alt"] is None and details["bilirubin"] is None
+
+
+def test_total_bilirubin_is_preferred_over_direct(service):
+    text = "Bilirubin Direct 0.2 mg/dL\nBilirubin Total 0.9 mg/dL\nBilirubin Indirect 0.7"
+    assert service.extract_details(text)["bilirubin"] == "0.9"

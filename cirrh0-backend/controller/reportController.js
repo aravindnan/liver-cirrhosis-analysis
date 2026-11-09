@@ -3,6 +3,7 @@ const ReportAnalysis = require("../model/reportsAnalysis");
 const { NLP_BASE_URL, REPORT_BASE_URL } = require("../env/dotenv");
 const { validateLabData, isAllowedUploadUrl } = require("../utils/validate");
 const ml = require("../utils/mlClient");
+const { buildReportFields, validStage } = require("../utils/reportFields");
 const { safeError } = require("../utils/logger");
 
 const MAX_FILES = 10;
@@ -53,23 +54,19 @@ exports.analyze_report = async (req, res) => {
       if (!report) return res.status(404).json({ error: "Report not found" });
     }
 
-    // Predict before writing anything so a failure leaves no half-filled record.
-    const { data: prediction } = await ml.post(REPORT_BASE_URL, checked.value, 60000);
-    if (!prediction || !Number.isInteger(prediction.stage) || prediction.stage < 1 || prediction.stage > 4) {
-      throw new Error("Prediction service returned an invalid stage");
+    // The guideline scores need no ML, so a model outage must not lose the analysis: save the scores
+    // and report that the model estimate was unavailable.
+    let prediction = null;
+    try {
+      ({ data: prediction } = await ml.post(REPORT_BASE_URL, checked.value, 60000));
+      if (!validStage(prediction)) throw new Error("Prediction service returned an invalid stage");
+    } catch (mlError) {
+      prediction = null;
+      req.log.warn({ err: safeError(mlError) }, "stage model unavailable; saving guideline scores only");
     }
+    const modelAvailable = prediction !== null;
 
-    const fields = {
-      ...checked.value,
-      date: new Date(),
-      analysis: typeof prediction.analysis === "string" ? prediction.analysis : "",
-      stage: prediction.stage,
-      model_version: typeof prediction.model_version === "string" ? prediction.model_version : undefined,
-      lifestyle_recommendations: ml.asList(prediction.lifestyle_recommendations),
-      precautions: ml.asList(prediction.precautions),
-      self_treatment_plan: ml.asList(prediction.self_treatment_plan),
-      doctor_type: ml.asList(prediction.doctor_type),
-    };
+    const fields = buildReportFields(checked.value, prediction);
 
     if (report) {
       report.set(fields);
@@ -79,7 +76,7 @@ exports.analyze_report = async (req, res) => {
     report.draftExpiresAt = undefined; // analysed, so it is no longer a draft
     await report.save();
 
-    res.json({ reportResult: report, analysisSuccess: true, reportId: report._id });
+    res.json({ reportResult: report, analysisSuccess: true, reportId: report._id, modelAvailable });
   } catch (error) {
     req.log.error({ err: safeError(error) }, "report analysis failed");
     res.status(502).json({ analysisSuccess: false, error: "Analysis failed. Please try again." });

@@ -275,20 +275,35 @@ def download_file(url):
 # --- /extract -----------------------------------------------------------------
 DETAIL_KEYS = [
     "bilirubin", "albumin", "tryglycerides", "prothrombin", "copper",
-    "platelets", "sgot", "alk_phos", "cholesterol", "reported_date",
+    "platelets", "sgot", "alt", "alk_phos", "cholesterol", "reported_date",
 ]
 
+# Each field has several patterns, tried in order, because labs lay reports out differently
+# (for example "AST (SGOT) 11.0", "ASPARTATE AMINOTRANSFERASE (AST/SGOT) 13", "BILIRUBIN, TOTAL 1.37").
+# Section headers such as "ALKALINE PHOSPHATASE, SERUM" contain no number and simply do not match.
+# Values may start with "<" when the lab reports "below detection limit"; the user must review those.
+NUM = r"([\d\.]+)"
+NUM_LT = r"([\d\.<]+)"
 PATTERNS = {
-    "bilirubin": r"Bilirubin\s*(?:Total|Direct|Indirect)?\s*([\d\.]+)\s*(?:mg/dL)?",
-    "albumin": r"Albumin\s*([\d\.]+)\s*(?:g/dL)?",
-    "tryglycerides": r"Triglycerides\s*([\d\.]+)\s*(?:mg/dL)?",
-    "prothrombin": r"Prothrombin\s*([\d\.]+)\s*(?:mg/dL)?",
-    "copper": r"Copper\s*([\d\.]+)\s*(?:mg/dL)?",
-    "platelets": r"Platelet Count\s*([\d\.]+)\s*(?:\d+/L)?",
-    "sgot": r"AST\s*\(SGOT\)\s*([\d\.<]+)\s*(?:U/L)?",
-    "alk_phos": r"Alkaline\s*Phosphatase\s*\(ALP\)\s*([\d\.<]+)\s*(?:U/L)?",
-    "cholesterol": r"Cholesterol,\s*Total\s*([\d\.]+)\s*(?:mg/dL)?",
-    "reported_date": r"(?i)(?:Reported\s*:|REPORTED\s*:|DATE\s*:|DATE\s*OF\s*REPORT\s*:|Date\s*of\s*Report\s*:)\s*(\d{1,2}[/-][A-Za-z]{3}[/-]\d{2,4}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\s*(\d{1,2}:\d{2}:\d{2}\s*(?:AM|PM)?)?",
+    "bilirubin": [r"Bilirubin\s*,?\s*Total\s*" + NUM, r"Bilirubin\s*" + NUM],
+    "albumin": [r"Albumin\s*" + NUM],
+    "tryglycerides": [r"Triglycerides\s*" + NUM],
+    "prothrombin": [r"Prothrombin\s*" + NUM],
+    "copper": [r"Copper\s*" + NUM],
+    "platelets": [r"Platelet\s*Count\s*" + NUM],
+    "sgot": [
+        r"AST\s*\(\s*SGOT\s*\)\s*" + NUM_LT,
+        r"ASPARTATE\s+AMINOTRANSFERASE\s*(?:\(\s*AST\s*/\s*SGOT\s*\))?\s*" + NUM_LT,
+    ],
+    "alt": [
+        r"ALT\s*\(\s*SGPT\s*\)\s*" + NUM_LT,
+        r"ALANINE\s+AMINOTRANSFERASE\s*(?:\(\s*ALT\s*/\s*SGPT\s*\))?\s*" + NUM_LT,
+    ],
+    "alk_phos": [r"Alkaline\s*Phosphatase\s*(?:\(\s*ALP\s*\))?\s*" + NUM_LT],
+    "cholesterol": [r"Cholesterol,\s*Total\s*" + NUM],
+    "reported_date": [
+        r"(?:Reported\s*:|DATE\s*:|DATE\s*OF\s*REPORT\s*:)\s*(\d{1,2}[/-][A-Za-z]{3}[/-]\d{2,4}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\s*(\d{1,2}:\d{2}:\d{2}\s*(?:AM|PM)?)?"
+    ],
 }
 
 
@@ -305,11 +320,29 @@ def extract_text_from_pdf(pdf_stream):
     return text
 
 
+def normalise_platelets(value):
+    """Platelets are expected in 10^3/uL (same number as 10^9/L). Some labs print the absolute count
+    per uL or cu.mm (for example 1550000); convert those. Counts that low cannot be mistaken for it."""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return value
+    if number >= 10000:
+        number = number / 1000
+    return f"{number:g}"
+
+
 def extract_details(text):
     details = {}
-    for key, pattern in PATTERNS.items():
-        match = re.search(pattern, text, re.IGNORECASE)
-        details[key] = match.group(1) if match else None
+    for key, patterns in PATTERNS.items():
+        details[key] = None
+        for pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                details[key] = match.group(1)
+                break
+    if details["platelets"] is not None:
+        details["platelets"] = normalise_platelets(details["platelets"])
     return details
 
 

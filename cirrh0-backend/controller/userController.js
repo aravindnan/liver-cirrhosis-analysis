@@ -8,9 +8,13 @@ exports.get_user_by_id = async (req, res) => {
     const user = await User.findById(req.userId).lean();
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    // Analyses are found by their owner. Drafts (extracted but never analysed) are hidden.
+    // Analyses are found by their owner. Drafts (extracted but never analysed) are hidden; a report counts once it has a stage or scores.
     const [reports, images] = await Promise.all([
-      ReportAnalysis.find({ userId: req.userId, stage: { $ne: null } }).sort({ date: 1 }).lean(),
+      ReportAnalysis.find({
+        userId: req.userId,
+        draftExpiresAt: null,
+        $or: [{ stage: { $ne: null } }, { "scores.0": { $exists: true } }],
+      }).sort({ date: 1 }).lean(),
       MRIAnalysis.find({ userId: req.userId, analysis: { $ne: null } }).sort({ date: 1 }).lean(),
     ]);
 

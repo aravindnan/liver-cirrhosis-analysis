@@ -53,7 +53,9 @@ test("get_user_by_id finds analyses by owner, hides drafts and keeps the respons
 
   let body;
   await get_user_by_id({ userId: ID, log: { error() {} } }, { status() { return this; }, json(b) { body = b; } });
-  assert.deepEqual(calls.report, { userId: ID, stage: { $ne: null } });
+  assert.equal(calls.report.userId, ID);
+  assert.equal(calls.report.draftExpiresAt, null); // drafts are hidden
+  assert.ok(calls.report.$or.some((c) => c["scores.0"])); // scores-only reports are shown
   assert.deepEqual(calls.mri, { userId: ID, analysis: { $ne: null } });
   assert.deepEqual(body.reportAnalysisSet, [{ _id: "r1", stage: 2 }]); // legacy id array is replaced
   assert.deepEqual(body.mriAnalysisSet, [{ _id: "m1" }]);

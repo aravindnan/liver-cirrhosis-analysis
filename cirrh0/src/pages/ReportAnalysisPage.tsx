@@ -43,6 +43,7 @@ function ReportAnalysisPage() {
     age:myProfiledata?.age,
     tryglycerides:"",
     sgot:"",
+    alt:"",
     cholesterol:"",
 })
 
@@ -163,6 +164,7 @@ const handleExtractParameters = () => {
             platelets:extractedRes.extractedData.platelets ?? "",
             tryglycerides:extractedRes.extractedData.tryglycerides ?? "",
             sgot:extractedRes.extractedData.sgot ?? "",
+            alt:extractedRes.extractedData.alt ?? "",
             cholesterol:extractedRes.extractedData.cholesterol ?? ""
 
 
@@ -580,6 +582,23 @@ useEffect(() => {
                         name="sgot"
                         value={validatedData?.sgot}
                         onChange={handleInputChange}
+                        className="border-gray-300 border py-2 px-2 bg-gray-100 outline-none focus:border-C11 rounded-[2px] text-[12px]"
+                      />
+                    </div>
+
+                    <div className="flex flex-col justify-start w-[100px] mt-3">
+                      <label htmlFor="alt" className="text-left text-C11  text-[10px]">
+                        ALT (optional)
+                      </label>
+                      <input
+                        id="alt"
+                        type="text"
+                        inputMode="decimal"
+                        name="alt"
+                        value={validatedData?.alt}
+                        onChange={handleInputChange}
+                        placeholder="U/L"
+                        title="Enter your ALT (SGPT) result in U/L to also get the FIB-4 score"
                         className="border-gray-300 border py-2 px-2 bg-gray-100 outline-none focus:border-C11 rounded-[2px] text-[12px]"
                       />
                     </div>
