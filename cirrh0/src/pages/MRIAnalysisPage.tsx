@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useAuthPage } from '../auth/AuthContext'
 import Navbar from '../components/Navbar'
+import DemoNotice from '../components/DemoNotice'
 import Footer from '../components/Footer'
 import { Close, InfoOutlined, InsertDriveFile, Troubleshoot, Upload } from '@mui/icons-material'
 import { Link, useNavigate } from 'react-router-dom'
@@ -142,6 +143,7 @@ Upload a stained liver tissue slide image, such as a biopsy slide. An automated 
              data-aos-duration="500" 
             className='mt-[20px] text-[14px] w-[80%] mx-auto text-C11'>
 Research tool for tissue slide images. Results are automated detections, not a diagnosis.              </div>
+            <DemoNotice className="mt-4 mx-auto max-w-[70ch]" />
 
 
             {

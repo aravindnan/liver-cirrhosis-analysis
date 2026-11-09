@@ -473,6 +473,18 @@ The result moves from a demo that guesses a stage to a tool patients would trust
 - [x] Tests: 15 API (Node test runner), 33 ML (pytest), 9 web (Jest); GitHub Actions CI runs all three plus `tsc` and a production build
 - [x] API dependencies updated within semver ranges: `npm audit` now reports 0 vulnerabilities (was 12, 3 critical)
 - [ ] The media still exists in git history (`.git` is about 76 MB). Remove it in the same `git filter-repo` pass as the leaked secrets
+### Deployment on Render (branch `deploy/render`)
+
+- [x] `render.yaml` Blueprint (all free-tier plans) and `DEPLOY.md` with a before/after checklist, free-tier limits and an upgrade path
+- [x] One origin: the API serves the built web app under `/api`, so the login cookie is first-party (Safari-safe) and CORS is not needed
+- [x] Content security policy for the built app (no inline or remote scripts), enforced and checked in a browser by trying to inject a script, an external script and a tracker image
+- [x] `ML_SERVICE_URL` (accepts Render's host:port form), `API_BASE_PATH`, `WEB_DIR`, and the allowed origin defaulting to Render's public URL; start-up fails with a clear message if the web build is missing
+- [x] Demo notice ("use test data only") on sign-up, login and the analysis pages, shown only when `REACT_APP_DEMO_NOTICE=true`
+- [x] Run locally exactly as Render will: fresh database migrated on start, production build, gunicorn with the shared token, then sign-up, login, analysis, trends and a hard reload on a deep link; the API log had no errors and no personal data
+- [ ] **You must:** revoke the old Gemini and Roboflow keys and use new ones, create the Cloudinary unsigned preset `image_preset`, and create the Blueprint on your Render account
+- [ ] Not checked here: the Blueprint on Render itself, the model service's memory on Render's free instance (about 220 MB locally), cold-start timing
+- [ ] Demo only until private file storage, a privacy notice and consent exist; the free database expires after 30 days and has no backups
+
 ### Database: MongoDB to PostgreSQL and Prisma (branch `migrate/postgres-prisma`)
 
 - [x] Prisma 7 schema and migration: UUID keys, enums, foreign keys with cascade delete, indexes, CHECK constraints (stage 1 to 4, plausible ages, lower-case email)

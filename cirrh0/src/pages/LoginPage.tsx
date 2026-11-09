@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import LogoText from '../components/LogoText'
+import DemoNotice from '../components/DemoNotice'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { loginUser } from '../services/authServices'
 import { useAuth } from '../auth/AuthContext'
@@ -121,6 +122,7 @@ function LoginPage() {
         data-aos-duration="700" 
         >
         <LogoText look={"text-C11 text-[48px] md:text-[70px] "}/>
+        <DemoNotice />
         </div>
 
         {

@@ -5,8 +5,10 @@ Flask service used by the API: stage estimate (`/predict`), lab extraction (`/ex
 ```bash
 pip install -r requirements.txt
 cp .env.example .env   # fill in keys, then export them
-gunicorn -w 2 -b 127.0.0.1:3005 app:app
+gunicorn --workers 1 --threads 4 --timeout 120 --bind 127.0.0.1:3005 app:app
 ```
+
+One worker keeps memory low (about 220 MB measured); threads let it wait on the Gemini and Roboflow calls in parallel. Set `ML_SERVICE_TOKEN` in production: every route except `/` then requires it in an `X-Service-Token` header.
 
 ## Model
 

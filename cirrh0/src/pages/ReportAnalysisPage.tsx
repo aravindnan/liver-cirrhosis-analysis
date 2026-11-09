@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuthPage } from '../auth/AuthContext'
 import Navbar from "../components/Navbar";
+import DemoNotice from "../components/DemoNotice";
 import Footer from "../components/Footer";
 import { Close, InfoOutlined, InsertDriveFile, Troubleshoot, Upload } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
@@ -300,6 +301,7 @@ useEffect(() => {
           >
             Check the extracted values, answer four questions, and get an educational summary to discuss with your doctor
           </div>
+          <DemoNotice className="mt-4 mx-auto max-w-[70ch]" />
           {!myProfiledata?.username ? (
             <>
               <Link

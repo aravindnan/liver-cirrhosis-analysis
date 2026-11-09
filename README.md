@@ -79,7 +79,11 @@ cd cirrh0-prediction-model && python -m pytest
 
 The integration tests **delete all data** in `TEST_DATABASE_URL` and refuse to run unless the database name contains `test`. Apply migrations to it first (`DATABASE_URL=<that url> npm run db:migrate`).
 
-## Deploying the API
+## Deploying
+
+**First deploy:** follow [DEPLOY.md](DEPLOY.md). It sets up a demo or private beta on Render from `render.yaml` (web app and API in one service, the model service, and PostgreSQL), with a checklist of what to do before and after.
+
+### Deploying the API elsewhere
 
 - Run `npm run db:migrate` before starting a new version.
 - Set `DATABASE_URL`, `SECRET_KEY` (32+ random characters), `CLIENT_ORIGINS`, `NODE_ENV=production` and `ML_SERVICE_TOKEN`.
