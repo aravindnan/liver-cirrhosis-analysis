@@ -11,7 +11,7 @@ import * as authActions from "../redux/actions"
 import { getUserDetailsFromToken } from '../services/authServices';
 import { Link } from 'react-router-dom';
 import { CalendarMonth, Female, InfoOutlined, Male, Person2, Transgender } from '@mui/icons-material';
-import moment from 'moment';
+import { formatDateTime } from '../utils/formatDate';
 
 function MRIResultPage() {
 
@@ -139,7 +139,7 @@ useEffect(() => {
           <div className="text-C11">
             <CalendarMonth/>
           </div>
-          {moment(mriResult?.date).format('llll')}
+          {formatDateTime(mriResult?.date)}
         </div>
         <div  className="flex flex-row items-center gap-1">
           <div className="text-C11">
