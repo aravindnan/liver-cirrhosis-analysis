@@ -12,6 +12,7 @@ import moment from "moment";
 import { CalendarMonth, CalendarViewMonth, Female, InfoOutlined, Male, Person, Person2, Transgender, VerifiedUser } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { Tooltip } from "@mui/material";
+import Disclaimer from "../components/Disclaimer";
 
 
 function ReportResultPage() {
@@ -126,6 +127,7 @@ function ReportResultPage() {
                      className="league-spartan font-bold text-[50px] text-C11">
                         Report Result
                     </div>
+                    <Disclaimer/>
                     <div 
                     data-aos="fade-up"
                     data-aos-duration="900"
@@ -203,7 +205,7 @@ function ReportResultPage() {
                             {reportResult.stage && (
                                 <div className="flex flex-col px-5 py-3 rounded-[6px]">
                                     <div className="league-spartan font-bold text-[25px] text-gray-800">
-                                        Cirrhosis Stage
+                                        Estimated Stage (of 4)
                                     </div>
                                     <div className="league-spartan font-semibold text-[100px] border-2 border-C11 text-C11 bg-gray-100 w-[150px] h-[150px] flex text-center justify-center items-center px-5 py-2">
                                         {reportResult.stage}
@@ -350,7 +352,7 @@ function ReportResultPage() {
                     data-aos-once
                                 className="flex flex-col py-3 rounded-[4px]">
                                     <div className="league-spartan font-bold text-[25px] text-gray-800">
-                                        Self Treatment Plan
+                                        Self-care Guidance
                                     </div>
                                     <div className="flex flex-col gap-2">
                                         {reportResult.self_treatment_plan.map((node: any, index: number) => (

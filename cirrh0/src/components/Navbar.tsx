@@ -42,8 +42,8 @@ function Navbar(props:any) {
                   onMouseEnter={()=>setShowProductsMenu(true)} 
                   onMouseLeave={()=>setShowProductsMenu(false)}
                   className={`min-w-[200px] absolute rounded-[2px]  flex flex-col p-2 top-[30px] ${activePage==="home"?"bg-[#000000c3] backdrop-blur-[30px] text-white":"bg-white border-gray-200 border-[0.5px]"}   shadow-lg left-[-10px]`}>
-                  <Link to="/mri-analysis" className='px-2 py-1 hover:bg-[#a9030628] rounded-[2px]'>MRI Analysis</Link>
-                  <Link to="/report-analysis" className='px-2 py-1 hover:bg-[#a9030628] rounded-[2px]'>Report Analyis</Link>
+                  <Link to="/mri-analysis" className='px-2 py-1 hover:bg-[#a9030628] rounded-[2px]'>Slide Image Analysis</Link>
+                  <Link to="/report-analysis" className='px-2 py-1 hover:bg-[#a9030628] rounded-[2px]'>Report Analysis</Link>
 
                  </div>
                 }
@@ -67,8 +67,7 @@ function Navbar(props:any) {
                   </div>
                   </Link>
                   {
-                    (activePage==="home"||activePage==="profile"||activePage==="about")&&
-                  <div
+                                      <div
                   onClick={()=>setLogoutModal(true)}
                     className='px-2 py-1 hover:bg-[#a9030628] rounded-[2px] flex flex-row gap-2 items-center cursor-pointer'>
                     <Logout sx={{fontSize:"16px"}}/>

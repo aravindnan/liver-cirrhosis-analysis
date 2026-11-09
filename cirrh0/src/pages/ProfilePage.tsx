@@ -77,7 +77,6 @@ function ProfilePage() {
     }
   };
 
-  console.log("UserDetails : ",myProfiledata)
   
   return (
     <div className='flex flex-col justify-between h-screen'>
@@ -141,13 +140,13 @@ function ProfilePage() {
             myProfiledata?.mriAnalysisSet.length === 0 && 
             <div className='flex flex-col justify-center w-full my-10'>
               <div className='flex justify-center'>
-              <Tooltip title="Analyze new MRI" arrow placement='right'>
+              <Tooltip title="Analyze new image" arrow placement='right'>
                 <Link to="/mri-analysis" className='text-gray-200 bg- w-fit h-fit hover:text-C11'>
                  <AddCircle sx={{fontSize:30}}/>
                 </Link>
               </Tooltip>
               </div>
-              <p className='text-gray-300 text-[12px] font-semibold text-center'>No Existing Reports for you</p>
+              <p className='text-gray-300 text-[12px] font-semibold text-center'>No image analyses yet</p>
             </div>
            }
           </div>

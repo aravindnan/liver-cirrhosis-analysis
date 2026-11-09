@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
+import Disclaimer from '../components/Disclaimer'
 import Footer from '../components/Footer'
 import Loader from '../assets/Loader';
 import { getMRIResultById } from '../services/mriAnalysisServices';
@@ -124,8 +125,9 @@ useEffect(() => {
         data-aos-duration="600"
         data-aos-once
          className="league-spartan font-bold text-[50px] text-C11">
-            MRI Result
+            Image Analysis Result
         </div>
+        <Disclaimer/>
         <div 
         data-aos="fade-up"
         data-aos-duration="650"
@@ -272,11 +274,11 @@ useEffect(() => {
 
             className="mt-[40px] mb-[-20px]">
             <div className="league-spartan font-bold text-[25px] text-gray-800">
-                            MRI Image
+                            Uploaded Image
                         </div>          
           <img
           src={mriResult?.file}
-          alt="MRI Image"
+          alt="Uploaded liver slide"
           className='w-[300px] aspect-auto border border-C11'
           />
         </div>

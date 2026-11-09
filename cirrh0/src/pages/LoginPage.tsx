@@ -61,7 +61,6 @@ function LoginPage() {
 
     });
 
-    console.log("LOGINNDATA",loginFormData)
   };
 
   const handleKeyPress = (e: any) => {
