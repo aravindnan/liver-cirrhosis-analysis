@@ -4,11 +4,11 @@
 const HINT_KEY = 'cirrh0_session_hint'
 export const SESSION_MS = 2 * 60 * 60 * 1000
 
-export type SessionHint = { _id: string; exp: number }
+export type SessionHint = { id: string; exp: number }
 
 export const writeSessionHint = (userId: string, now: number = Date.now()) => {
   try {
-    localStorage.setItem(HINT_KEY, JSON.stringify({ _id: userId, exp: now + SESSION_MS }))
+    localStorage.setItem(HINT_KEY, JSON.stringify({ id: userId, exp: now + SESSION_MS }))
   } catch (e) { /* storage unavailable: the user simply appears logged out */ }
 }
 
@@ -22,7 +22,7 @@ export const readSessionHint = (now: number = Date.now()): SessionHint | null =>
     const raw = localStorage.getItem(HINT_KEY)
     if (!raw) return null
     const hint = JSON.parse(raw) as SessionHint
-    if (typeof hint?._id !== 'string' || typeof hint.exp !== 'number' || hint.exp <= now) {
+    if (typeof hint?.id !== 'string' || typeof hint.exp !== 'number' || hint.exp <= now) {
       clearSessionHint()
       return null
     }

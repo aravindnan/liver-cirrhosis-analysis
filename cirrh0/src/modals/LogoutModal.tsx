@@ -37,7 +37,7 @@ function LogoutModal(props:any) {
     const handleLogout= async()=>{
         setLogoutStatus("logout-loading")
         if(user){
-          await logoutUser(user._id).then((res:any)=>{
+          await logoutUser(user.id).then((res:any)=>{
             // console.log("Logout Response In REACT : ",res)
             if(res.code!=="ERR_NETWORK"){
             setLogoutStatus("logout-success")

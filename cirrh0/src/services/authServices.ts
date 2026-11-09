@@ -39,5 +39,5 @@ export const logoutUser = async(userId:any)=> {
   return logoutStatus
 }
 
-// Returns { _id } while the session hint is present and unexpired, otherwise null.
+// Returns { id } while the session hint is present and unexpired, otherwise null.
 export const getUserDetailsFromToken = () => readSessionHint()

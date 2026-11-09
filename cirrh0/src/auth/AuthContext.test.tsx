@@ -9,7 +9,7 @@ import { readSessionHint, writeSessionHint } from '../services/sessionHint'
 jest.mock('../services/userServices', () => ({ getUserById: jest.fn() }))
 const mockedGetUser = getUserById as jest.Mock
 
-const profile = { _id: 'u1', username: 'asha', email: 'a@b.co', fullName: 'Asha', age: 40, gender: 'female', reportAnalysisSet: [], mriAnalysisSet: [] }
+const profile = { id: 'u1', username: 'asha', email: 'a@b.co', fullName: 'Asha', age: 40, gender: 'female', reportAnalysisSet: [], mriAnalysisSet: [] }
 
 function Probe() {
   const { status, user } = useAuth()

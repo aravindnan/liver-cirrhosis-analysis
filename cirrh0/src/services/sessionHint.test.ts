@@ -8,7 +8,7 @@ test('returns null when there is no hint', () => {
 
 test('a fresh hint is readable and carries only the user id and expiry', () => {
   writeSessionHint('user-1', 1_000)
-  expect(readSessionHint(1_001)).toEqual({ _id: 'user-1', exp: 1_000 + SESSION_MS })
+  expect(readSessionHint(1_001)).toEqual({ id: 'user-1', exp: 1_000 + SESSION_MS })
 })
 
 test('an expired hint is dropped', () => {
@@ -20,7 +20,7 @@ test('an expired hint is dropped', () => {
 test('malformed storage is treated as logged out', () => {
   localStorage.setItem('cirrh0_session_hint', '{not json')
   expect(readSessionHint()).toBeNull()
-  localStorage.setItem('cirrh0_session_hint', JSON.stringify({ _id: 5, exp: 'x' }))
+  localStorage.setItem('cirrh0_session_hint', JSON.stringify({ id: 5, exp: 'x' }))
   expect(readSessionHint()).toBeNull()
 })
 

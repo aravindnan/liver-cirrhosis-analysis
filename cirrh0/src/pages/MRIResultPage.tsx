@@ -79,7 +79,7 @@ useEffect(() => {
     <div className="flex flex-col justify-between min-h-screen">
     <Navbar activePage="mri-result" />
     {
-      myProfiledata?._id===mriResult?.userId?
+      myProfiledata?.id===mriResult?.userId?
     <div className="flex-1 pt-[100px] md:pt-[120px] px-4 md:px-[120px] justify-center flex flex-col gap-2">
         <div
         data-aos="fade-up"

@@ -10,7 +10,7 @@ jest.mock('../auth/AuthContext', () => ({ useAuth: jest.fn() }))
 jest.mock('../modals/LogoutModal', () => () => <div role="dialog">logout dialog</div>)
 
 const mockedUseAuth = useAuth as jest.Mock
-const signedIn = { user: { _id: 'u1', fullName: 'Asha Menon' }, status: 'authenticated' }
+const signedIn = { user: { id: 'u1', fullName: 'Asha Menon' }, status: 'authenticated' }
 const signedOut = { user: null, status: 'anonymous' }
 
 const renderNavbar = (auth: object, activePage = 'about') => {

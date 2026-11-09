@@ -59,11 +59,11 @@ function ProfilePage() {
           <div data-aos="fade-up" data-aos-duration="900" className='flex flex-col gap-2 max-h-[150px] overflow-y-auto pl-[20px] mt-[10px]'>
             {myProfiledata?.reportAnalysisSet.slice().reverse().map((node:any, index:any) => (
             <div className='flex flex-row justify-between group cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold ' key={index} >
-              <Link title='View Report' to={`/report-result?id=${node._id}`}  className='hover:underline underline-offset-1'>
+              <Link title='View Report' to={`/report-result?id=${node.id}`}  className='hover:underline underline-offset-1'>
               {`${formatDateTime(node.date)}`}
               </Link>
               <button
-              onClick={()=>handleDeleteReport(node._id)}
+              onClick={()=>handleDeleteReport(node.id)}
                title="Delete Report" className='block md:hidden md:group-hover:block md:group-focus-within:block text-C11'>
                 <Delete sx={{fontSize:20}}/>
               </button>
@@ -88,11 +88,11 @@ function ProfilePage() {
           <div data-aos="fade-up" data-aos-duration="1200" className='flex flex-col gap-2 max-h-[150px] overflow-y-auto pl-[20px] mt-[10px]'>
           {myProfiledata?.mriAnalysisSet.slice().reverse().map((node:any, index:any) => (
             <div className='flex flex-row justify-between group cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold ' key={index} >
-            <Link title='View Report' to={`/mri-result?id=${node._id}`}  className='hover:underline underline-offset-1'>
+            <Link title='View Report' to={`/mri-result?id=${node.id}`}  className='hover:underline underline-offset-1'>
             {`${formatDateTime(node.date)}`}
             </Link>
             <button 
-            onClick={()=>handleDeleteMRI(node._id)}
+            onClick={()=>handleDeleteMRI(node.id)}
             title="Delete Report" className='block md:hidden md:group-hover:block md:group-focus-within:block text-C11'>
               <Delete sx={{fontSize:20}}/>
             </button>
