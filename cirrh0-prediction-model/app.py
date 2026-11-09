@@ -44,6 +44,18 @@ DOWNLOAD_TIMEOUT_S = 20
 
 model = joblib.load("model.pkl")
 scaler = joblib.load("scaler.bin")
+with open("model_card.json") as _f:
+    MODEL_CARD = json.load(_f)  # feature order, version and evaluation, written by train_model.py
+
+# model_card feature name -> request field. The row is built in the card's order, so the training
+# script is the single source of truth for column order.
+FEATURE_FIELDS = {
+    "Age": "age", "Sex": "sex", "Ascites": "ascites", "Hepatomegaly": "hepatomegaly",
+    "Spiders": "spiders", "Edema": "edema", "Bilirubin": "bilirubin", "Cholesterol": "cholesterol",
+    "Albumin": "albumin", "Copper": "copper", "Alk_Phos": "alk_phos", "SGOT": "sgot",
+    "Tryglicerides": "tryglycerides", "Platelets": "platelets", "Prothrombin": "prothrombin",
+}
+assert set(MODEL_CARD["features"]) == set(FEATURE_FIELDS), "model_card features do not match app.py"
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 256 * 1024
@@ -191,16 +203,13 @@ def predict():
     if error:
         return jsonify({"error": error}), 400
 
-    # Column order must match training (see cirrho_prediction_model.ipynb).
-    # drug=1.0 is the placebo code; the field is not asked of users.
-    row = [[
-        1.0, features["age"], features["sex"], features["ascites"], features["hepatomegaly"],
-        features["spiders"], features["edema"], features["bilirubin"], features["cholesterol"],
-        features["albumin"], features["copper"], features["alk_phos"], features["sgot"],
-        features["tryglycerides"], features["platelets"], features["prothrombin"],
-    ]]
+    row = [[features[FEATURE_FIELDS[name]] for name in MODEL_CARD["features"]]]
+    scaled = scaler.transform(row)
     # CatBoost multiclass returns shape (n, 1); flatten before taking the scalar.
-    stage = int(np.asarray(model.predict(scaler.transform(row))).ravel()[0])
+    stage = int(np.asarray(model.predict(scaled)).ravel()[0])
+    probabilities = {
+        str(int(c)): round(float(p), 4) for c, p in zip(model.classes_, model.predict_proba(scaled)[0])
+    }
 
     prompt = (
         f"{SAFETY_RULES}\n"
@@ -219,6 +228,8 @@ def predict():
         {
             "stage": stage,
             "stage_label": stage_label(stage),
+            "probabilities": probabilities,
+            "model_version": MODEL_CARD["model_version"],
             "narrative_available": narrative_ok,
             **narrative,
         }

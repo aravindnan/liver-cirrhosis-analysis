@@ -7,6 +7,7 @@ const reportAnalysisSchema = new mongoose.Schema({
     files: [{type: String}],
     analysis:{ type: String },
     stage:{type:Number},
+    model_version:{type:String},
     ascites:{type:String},
     edema:{type:String},
     tryglycerides:{type:String},

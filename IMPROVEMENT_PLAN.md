@@ -27,8 +27,8 @@ Branch `improve/p1-critical-fixes` (Priority 1 code fixes). Checked means done i
 - [x] Missing `environment.ts`, `.env.example` files and `requirements.txt` added
 - [ ] **Rotate the Gemini and Roboflow keys and the JWT secret, then purge git history** (must be done by the repo owner)
 - [ ] Private file storage with signed URLs, delete files with the record, consent step
-- [ ] HttpOnly cookie session (the token is still in a short-lived JS-readable cookie)
-- [ ] Retrain the model without the SMOTE leak; the headline accuracy is still unverified
+- [x] HttpOnly cookie session with an Origin check against CSRF (branch `improve/session-and-model`)
+- [x] Retrained without the SMOTE leak (`train_model.py`, `model_card.json`). Honest cross-validated accuracy is about 50% (38% baseline), not 72%; shown to users on the result page
 
 ---
 

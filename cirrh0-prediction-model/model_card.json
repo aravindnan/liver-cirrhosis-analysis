@@ -1,0 +1,149 @@
+{
+  "model_version": "catboost-class_weights-2026-11-10",
+  "features": [
+    "Age",
+    "Sex",
+    "Ascites",
+    "Hepatomegaly",
+    "Spiders",
+    "Edema",
+    "Bilirubin",
+    "Cholesterol",
+    "Albumin",
+    "Copper",
+    "Alk_Phos",
+    "SGOT",
+    "Tryglicerides",
+    "Platelets",
+    "Prothrombin"
+  ],
+  "imputation_medians": {
+    "Age": 51.0,
+    "Sex": 0.0,
+    "Ascites": 0.0,
+    "Hepatomegaly": 1.0,
+    "Spiders": 0.0,
+    "Edema": 0.0,
+    "Bilirubin": 1.4,
+    "Cholesterol": 309.5,
+    "Albumin": 3.53,
+    "Copper": 73.0,
+    "Alk_Phos": 1259.0,
+    "SGOT": 114.7,
+    "Tryglicerides": 108.0,
+    "Platelets": 249.0,
+    "Prothrombin": 10.6
+  },
+  "selected_strategy": "class_weights",
+  "evaluation": {
+    "method": "5-fold stratified CV repeated 3 times; imputation, scaling and SMOTE fitted inside training folds only",
+    "majority_class_baseline_accuracy": 0.3762,
+    "candidates": {
+      "smote": {
+        "accuracy": [
+          0.4725,
+          0.0548
+        ],
+        "balanced_accuracy": [
+          0.4026,
+          0.0529
+        ],
+        "macro_f1": [
+          0.3907,
+          0.0544
+        ],
+        "per_class_recall": {
+          "1": 0.238,
+          "2": 0.337,
+          "3": 0.458,
+          "4": 0.701
+        },
+        "out_of_fold_confusion_matrix": [
+          [
+            5,
+            2,
+            13,
+            1
+          ],
+          [
+            3,
+            31,
+            41,
+            17
+          ],
+          [
+            17,
+            33,
+            71,
+            34
+          ],
+          [
+            1,
+            16,
+            26,
+            101
+          ]
+        ]
+      },
+      "class_weights": {
+        "accuracy": [
+          0.496,
+          0.057
+        ],
+        "balanced_accuracy": [
+          0.4164,
+          0.0621
+        ],
+        "macro_f1": [
+          0.4138,
+          0.0674
+        ],
+        "per_class_recall": {
+          "1": 0.143,
+          "2": 0.348,
+          "3": 0.516,
+          "4": 0.688
+        },
+        "out_of_fold_confusion_matrix": [
+          [
+            3,
+            10,
+            7,
+            1
+          ],
+          [
+            2,
+            32,
+            41,
+            17
+          ],
+          [
+            7,
+            35,
+            80,
+            33
+          ],
+          [
+            0,
+            18,
+            27,
+            99
+          ]
+        ]
+      }
+    }
+  },
+  "training_rows": 412,
+  "data_sha256": "24ae2d5bedbc59898e536b98b152da35bbbb0ed70a2afef0adac8b7c5c8c6d54",
+  "library_versions": {
+    "python": "3.14.8",
+    "scikit-learn": "1.9.1",
+    "catboost": "1.2.10",
+    "numpy": "2.5.4"
+  },
+  "limitations": [
+    "Trained on the Mayo Clinic primary biliary cholangitis trial (about 400 patients, 1974-1984).",
+    "Stage is the histologic stage, normally determined by biopsy; this model estimates it from labs.",
+    "Not validated on other liver diseases, other populations or modern patients; not a diagnosis."
+  ]
+}
