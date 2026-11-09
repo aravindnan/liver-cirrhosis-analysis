@@ -2,21 +2,20 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import LogoText from '../components/LogoText'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
-import { getUserDetailsFromToken, loginUser } from '../services/authServices'
-import { useDispatch, useSelector } from 'react-redux'
+import { loginUser } from '../services/authServices'
+import { useAuth } from '../auth/AuthContext'
 import ErrorBox from '../components/ErrorBox'
 import APIResponseStatus from '../components/APIResponseStatus'
 import Loader from '../assets/Loader'
 
 function LoginPage() {
-  const dispatch = useDispatch()
+  const { user, refresh } = useAuth()
 
   const [showPassword,setShowPassword] = useState<Boolean>(false)
   const [forgotPasswordModal, setForgotPasswordModal] = useState<Boolean>(false);
   const [loginStatus,setLoginStatus] = useState<any>("not-loggedin")
   const [error, setError] = useState<string | null>(null);
   const [apiResponseMessage,setApiResponseMessage] = useState<string>("")
-  const [loginUserId,setLoginUserId]=useState<any>(null)
   const navigate = useNavigate();
 
 
@@ -27,13 +26,8 @@ function LoginPage() {
   }
 
   useEffect(() => {
-    const existingUser:any = getUserDetailsFromToken()
-    // console.log("EXISITING USER ID : ",existingUser)
-
-    if (existingUser?._id) {
-       navigate("/")
-    }
-  }, [navigate]);
+    if (user) navigate("/")
+  }, [user, navigate]);
 
   useEffect(() => {
     window.scrollTo(0,0)
@@ -87,13 +81,13 @@ function LoginPage() {
       setLoginStatus("login-loading")
       // Perform registration logic here call API
       // console.log("Perform registration logic");
-      await loginUser(loginFormData).then((res:any)=>{
+      await loginUser(loginFormData).then(async (res:any)=>{
         if(res.success){
           setLoginStatus("login-success")
-          navigate(`/`)
+          await refresh()
+          navigate("/")
           // console.log("Login Response : ",res);
           setApiResponseMessage(res.message)
-          setLoginUserId(window.atob(res.userId))
         }
         else{
           setLoginStatus("login-failure")
@@ -114,9 +108,6 @@ function LoginPage() {
     }
   };
 
-  const myProfiledata = useSelector(
-    (state: any) => state.authReducer.myUserProfile
-  );
 
 
 

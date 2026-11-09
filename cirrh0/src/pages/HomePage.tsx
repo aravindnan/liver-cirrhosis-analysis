@@ -1,55 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useAuthPage } from '../auth/AuthContext'
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { getUserDetailsFromToken } from "../services/authServices";
-import { getUserById } from "../services/userServices";
-import * as authActions from "../redux/actions";
 import APIResponseStatus from "../components/APIResponseStatus";
 import Loader from "../assets/Loader";
 import { Link } from "react-router-dom";
 
 function HomePage() {
-  const [rerender, setRerender] = useState(false);
-  const [networkError, setNetworkError] = useState<Boolean>(false);
-  const [pageLoading, setPageLoading] = useState<any>("not-loaded");
+  const { myProfiledata, pageLoading, networkError } = useAuthPage();
 
-  const myProfiledata = useSelector(
-    (state: any) => state.authReducer.myUserProfile
-  );
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const existingUser: any = getUserDetailsFromToken();
-    // console.log("EXISITING USER ID : ",existingUser)
 
-    if (existingUser?._id) {
-      getMyProfileData(existingUser._id);
-    } else {
-      navigate("/");
-      setPageLoading("loaded");
-    }
-  }, [rerender]);
-
-  const getMyProfileData = async (myUserId: any) => {
-    await getUserById(myUserId)
-      .then((res: any) => {
-        // console.log("in TASKPAGE RETURNED TASK ",res.code);
-        if (res.code === "ERR_NETWORK") {
-          setNetworkError(true);
-          console.error("NETWORK ERROR ");
-          setPageLoading("error");
-        } else {
-          setPageLoading("loaded");
-          dispatch(authActions.loginAction(res));
-        }
-      })
-      .catch((err: any) => {
-        console.error(err);
-      });
-  };
 
   useEffect(() => {
     window.scrollTo(0, 0);

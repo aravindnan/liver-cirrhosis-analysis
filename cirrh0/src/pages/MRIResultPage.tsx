@@ -1,68 +1,29 @@
 import React, { useEffect, useState } from 'react'
+import { useAuthPage } from '../auth/AuthContext'
 import Navbar from '../components/Navbar'
 import Disclaimer from '../components/Disclaimer'
 import Footer from '../components/Footer'
 import Loader from '../assets/Loader';
 import { getMRIResultById } from '../services/mriAnalysisServices';
-import { getUserById } from '../services/userServices';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
-import * as authActions from "../redux/actions"
-import { getUserDetailsFromToken } from '../services/authServices';
 import { Link } from 'react-router-dom';
 import { CalendarMonth, Female, InfoOutlined, Male, Person2, Transgender } from '@mui/icons-material';
 import { formatDateTime } from '../utils/formatDate';
 
 function MRIResultPage() {
+  const { myProfiledata } = useAuthPage();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [mriResult, setmriResult] = useState<any>({});
   const [error, setError] = useState<string | null>(null);
-  const [rerender, setRerender] = useState(false);
-  const [networkError,setNetworkError] = useState<Boolean>(false)
-  const [pageLoading, setPageLoading] = useState<any>("not-loaded")
 
-  const myProfiledata = useSelector(
-    (state: any) => state.authReducer.myUserProfile
-  );
-  const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const getMyProfileData =async(myUserId:any)=>{
-    await getUserById(myUserId).then((res:any)=>{
-
-      // console.log("in TASKPAGE RETURNED TASK ",res.code);
-      if(res.code==="ERR_NETWORK"){
-        setNetworkError(true)
-        console.error("NETWORK ERROR ")
-        setPageLoading("error")
-      }
-      else{
-        setPageLoading("loaded")
-        dispatch(authActions.loginAction(res))
-      }
-    }).catch((err:any)=>{
-      console.error(err)
-    })
-}
 
 useEffect(() => {
   document.body.style.overflow = "scroll"
 }, []);
 
-  useEffect(() => {
-    const existingUser:any = getUserDetailsFromToken()
-    // console.log("EXISITING USER ID : ",existingUser)
-
-    if (existingUser?._id) {
-      getMyProfileData(existingUser._id)
-    }
-    else{
-      navigate("/") 
-      setPageLoading("loaded")
-    }
-
-  }, [rerender]);
 
 
   useEffect(() => {

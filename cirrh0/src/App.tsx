@@ -4,6 +4,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import "aos/dist/aos.css"
 import AOS from "aos";
 import Loader from './assets/Loader';
+import { AuthProvider } from './auth/AuthContext';
+import RequireAuth from './auth/RequireAuth';
 
 // One chunk per page so the first load only downloads what the visitor opens.
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -22,6 +24,7 @@ function App() {
     AOS.init();
   },[])
   return (
+    <AuthProvider>
     <BrowserRouter>
       <Suspense fallback={<div className="w-[100vw] h-[100vh] flex justify-center items-center"><Loader/></div>}>
         <Routes>
@@ -31,13 +34,14 @@ function App() {
           <Route path="/about" element={<AboutPage/>}/>
           <Route path="/mri-analysis" element={<MRIAnalysisPage/>}/>
           <Route path="/report-analysis" element={<ReportAnalysisPage/>}/>
-          <Route path="/profile" element={<ProfilePage/>}/>
-          <Route path="/mri-result" element={<MRIResultPage/>}/>
-          <Route path="/report-result" element={<ReportResultPage/>}/>
+          <Route path="/profile" element={<RequireAuth><ProfilePage/></RequireAuth>}/>
+          <Route path="/mri-result" element={<RequireAuth><MRIResultPage/></RequireAuth>}/>
+          <Route path="/report-result" element={<RequireAuth><ReportResultPage/></RequireAuth>}/>
           <Route path="*" element={<ErrorPage/>}/>
         </Routes>
       </Suspense>
     </BrowserRouter>
+    </AuthProvider>
   );
 }
 

@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import { useAuthPage } from '../auth/AuthContext'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-import { getUserDetailsFromToken } from '../services/authServices';
-import { getUserById } from '../services/userServices';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
-import * as authActions from "../redux/actions"
 import { Add, AddCircle, AddRoadOutlined, Delete, FindInPage, ImageSearch, Title } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { Tooltip } from '@mui/material';
@@ -15,53 +12,18 @@ import { deleteMRIById } from '../services/mriAnalysisServices';
 
 
 function ProfilePage() {
-  const [rerender, setRerender] = useState(false);
-  const [networkError,setNetworkError] = useState<Boolean>(false)
-  const [pageLoading, setPageLoading] = useState<any>("not-loaded")
+  const { myProfiledata, refresh } = useAuthPage();
 
 
-  const myProfiledata = useSelector(
-    (state: any) => state.authReducer.myUserProfile
-  );
-  const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const getMyProfileData =async(myUserId:any)=>{
-    await getUserById(myUserId).then((res:any)=>{
-      // console.log("in TASKPAGE RETURNED TASK ",res.code);
-      if(res.code==="ERR_NETWORK"){
-        setNetworkError(true)
-        console.error("NETWORK ERROR ")
-        setPageLoading("error")
-      }
-      else{
-        setPageLoading("loaded")
-        dispatch(authActions.loginAction(res))
-      }
-    }).catch((err:any)=>{
-      console.error(err)
-    })
-}
 
-  useEffect(() => {
-    const existingUser:any = getUserDetailsFromToken()
-    // console.log("EXISITING USER ID : ",existingUser)
-
-    if (existingUser?._id) {
-      getMyProfileData(existingUser._id)
-    }
-    else{
-      navigate("/") 
-      setPageLoading("loaded")
-    }
-
-  }, [rerender]);
 
 
   const handleDeleteReport = async (reportId:any) => {
     try {
       await deleteReportById(reportId);
-      setRerender(!rerender); // Trigger rerender to refresh data
+      refresh(); // Trigger rerender to refresh data
     } catch (err) {
       console.error("Failed to delete report:", err);
     }
@@ -71,7 +33,7 @@ function ProfilePage() {
   const handleDeleteMRI = async (mriId:any) => {
     try {
       await deleteMRIById(mriId);
-      setRerender(!rerender); // Trigger rerender to refresh data
+      refresh(); // Trigger rerender to refresh data
     } catch (err) {
       console.error("Failed to delete MRI:", err);
     }

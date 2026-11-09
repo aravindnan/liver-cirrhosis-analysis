@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { LogoIcon } from './LogoIcon'
 import { Link } from 'react-router-dom'
 import LogoText from './LogoText'
-import { useSelector } from 'react-redux'
+import { useAuth } from '../auth/AuthContext'
 import { Logout, Person } from '@mui/icons-material'
 import { colors } from '../assets/Constants'
 import LogoutModal from '../modals/LogoutModal'
@@ -14,9 +14,7 @@ function Navbar(props:any) {
   const [logoutModal,setLogoutModal] = useState<Boolean>(false)
 
 
-  const myProfiledata = useSelector(
-    (state: any) => state.authReducer.myUserProfile
-  );
+  const { user: myProfiledata } = useAuth();
 
   // console.log("My profile data",myProfiledata)
   return (

@@ -1,13 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useAuthPage } from '../auth/AuthContext'
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Close, InfoOutlined, InsertDriveFile, Troubleshoot, Upload } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { Tooltip } from "@mui/material";
-import { getUserDetailsFromToken } from "../services/authServices";
-import * as authActions from "../redux/actions"
-import { getUserById } from "../services/userServices";
 import Loader from "../assets/Loader";
 import APIResponseStatus from "../components/APIResponseStatus";
 import axios from "axios";
@@ -15,54 +12,21 @@ import { analyseReportById, getExtractedParameters } from "../services/reportAna
 
 
 function ReportAnalysisPage() {
+  const { myProfiledata, pageLoading, networkError } = useAuthPage();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
   const fileTestInputRef = useRef<any>(null);
   const [fileList, setFileList] = useState<any>([]);
-  const [rerender, setRerender] = useState(false);
-  const [networkError,setNetworkError] = useState<Boolean>(false)
-  const [pageLoading, setPageLoading] = useState<any>("not-loaded")
   const [loading, setLoading] = useState<Boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [reportId,setReportId]= useState<any>("new-report")
   const CLOUDINARY_CLOUDNAME = process.env.REACT_APP_CLOUDINARY_CLOUDNAME;
 
-  const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const existingUser:any = getUserDetailsFromToken()
-    if (existingUser?._id) {
-      getMyProfileData(existingUser._id)
-    }
-    else{
-      
-      setPageLoading("loaded")
-    }
 
-  }, [rerender]);
 
-  const getMyProfileData =async(myUserId:any)=>{
-    await getUserById(myUserId).then((res:any)=>{
-      // console.log("in TASKPAGE RETURNED TASK ",res.code);
-      if(res.code==="ERR_NETWORK"){
-        setNetworkError(true)
-        console.error("NETWORK ERROR ")
-        setPageLoading("error")
-      }
-      else{
-        setPageLoading("loaded")
-        dispatch(authActions.loginAction(res))
-      }
-    }).catch((err:any)=>{
-      console.error(err)
-    })
-}
-
-  const myProfiledata = useSelector(
-    (state: any) => state.authReducer.myUserProfile
-  );
 
   const [validatedData,setValidatedData]=useState<any>({
     ascites:"",
@@ -163,6 +127,10 @@ const handleExtractParameters = () => {
   if (fileList.length === 0) {
     setError("Add at least one media");
     return; // Early return if no media files
+  }
+  if (!myProfiledata) {
+    setError("Please log in again to analyse a report");
+    return;
   }
 
   setLoading(true);
