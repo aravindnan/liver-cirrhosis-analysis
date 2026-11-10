@@ -7,6 +7,7 @@ import Disclaimer from '../components/Disclaimer'
 import LineChart, { ChartPoint, Threshold } from '../components/LineChart'
 import APIResponseStatus from '../components/APIResponseStatus'
 import { getTrends, Trends } from '../services/trendsServices'
+import WhatChanged from '../components/WhatChanged'
 
 type State = { status: 'loading' } | { status: 'error' } | { status: 'ready'; trends: Trends }
 
@@ -64,6 +65,8 @@ function TrendsPage() {
               ? 'You have one analysed report so far. Add another to see how your results change over time.'
               : `Results from ${points.length} analysed reports, oldest to newest. Hover or focus a point to see its value, or open "Show as table".`}
           </p>
+
+          <WhatChanged points={points} />
 
           <section aria-labelledby="trend-scores" className="flex flex-col gap-3">
             <h2 id="trend-scores" className="league-spartan font-bold text-[25px] text-gray-800">Guideline scores</h2>

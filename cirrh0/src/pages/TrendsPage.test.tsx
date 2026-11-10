@@ -65,5 +65,5 @@ test('lab charts say why there are no reference lines, and the page repeats the 
   mockedGetTrends.mockResolvedValue({ thresholds, points: [point('a', '2026-01-01T00:00:00Z', 1.2)] })
   renderPage()
   expect(await screen.findByText(/normal ranges differ between labs/)).toBeInTheDocument()
-  expect(within(screen.getByRole('note')).getByText(/not a medical diagnosis/i)).toBeInTheDocument()
+  expect(within(screen.getByRole('note')).getByText(/demo project/i)).toBeInTheDocument()
 })

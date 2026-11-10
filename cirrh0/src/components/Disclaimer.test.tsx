@@ -2,9 +2,9 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import Disclaimer from './Disclaimer'
 
-test('always shows the educational-only notice and urgent-care guidance', () => {
+test('always shows the demo-project notice and urgent-care guidance', () => {
   render(<Disclaimer />)
-  expect(screen.getByRole('note')).toHaveTextContent(/not a medical diagnosis/i)
+  expect(screen.getByRole('note')).toHaveTextContent(/demo project.*not a medical device/i)
   expect(screen.getByRole('note')).toHaveTextContent(/urgent medical care/i)
 })
 

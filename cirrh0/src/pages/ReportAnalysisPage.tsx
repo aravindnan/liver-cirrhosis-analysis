@@ -296,14 +296,14 @@ useEffect(() => {
             data-aos-duration="700"
             className="text-[16px]"
           >
-         Upload your lab report PDFs (liver function and blood tests). We read the values for you to check and edit, then an automated research model estimates a disease stage and explains the result in plain language. This is general education, not a diagnosis, and it does not replace a doctor's advice.
+         Upload your lab report PDFs (liver function and blood tests). We read the values for you to check and edit, then an automated research model estimates a disease stage and explains the result in plain language. This is a demo project, not a diagnosis, and it does not replace a doctor's advice.
           </div>
           <div
             data-aos="fade-up"
             data-aos-duration="600"
             className="mt-[20px] text-[14px] w-[80%] mx-auto text-C11"
           >
-            Check the extracted values, answer four questions, and get an educational summary to discuss with your doctor
+            Check the extracted values, answer four questions, and get a summary to discuss with your doctor
           </div>
           <DemoNotice className="mt-4 mx-auto max-w-[70ch]" />
           {!myProfiledata?.username ? (
