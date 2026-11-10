@@ -8,6 +8,7 @@ import Loader from '../assets/Loader'
 import ScoreDial from '../components/ScoreDial'
 import { fib4, fib4Band } from '../utils/scores'
 import hero from '../assets/hero.jpg'
+import heroLoop from '../assets/hero-loop.webp'
 import cirr1 from '../assets/cirr1.jpg'
 import norm4 from '../assets/norm4.jpg'
 
@@ -59,24 +60,28 @@ function HomePage() {
         {/* Hero: the title and the action on the left, the picture filling the right to the edge */}
         <section aria-labelledby="home-h" className="grid md:grid-cols-2 min-h-[100svh]">
           <div className="flex flex-col justify-center gap-6 px-[4%] md:pl-[10%] md:pr-[5%] pt-[110px] pb-12">
-            <h1 id="home-h" className="league-spartan font-bold text-[40px] md:text-[44px] lg:text-[68px] leading-[1] tracking-[-0.03em] text-C11">Read your liver lab report</h1>
-            <p className="text-[18px] md:text-[22px] max-w-[34ch]">Upload a report and get three standard scores, a stage estimate and plain-language notes to take to your doctor.</p>
+            <h1 id="home-h" className="league-spartan font-bold text-[40px] md:text-[40px] lg:text-[58px] leading-[1] tracking-[-0.03em] text-C11">Read your liver lab report</h1>
+            <p className="text-[16px] md:text-[16px] max-w-[34ch]">Upload a report and get three standard scores, a stage estimate and plain-language notes to take to your doctor.</p>
             <div className="flex flex-wrap items-center gap-4">
               <Link to="/report-analysis" className="px-6 py-3 bg-C11 text-white font-semibold text-[16px] rounded-[2px]">Analyse a report</Link>
               {!myProfiledata?.username && <Link to="/simulator" className="px-2 py-3 font-semibold text-[16px] text-C11 underline">or try the what-if tool</Link>}
             </div>
             <p className="text-[15px] max-w-[44ch]"><strong>Demo project.</strong> Use made-up values only. This is not medical advice.</p>
           </div>
-          <img src={hero} alt="Hands holding medical scan images" className="w-full h-[320px] md:h-full object-cover" />
+          <picture>
+            {/* People who ask their device for less motion get the still frame */}
+            <source media="(prefers-reduced-motion: reduce)" srcSet={hero} />
+            <img src={heroLoop} alt="Hands holding medical scan images" className="w-full h-[320px] md:h-full object-cover bg-black" />
+          </picture>
         </section>
 
         {/* What it does */}
         <section aria-labelledby="what-h" className="mx-auto w-[92%] md:w-[80%] py-24 md:py-40 grid gap-10 md:grid-cols-2 md:gap-20 items-center">
           <div className="flex flex-col gap-5">
-            <h2 id="what-h" className="league-spartan font-bold text-[34px] md:text-[56px] leading-[1.05]">One report becomes three scores</h2>
-            <p className="text-[18px]">FIB-4 and APRI screen for liver scarring from age, AST, ALT and platelets. ALBI describes how well the liver is working, from bilirubin and albumin. They are plain formulas with published cut-offs, so the same values always give the same answer.</p>
-            <p className="text-[18px]">Beside them sits a research model&rsquo;s stage estimate, with its measured accuracy printed next to it: about half right on patients it had not seen.</p>
-            <Link to="/about" className="w-fit font-semibold text-C11 underline text-[17px]">How it works and what it collects</Link>
+            <h2 id="what-h" className="league-spartan font-bold text-[30px] md:text-[42px] leading-[1.05]">One report becomes three scores</h2>
+            <p className="text-[16px]">FIB-4 and APRI screen for liver scarring from age, AST, ALT and platelets. ALBI describes how well the liver is working, from bilirubin and albumin. They are plain formulas with published cut-offs, so the same values always give the same answer.</p>
+            <p className="text-[16px]">Beside them sits a research model&rsquo;s stage estimate, with its measured accuracy printed next to it: about half right on patients it had not seen.</p>
+            <Link to="/about" className="w-fit font-semibold text-C11 underline text-[16px]">How it works and what it collects</Link>
           </div>
           <img src={cirr1} alt="A liver with advanced scarring" className="w-full h-[360px] md:h-[520px] object-cover" />
         </section>
@@ -85,8 +90,8 @@ function HomePage() {
         <section aria-labelledby="live-h" className="bg-C11 text-white">
           <div className="mx-auto w-[92%] md:w-[80%] py-20 md:py-32 grid gap-10 md:grid-cols-2 md:gap-20 items-center">
             <div className="flex flex-col gap-5">
-              <h2 id="live-h" className="league-spartan font-bold text-[34px] md:text-[56px] leading-[1.05]">Move one number, watch the score</h2>
-              <p className="text-[18px] max-w-[48ch]">Platelets are the value that moves FIB-4 the most. Drag it and see the score and its band change. Everything else on this page works the same way.</p>
+              <h2 id="live-h" className="league-spartan font-bold text-[30px] md:text-[42px] leading-[1.05]">Move one number, watch the score</h2>
+              <p className="text-[16px] max-w-[48ch]">Platelets are the value that moves FIB-4 the most. Drag it and see the score and its band change. Everything else on this page works the same way.</p>
             </div>
             <LiveFib4 />
           </div>
@@ -94,13 +99,13 @@ function HomePage() {
 
         {/* Tools: flat rows, each a real link */}
         <section aria-labelledby="tools-h" className="mx-auto w-[92%] md:w-[80%] py-24 md:py-40 flex flex-col gap-8">
-          <h2 id="tools-h" className="league-spartan font-bold text-[34px] md:text-[56px] leading-[1.05]">What you can do here</h2>
+          <h2 id="tools-h" className="league-spartan font-bold text-[30px] md:text-[42px] leading-[1.05]">What you can do here</h2>
           <ul className="flex flex-col gap-3">
             {TOOLS.map((t) => (
               <li key={t.to}>
                 <Link to={t.to} className="grid gap-1 md:grid-cols-[1fr_2fr] md:gap-10 bg-C44 p-6 md:p-8 hover:bg-C11 hover:text-white focus-visible:bg-C11 focus-visible:text-white">
-                  <span className="league-spartan font-bold text-[24px] md:text-[30px]">{t.name}</span>
-                  <span className="text-[17px]">{t.body}</span>
+                  <span className="league-spartan font-bold text-[24px] md:text-[26px]">{t.name}</span>
+                  <span className="text-[16px]">{t.body}</span>
                 </Link>
               </li>
             ))}
@@ -111,9 +116,9 @@ function HomePage() {
         <section aria-labelledby="why-h" className="mx-auto w-[92%] md:w-[80%] pb-24 md:pb-40 grid gap-10 md:grid-cols-2 md:gap-20 items-center">
           <img src={norm4} alt="A healthy liver" className="w-full h-[360px] md:h-[480px] object-cover md:order-1" />
           <div className="flex flex-col gap-5">
-            <h2 id="why-h" className="league-spartan font-bold text-[34px] md:text-[56px] leading-[1.05]">Why check the liver at all</h2>
-            <p className="text-[18px]">Liver scarring (cirrhosis) usually causes no symptoms until it is advanced, and it is caused by things that can be changed: alcohol, fatty liver and hepatitis infections.</p>
-            <p className="text-[18px]">A blood test is how most scarring is first noticed. Cirrh0 helps you read that test and know which question to ask next. It is a student demo, not a doctor.</p>
+            <h2 id="why-h" className="league-spartan font-bold text-[30px] md:text-[42px] leading-[1.05]">Why check the liver at all</h2>
+            <p className="text-[16px]">Liver scarring (cirrhosis) usually causes no symptoms until it is advanced, and it is caused by things that can be changed: alcohol, fatty liver and hepatitis infections.</p>
+            <p className="text-[16px]">A blood test is how most scarring is first noticed. Cirrh0 helps you read that test and know which question to ask next. It is a student demo, not a doctor.</p>
           </div>
         </section>
       </main>

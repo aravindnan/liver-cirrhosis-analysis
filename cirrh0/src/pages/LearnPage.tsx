@@ -22,11 +22,11 @@ function LearnPage() {
         {BIOMARKERS.map((b) => (
           <section key={b.id} id={b.id} aria-labelledby={`${b.id}-h`} className="grid gap-4 md:grid-cols-[1fr_2fr] md:gap-12 scroll-mt-[100px]">
             <div>
-              <h2 id={`${b.id}-h`} className="league-spartan font-bold text-[28px] md:text-[36px] leading-[1.1]">{b.name}</h2>
+              <h2 id={`${b.id}-h`} className="league-spartan font-bold text-[28px] md:text-[32px] leading-[1.1]">{b.name}</h2>
               <p className="text-[15px] mt-1">Reported in {b.unit}</p>
               <p className="text-[15px] mt-3 bg-C44 px-3 py-2 inline-block">Used in: {b.usedIn}</p>
             </div>
-            <dl className="flex flex-col gap-4 text-[17px]">
+            <dl className="flex flex-col gap-4 text-[16px]">
               <div><dt className="font-bold">What it measures</dt><dd>{b.measures}</dd></div>
               <div><dt className="font-bold">When it is high</dt><dd>{b.high}</dd></div>
               <div><dt className="font-bold">When it is low</dt><dd>{b.low}</dd></div>

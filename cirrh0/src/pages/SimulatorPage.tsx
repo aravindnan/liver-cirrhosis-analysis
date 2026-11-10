@@ -43,7 +43,7 @@ function SimulatorPage() {
             {FIELDS.map((f) => (
               <div key={f.key} className="flex flex-col gap-1">
                 <div className="flex items-baseline justify-between gap-4">
-                  <label htmlFor={`sim-${f.key}`} className="font-bold text-[17px]">{f.label} <span className="font-normal text-[15px]">({f.unit})</span></label>
+                  <label htmlFor={`sim-${f.key}`} className="font-bold text-[16px]">{f.label} <span className="font-normal text-[15px]">({f.unit})</span></label>
                   <output htmlFor={`sim-${f.key}`} className="league-spartan font-bold text-[26px] text-C11">{v[f.key]}</output>
                 </div>
                 <input
@@ -75,7 +75,7 @@ function SimulatorPage() {
       <section aria-labelledby="path-h" className="bg-C11 text-white -mx-[4.3%] md:-mx-[12.5%] px-[4.3%] md:px-[12.5%] py-14 flex flex-col gap-8">
         <div className="flex flex-col gap-2">
           <h2 id="path-h" className="league-spartan font-bold text-[30px] md:text-[44px] leading-[1.1]">Where this puts you on the testing path</h2>
-          <p className="text-[17px] max-w-[62ch]">Doctors usually test for liver scarring in steps, starting with a blood score. Your FIB-4 band decides how far along the next step is.</p>
+          <p className="text-[16px] max-w-[62ch]">Doctors usually test for liver scarring in steps, starting with a blood score. Your FIB-4 band decides how far along the next step is.</p>
         </div>
         <ol className="grid gap-4 md:grid-cols-3">
           {PATHWAY.map((p) => {
@@ -90,7 +90,7 @@ function SimulatorPage() {
           })}
         </ol>
         <div className="max-w-[62ch]">
-          <p className="font-bold text-[17px]">A question to take to your doctor</p>
+          <p className="font-bold text-[16px]">A question to take to your doctor</p>
           <p className="text-[19px]">“{doctorScript(r.fb)}”</p>
         </div>
       </section>

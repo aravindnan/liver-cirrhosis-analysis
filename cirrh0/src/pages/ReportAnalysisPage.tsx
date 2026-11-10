@@ -25,6 +25,10 @@ function ReportAnalysisPage() {
   const [fileList, setFileList] = useState<any>([]);
   const [loading, setLoading] = useState<Boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (error) errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [error]);
   const [reportId,setReportId]= useState<any>("new-report")
   const CLOUDINARY_CLOUDNAME = import.meta.env.VITE_CLOUDINARY_CLOUDNAME;
 
@@ -79,7 +83,18 @@ const validateData = (data:any = validatedData) => {
   });
 
   if (missingFields.length > 0) {
-    setError(`Please fill out the following fields: ${missingFields.join(', ')}`);
+    const labels: Record<string, string> = {
+      ascites: 'Ascites', edema: 'Edema', spiders: 'Spider angiomas', hepatomegaly: 'Enlarged liver',
+      bilirubin: 'Bilirubin', albumin: 'Albumin', prothrombin: 'Prothrombin time', copper: 'Copper',
+      alk_phos: 'Alkaline phosphatase', platelets: 'Platelets', sex: 'Sex', age: 'Age',
+      tryglycerides: 'Triglycerides', sgot: 'AST (SGOT)', cholesterol: 'Cholesterol',
+    };
+    const names = missingFields.map((f: string) => labels[f] || f);
+    if (missingFields.length >= 10) {
+      setError("There is nothing to analyse yet. Upload your lab report as a PDF above and press \u201cExtract Report Parameters\u201d, or type your values into the boxes below.");
+    } else {
+      setError(`${names.length === 1 ? 'One value is' : `${names.length} values are`} still missing: ${names.join(', ')}. Copy ${names.length === 1 ? 'it' : 'each one'} from your lab report, or from a nearby test, then press Analyse again.`);
+    }
     return false;
   }
 
@@ -131,11 +146,11 @@ const validateData = (data:any = validatedData) => {
 const handleExtractParameters = () => {
   setError(""); // Clear any previous errors
   if (fileList.length === 0) {
-    setError("Add at least one media");
+    setError("No report added yet. Choose a lab report as a PDF using the upload box, then press \u201cExtract Report Parameters\u201d.");
     return; // Early return if no media files
   }
   if (!myProfiledata) {
-    setError("Please log in again to analyse a report");
+    setError("Your session has ended. Please log in again, then upload your report.");
     return;
   }
 
@@ -177,12 +192,12 @@ const handleExtractParameters = () => {
         ); // Update state with extracted data
         setReportId(extractedRes.reportId); // Set the report ID
       } else {
-        setError("Something went wrong during extraction");
+        setError("We could not read any values from that file. It may be a scanned photo rather than a text PDF. Try another PDF, or type the values into the boxes below.");
       }
     })
     .catch((err: any) => {
       console.error("Error: ", err);
-      setError(err?.response?.data?.error || err?.message || "Something went wrong during the process");
+      setError(err?.response?.data?.error || (err?.request && !err?.response ? "We could not reach the server. Check your connection and try again. If the site was idle, it may need a minute to wake up." : err?.message) || "Something went wrong while reading your report. Please try again.");
     })
     .finally(() => {
       setLoading(false); // Ensure loading state is reset
@@ -219,8 +234,7 @@ const handleAnalyzeReport = async () => {
   setValidatedData(merged);
 
   if (!validateData(merged)) {
-      setError("Validation failed. Please check your input.");
-      return; // Stop execution if validation fails
+      return; // validateData has already said which values are missing
   }
 
   if (myProfiledata?.id && validatedData) {
@@ -238,16 +252,16 @@ const handleAnalyzeReport = async () => {
               setLoading(false);
               navigate(`/report-result?id=${response.reportId}`);
           } else {
-              setError("Failed to analyze report");
+              setError("The analysis did not finish. Your values are still here, so please press Analyse again.");
           }
       } catch (err: any) {
           console.error("Error: ", err);
-          setError(err?.response?.data?.error || err?.message || "Something went wrong");
+          setError(err?.response?.data?.error || (err?.request && !err?.response ? "We could not reach the server. Check your connection and try again. If the site was idle, it may need a minute to wake up." : err?.message) || "Something went wrong. Please try again.");
       } finally {
           setLoading(false);
       }
   } else {
-      setError("User profile or validated data is missing");
+      setError("Your account details did not load. Please refresh the page or log in again.");
   }
 };
 
@@ -645,7 +659,7 @@ useEffect(() => {
                 </div>
               </div>
                 {error && (
-                  <div className="text-red-600 text-[14px] text-center mt-4">
+                  <div ref={errorRef} role="alert" className="mt-4 mx-auto max-w-[70ch] border-l-4 border-C11 bg-[#fbe9e7] px-4 py-3 text-left text-[15px] text-[#5c1410]">
                     {error}
                   </div>
                 )}
