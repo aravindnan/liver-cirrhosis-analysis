@@ -8,7 +8,7 @@ Helps people read their liver lab reports. Upload a report, check the values it 
 
 | Folder | What it is | Stack |
 |---|---|---|
-| `cirrh0/` | Web app | React, TypeScript, Tailwind |
+| `cirrh0/` | Web app | React, TypeScript, Tailwind, Vite |
 | `cirrh0-backend/` | HTTP API, accounts, data | Express, **PostgreSQL**, Prisma |
 | `cirrh0-prediction-model/` | Report extraction, stage model, image detection | Flask, CatBoost |
 
@@ -35,7 +35,7 @@ PORT=3005 python app.py
 # 4. Web app
 cd ../cirrh0
 cp .env.example .env
-npm install && npm start                  # http://localhost:3000
+npm install && npm run dev                # http://localhost:3000
 ```
 
 Without Docker, point `DATABASE_URL` at any PostgreSQL 14 or newer.
@@ -73,7 +73,7 @@ It refuses to write into a database that already has users, skips drafts and any
 ```bash
 cd cirrh0-backend && npm test              # unit tests; the integration tests skip without a database
 TEST_DATABASE_URL=postgresql://cirrh0:cirrh0@localhost:5432/cirrh0_test npm test   # also runs them against PostgreSQL
-cd cirrh0 && npm test -- --watchAll=false
+cd cirrh0 && npm test
 cd cirrh0-prediction-model && python -m pytest
 ```
 

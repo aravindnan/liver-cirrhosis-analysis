@@ -84,12 +84,12 @@ api.use(require("./routes/mri"));
 app.use(API_BASE_PATH || "/", api);
 
 if (WEB_DIR) {
-  // Hashed build files never change, so they can be cached for a year; index.html must always be fresh.
+  // Hashed build files (/assets/*) never change, so they can be cached for a year; index.html must always be fresh.
   app.use(
     express.static(WEB_DIR, {
       index: false,
       setHeaders: (res, filePath) => {
-        const hashed = filePath.includes(`${path.sep}static${path.sep}`);
+        const hashed = filePath.includes(`${path.sep}assets${path.sep}`); // Vite's content-hashed output
         res.setHeader("Cache-Control", hashed ? "public, max-age=31536000, immutable" : "public, max-age=3600");
       },
     })

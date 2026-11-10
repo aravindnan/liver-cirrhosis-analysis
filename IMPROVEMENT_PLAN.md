@@ -473,6 +473,21 @@ The result moves from a demo that guesses a stage to a tool patients would trust
 - [x] Tests: 15 API (Node test runner), 33 ML (pytest), 9 web (Jest); GitHub Actions CI runs all three plus `tsc` and a production build
 - [x] API dependencies updated within semver ranges: `npm audit` now reports 0 vulnerabilities (was 12, 3 critical)
 - [ ] The media still exists in git history (`.git` is about 76 MB). Remove it in the same `git filter-repo` pass as the leaked secrets
+### First deploy attempt failed; fixes (branch `fix/render-build`)
+
+Both Render services failed on the first deploy. Both were reproduced locally and fixed:
+
+- [x] **Model service:** `pip install -r requirements.txt` failed because `inference-sdk` has no release for Python 3.14. It was only used for one HTTP call, so Roboflow's hosted API is now called directly with `requests`. The earlier tests had used the lightweight test requirements, so this was never exercised; the complete requirements now install in a clean Python 3.14 environment and the 49 model-service tests pass in it
+- [x] **Security detail found in the process:** `requests` puts the full URL (with the Roboflow API key in its query string) into error messages, so failures are logged by exception type only; tests cover it and a mutation check confirms they fail if the message is logged
+- [x] **Web service:** the Create React App build peaked at 1.6 to 2 GB of memory, far above Render's 512 MB free build limit. The cause was `import { X } from '@mui/icons-material'`, which makes the bundler resolve 10,612 icon modules to use about 20. Icons are now imported one by one (CRA alone still needed about 1.25 GB), and the web app moved from Create React App to Vite 7 with Vitest, which builds in under a second at about 350 MB
+- [x] 1,232 packages were removed with Create React App, along with its audit findings
+- [x] A test fails if any file imports MUI icons or components from the package root, so the problem cannot return unnoticed (verified by adding one on purpose)
+- [x] Run again in the production setup in a browser: sign-up, login, analysis, trends; the security policy still blocks injected scripts; no errors and no personal data in the API log
+- [ ] Not verified: the fixes on Render itself, and Render's memory figures (measured on macOS here)
+- [x] The web app's own dependency audit had been buried under Create React App's tree. It found high advisories in `axios` (SSRF and credential leakage) and `react-router` (open redirects); fixed within the allowed versions (axios 1.21, react-router 6.30.6) and enforced in CI at the high level. Vitest was upgraded to 5.1 to clear a critical advisory in its dependencies
+- [ ] Known and accepted for now: `react-router` 6.30.6 still has two moderate advisories that only React Router 8 fixes (breaking). They concern server-side rendering and open redirects built from user-controlled link targets; this app does not server-render and all its links and navigations use fixed paths. Revisit when upgrading the router. Two moderate findings in build tooling (`glob`, `minimatch`) do not ship to users
+- [ ] Vitest 3 needed two fixes found by running it: Node 25+ shadows the test DOM's `localStorage` (restored in `setupTests.ts`), and a `beforeEach` that returns a value is treated as cleanup (use braces)
+
 ### Deployment on Render (branch `deploy/render`)
 
 - [x] `render.yaml` Blueprint (all free-tier plans) and `DEPLOY.md` with a before/after checklist, free-tier limits and an upgrade path
@@ -539,4 +554,4 @@ Checked in a real browser at 375 px and 1280 px against a mock API:
 - [x] Structured JSON logging with request ids; credentials and personal fields redacted; errors never log request bodies; central error handler
 - [x] API now has 26 tests, web has 20
 - [ ] Existing user documents still carry the old id arrays. They are ignored and replaced in responses; `$unset` them whenever convenient
-- [ ] Remaining Priority 2: shared biomarker config (client and server), server-state cache (TanStack Query), responsive layout and accessibility pass, design tokens, Vite migration (also resolves the `react-scripts` audit findings), unused-variable lint warnings
+- [ ] Remaining Priority 2: shared biomarker config (client and server), server-state cache (TanStack Query), responsive layout and accessibility pass, design tokens, unused-variable lint warnings

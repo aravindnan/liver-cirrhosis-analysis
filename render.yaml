@@ -48,7 +48,9 @@ services:
     region: singapore
     plan: free
     # Build the web app, then install the API (its postinstall generates the Prisma client).
-    # --include=dev because the web build needs its devDependencies even when NODE_ENV=production.
+    # --include=dev because the web build needs its devDependencies (Vite) even when NODE_ENV=production.
+    # The web build needs about 350 MB, which fits Render's 512 MB free build limit. (Create React App
+    # needed 1.6 to 2 GB and was killed; see DEPLOY.md.)
     buildCommand: npm --prefix cirrh0 ci --include=dev && npm --prefix cirrh0 run build && npm --prefix cirrh0-backend ci
     # Apply database migrations, then start. (preDeployCommand would be cleaner but is paid-only.)
     startCommand: cd cirrh0-backend && npm run db:migrate && npm run serve
@@ -58,6 +60,9 @@ services:
         value: 24.22.1
       - key: NODE_ENV
         value: production
+      # Keeps Node's garbage collector tight so the build stays well inside 512 MB.
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=384
       # --- API ---
       - key: DATABASE_URL
         fromDatabase:
@@ -83,14 +88,10 @@ services:
           type: web
           name: cirrh0-ml
           envVarKey: ML_SERVICE_TOKEN
-      # --- Web app (read while it is built) ---
-      - key: REACT_APP_API_URL
+      # --- Web app (read while it is built; changing one needs a new deploy, not just a restart) ---
+      - key: VITE_API_URL
         value: /api
-      - key: REACT_APP_DEMO_NOTICE
+      - key: VITE_DEMO_NOTICE
         value: "true"
-      - key: REACT_APP_CLOUDINARY_CLOUDNAME
+      - key: VITE_CLOUDINARY_CLOUDNAME
         sync: false
-      - key: INLINE_RUNTIME_CHUNK
-        value: "false" # the content security policy allows no inline scripts
-      - key: CI
-        value: "false" # existing lint warnings must not fail the build
