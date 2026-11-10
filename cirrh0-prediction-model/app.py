@@ -391,18 +391,32 @@ def extract_data():
 
 
 # --- /image -------------------------------------------------------------------
-_roboflow = None
+ROBOFLOW_API_URL = "https://detect.roboflow.com"
+ROBOFLOW_TIMEOUT_S = 30
 
 
-def roboflow():
-    global _roboflow
-    if _roboflow is None:
-        if not ROBOFLOW_API_KEY:
-            raise RuntimeError("ROBOFLOW_API_KEY is not set")
-        from inference_sdk import InferenceHTTPClient
+def infer_image(image_url):
+    """Run Roboflow's hosted detection model on an image URL and return its list of predictions.
 
-        _roboflow = InferenceHTTPClient(api_url="https://detect.roboflow.com", api_key=ROBOFLOW_API_KEY)
-    return _roboflow
+    This is the call the `inference-sdk` package wraps. The package is not used because it has no
+    release for Python 3.14 and pulls in heavy image libraries for one HTTP request.
+
+    Roboflow takes the API key in the query string, and `requests` puts the full URL (key included) into
+    its error messages. Callers must therefore never log the exception text, only its type.
+    """
+    if not ROBOFLOW_API_KEY:
+        raise RuntimeError("ROBOFLOW_API_KEY is not set")
+    response = requests.post(
+        f"{ROBOFLOW_API_URL}/{ROBOFLOW_MODEL_ID}",
+        params={"api_key": ROBOFLOW_API_KEY, "image": image_url},
+        timeout=ROBOFLOW_TIMEOUT_S,
+    )
+    response.raise_for_status()
+    data = response.json()
+    predictions = data.get("predictions") if isinstance(data, dict) else None
+    if not isinstance(predictions, list):
+        raise ValueError("unexpected response from the detection service")
+    return [p for p in predictions if isinstance(p, dict)]
 
 
 NO_FINDINGS_TEXT = (
@@ -421,10 +435,10 @@ def extract_image():
         return jsonify({"error": "A valid uploaded image URL is required"}), 400
 
     try:
-        result = roboflow().infer(image_url, model_id=ROBOFLOW_MODEL_ID)
-        predictions = result.get("predictions", [])
-    except Exception:
-        log.exception("image inference failed")
+        predictions = infer_image(image_url)
+    except Exception as exc:
+        # Type only: the message of a requests error contains the URL, and with it the API key.
+        log.warning("image inference failed: %s", type(exc).__name__)
         return jsonify({"error": "Image analysis failed"}), 502
 
     classes = sorted({p["class"] for p in predictions if isinstance(p.get("class"), str)})
