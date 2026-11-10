@@ -6,9 +6,14 @@ import Loader from "../assets/Loader";
 import { getReportResultById } from "../services/reportAnalysisServices";
 import { useNavigate } from "react-router";
 import { formatDateTime } from '../utils/formatDate';
-import { CalendarMonth, CalendarViewMonth, Female, InfoOutlined, Male, Person, Person2, Transgender, VerifiedUser } from "@mui/icons-material";
+import CalendarMonth from '@mui/icons-material/CalendarMonth'
+import Female from '@mui/icons-material/Female'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
+import Male from '@mui/icons-material/Male'
+import Person2 from '@mui/icons-material/Person2'
+import Transgender from '@mui/icons-material/Transgender'
 import { Link } from "react-router-dom";
-import { Tooltip } from "@mui/material";
+import Tooltip from '@mui/material/Tooltip'
 import Disclaimer from "../components/Disclaimer";
 import ScoresPanel from "../components/ScoresPanel";
 

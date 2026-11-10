@@ -31,7 +31,7 @@ Browser ──https──▶  cirrh0  (Node)         serves the web app at / and
    | `GEMINI_API_KEY` | your **new** Gemini key (leave empty to run without the written explanations; scores and the stage still work) |
    | `ROBOFLOW_API_KEY` | your **new** Roboflow key (only needed for the slide-image tool) |
    | `ML_SERVICE_URL` | `https://cirrh0-ml.onrender.com` |
-   | `REACT_APP_CLOUDINARY_CLOUDNAME` | your Cloudinary cloud name |
+   | `VITE_CLOUDINARY_CLOUDNAME` | your Cloudinary cloud name (it is built into the web app, so changing it later needs a new deploy, not just a restart) |
 
 3. Click **Apply**. The first deploy takes several minutes: the model service installs CatBoost and scikit-learn, and the other service builds the web app.
 4. Open the **cirrh0-ml** service and check its address. If it is **not** `https://cirrh0-ml.onrender.com` (Render adds a suffix when a name is taken), open **cirrh0, Environment**, fix `ML_SERVICE_URL`, and save. That restarts the service; no rebuild is needed.
@@ -56,7 +56,7 @@ These are Render's published free-tier rules at the time of writing. Check [Rend
 - **Sleeping.** A free service sleeps after 15 minutes without traffic and takes about a minute to wake. The first visit after a quiet period is slow. If the model service is asleep when someone analyses a report, the request can time out (60 seconds). The analysis is still saved with the guideline scores, and the page says the model estimate was unavailable. Running it again a minute later works.
 - **Hours.** 750 free instance hours per month are shared across your workspace. Two services running all month would use more than that, so they would be suspended near month end if they never slept.
 - **The free database expires 30 days after it is created**, and is deleted 14 days after that unless you upgrade it. It has **no backups**, 1 GB of storage, and you can have only one per workspace. For a demo that is acceptable. For anything people rely on, upgrade it first (below).
-- The model service uses about 220 MB of memory when idle (measured), which should fit a 512 MB instance with some room, but it has not been tested on Render itself.
+- **Memory.** Free builds and instances have 512 MB. Measured on a Mac (Linux figures may differ a little): the web build peaks at about 350 to 390 MB, and the model service uses about 220 MB, or 230 MB with the Gemini client loaded. Neither has been run on Render itself. The web app used to be built with Create React App, which needed 1.6 to 2 GB and would be killed on a free build; that is why it now uses Vite, and why icons must be imported one by one (see the troubleshooting table).
 
 ## Upgrading for real use
 
@@ -91,7 +91,8 @@ Do not invite people to upload real reports until these are done:
 
 | What you see | Likely cause and fix |
 |---|---|
-| Build of `cirrh0-ml` fails on a Python or package error | Render's Python version. The Blueprint pins `PYTHON_VERSION` to `3.14.10`, the version the model was trained and tested on. If Render rejects it, use the default but keep the package versions in `requirements.txt` |
+| Build of `cirrh0-ml` fails on a Python or package error | `pip install -r requirements.txt` did not resolve. The Blueprint pins `PYTHON_VERSION` to `3.14.10`, the version the model was trained and tested on, and the `numpy`, `scikit-learn` and `catboost` versions are pinned to match the saved model. `inference-sdk` was removed because it has no Python 3.14 release (the image tool calls Roboflow's API directly). **Before adding any package, install the complete `requirements.txt` in a clean Python 3.14 environment** |
+| Build of `cirrh0` fails with `out of memory`, `Killed` or exit code 137 | the web build went over 512 MB. A test (`src/buildGuards.test.ts`) fails if any file imports MUI icons from the package root, which is the usual cause. Otherwise look for a newly added heavy dependency, or move `cirrh0` to a plan with more memory |
 | `cirrh0` stops with `WEB_DIR is set but ... index.html does not exist` | the web build step failed; read the build log above the error |
 | `cirrh0` stops with `Missing required environment variable` | a variable was left empty in the dashboard; the message names it |
 | Site loads but sign-up or login says there is a server error | database not ready yet, or `DATABASE_URL` missing; check `/healthz` |
@@ -101,8 +102,12 @@ Do not invite people to upload real reports until these are done:
 
 ## How this was checked
 
-The production setup was run locally end to end in a browser, with the same build variables and start command as the Blueprint: a fresh database migrated on start, the API serving the built app on one origin under `/api`, the model service under gunicorn with the shared token, then sign-up, login (secure cookie), an analysis, the trends page and a hard reload on a deep link. The browser blocked an injected inline script, a script from another site and a tracker image, and the API log held no errors and no personal data.
+The production setup was run locally end to end in a browser, with the same build variables and start command as the Blueprint (the web app built with Vite): a fresh database migrated on start, the API serving the built app on one origin under `/api`, the model service under gunicorn with the shared token, then sign-up, login (secure cookie), an analysis, the trends page and a hard reload on a deep link. The browser blocked an injected inline script, a script from another site and a tracker image, and the API log held no errors and no personal data.
 
-**Not checked here:** the Blueprint itself on Render (this needs your account), Render's free-tier memory for the model service, and cold-start timing. Expect to adjust once on the first real deploy.
+The complete `requirements.txt` was also installed in a clean Python 3.14 environment, and the model service's tests ran in it.
+
+**What the first deploy attempt taught us:** both services failed. The model service because `inference-sdk` has no Python 3.14 release, which a test with the lightweight test requirements could not show; the web service because a Create React App build needs far more than 512 MB. Both were reproduced and fixed here, and tests now guard against each coming back.
+
+**Not checked here:** the Blueprint itself on Render (this needs your account), memory and timing on Render's own machines, and cold starts. Expect to adjust once on the next real deploy.
 
 Sources for the platform facts above: [Blueprint reference](https://render.com/docs/blueprint-spec), [free tier](https://render.com/docs/free), [private network](https://render.com/docs/private-network), [Python version](https://render.com/docs/python-version), [Node version](https://render.com/docs/node-version).

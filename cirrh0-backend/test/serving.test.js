@@ -12,9 +12,9 @@ const BASE_ENV = { PATH: process.env.PATH, HOME: process.env.HOME };
 // A tiny stand-in for the real build folder (cirrh0/build).
 const makeWebDir = () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "cirrh0-web-"));
-  fs.mkdirSync(path.join(dir, "static", "js"), { recursive: true });
+  fs.mkdirSync(path.join(dir, "assets"), { recursive: true });
   fs.writeFileSync(path.join(dir, "index.html"), "<!doctype html><title>Cirrh0</title><div id=root></div>");
-  fs.writeFileSync(path.join(dir, "static", "js", "main.abc123.js"), "console.log('app')");
+  fs.writeFileSync(path.join(dir, "assets", "index-abc123.js"), "console.log('app')");
   fs.writeFileSync(path.join(dir, "favicon.ico"), "ico");
   return dir;
 };
@@ -60,7 +60,7 @@ test("serving the web build under /api: pages, assets, caching and security head
       assert.match(page.text, /<div id=root>/, route);
     }
 
-    const asset = await get(port, "/static/js/main.abc123.js");
+    const asset = await get(port, "/assets/index-abc123.js");
     assert.equal(asset.status, 200);
     assert.match(asset.headers.get("cache-control"), /max-age=31536000, immutable/);
     assert.match(asset.headers.get("content-type"), /javascript/);
@@ -90,7 +90,7 @@ test("missing files and non-HTML requests are real 404s, not the page", async ()
   const dir = makeWebDir();
   const { port, stop } = await runApp({ WEB_DIR: dir, API_BASE_PATH: "/api" });
   try {
-    const missing = await get(port, "/static/js/missing.js", { Accept: "*/*" });
+    const missing = await get(port, "/assets/missing.js", { Accept: "*/*" });
     assert.equal(missing.status, 404);
     assert.ok(!missing.text.includes("<div id=root>"));
     const json = await get(port, "/some-page", { Accept: "application/json" });
@@ -104,7 +104,7 @@ test("files outside the build folder cannot be reached by path tricks", async ()
   fs.writeFileSync(path.join(path.dirname(dir), "cirrh0-secret.txt"), "TOP-SECRET");
   const { port, stop } = await runApp({ WEB_DIR: dir, API_BASE_PATH: "/api" });
   try {
-    for (const p of ["/..%2fcirrh0-secret.txt", "/static/..%2f..%2fcirrh0-secret.txt", "/%2e%2e/cirrh0-secret.txt", "/static/../../cirrh0-secret.txt"]) {
+    for (const p of ["/..%2fcirrh0-secret.txt", "/assets/..%2f..%2fcirrh0-secret.txt", "/%2e%2e/cirrh0-secret.txt", "/assets/../../cirrh0-secret.txt"]) {
       const res = await get(port, p, { Accept: "*/*" });
       assert.ok(!res.text.includes("TOP-SECRET"), p);
     }

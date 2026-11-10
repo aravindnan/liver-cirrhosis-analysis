@@ -196,3 +196,111 @@ def test_section_headers_without_numbers_do_not_produce_values(service):
 def test_total_bilirubin_is_preferred_over_direct(service):
     text = "Bilirubin Direct 0.2 mg/dL\nBilirubin Total 0.9 mg/dL\nBilirubin Indirect 0.7"
     assert service.extract_details(text)["bilirubin"] == "0.9"
+
+
+# ---- /image: Roboflow is called directly over HTTPS (no inference-sdk) --------------------
+class _Resp:
+    def __init__(self, payload, status=200):
+        self._payload, self.status_code = payload, status
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            import requests
+
+            raise requests.HTTPError(f"{self.status_code} error for url: https://detect.roboflow.com/liver-yolo/1?api_key=SECRET-KEY")
+
+    def json(self):
+        return self._payload
+
+
+SLIDE = "https://res.cloudinary.com/demo/slide.jpg"
+
+
+@pytest.fixture()
+def roboflow(service, monkeypatch):
+    monkeypatch.setattr(service, "ROBOFLOW_API_KEY", "SECRET-KEY")
+    monkeypatch.setattr(service, "_gemini", None)
+    calls = {}
+
+    def install(payload=None, error=None):
+        def fake_post(url, params=None, timeout=None, **kwargs):
+            calls.update(url=url, params=params, timeout=timeout, extra=kwargs)
+            if error:
+                raise error
+            return _Resp(payload)
+
+        monkeypatch.setattr(service.requests, "post", fake_post)
+
+    return calls, install
+
+
+def test_image_detection_makes_one_direct_request_and_returns_detections(client, roboflow):
+    calls, install = roboflow
+    install({"predictions": [{"class": "steatosis", "confidence": 0.91234}, {"class": "fibrosis", "confidence": 0.5}, "junk"]})
+    r = client.post("/image", json={"image_url": SLIDE})
+    body = r.get_json()
+    assert r.status_code == 200
+    assert calls["url"] == "https://detect.roboflow.com/liver-yolo/1"
+    assert calls["params"] == {"api_key": "SECRET-KEY", "image": SLIDE}
+    assert calls["timeout"] == 30
+    assert body["detections"] == [{"class": "steatosis", "confidence": 0.912}, {"class": "fibrosis", "confidence": 0.5}]
+    assert sorted(body["diagnosis"]) == ["fibrosis", "steatosis"]  # falls back to the detected names when the LLM is unavailable
+
+
+def test_no_detections_never_asks_the_llm(client, service, roboflow, monkeypatch):
+    _, install = roboflow
+    install({"predictions": []})
+
+    class Boom:
+        def generate_content(self, *a, **k):
+            raise AssertionError("the LLM must not be called for an empty result")
+
+    monkeypatch.setattr(service, "_gemini", Boom())
+    body = client.post("/image", json={"image_url": SLIDE}).get_json()
+    assert body["detections"] == [] and "did not detect" in body["analysis"]
+
+
+@pytest.mark.parametrize("payload", [["not", "a", "dict"], {"predictions": "nope"}, {"message": "Forbidden"}])
+def test_unexpected_responses_are_a_clean_502(client, roboflow, payload):
+    _, install = roboflow
+    install(payload)
+    assert client.post("/image", json={"image_url": SLIDE}).status_code == 502
+
+
+def test_a_failed_request_never_puts_the_api_key_in_the_logs(client, roboflow, caplog):
+    import logging
+
+    import requests
+
+    _, install = roboflow
+    # requests includes the full URL, query string and all, in its error text.
+    install(error=requests.ConnectionError("HTTPSConnectionPool: Max retries exceeded with url: /liver-yolo/1?api_key=SECRET-KEY&image=https%3A%2F%2Fx"))
+    with caplog.at_level(logging.DEBUG):
+        r = client.post("/image", json={"image_url": SLIDE})
+    assert r.status_code == 502
+    assert "SECRET-KEY" not in caplog.text and "SECRET-KEY" not in r.get_data(as_text=True)
+    assert "ConnectionError" in caplog.text
+
+
+def test_an_http_error_from_roboflow_does_not_leak_the_key_either(client, roboflow, service, monkeypatch, caplog):
+    import logging
+
+    # raise_for_status() on a 403 builds an error whose text contains the full URL, key included.
+    monkeypatch.setattr(service.requests, "post", lambda url, params=None, timeout=None, **kw: _Resp({}, status=403))
+    with caplog.at_level(logging.DEBUG):
+        r = client.post("/image", json={"image_url": SLIDE})
+    assert r.status_code == 502
+    assert "SECRET-KEY" not in caplog.text
+    assert "HTTPError" in caplog.text
+
+
+def test_without_a_roboflow_key_the_image_tool_fails_cleanly(client, service, monkeypatch):
+    monkeypatch.setattr(service, "ROBOFLOW_API_KEY", None)
+    assert client.post("/image", json={"image_url": SLIDE}).status_code == 502
+
+
+def test_the_inference_sdk_is_no_longer_needed(service):
+    import sys
+
+    assert "inference_sdk" not in sys.modules
+    assert "inference-sdk" not in open(__import__("pathlib").Path(service.__file__).parent / "requirements.txt").read()

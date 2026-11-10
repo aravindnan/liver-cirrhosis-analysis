@@ -3,9 +3,13 @@ import { useAuthPage } from '../auth/AuthContext'
 import Navbar from "../components/Navbar";
 import DemoNotice from "../components/DemoNotice";
 import Footer from "../components/Footer";
-import { Close, InfoOutlined, InsertDriveFile, Troubleshoot, Upload } from "@mui/icons-material";
+import Close from '@mui/icons-material/Close'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
+import InsertDriveFile from '@mui/icons-material/InsertDriveFile'
+import Troubleshoot from '@mui/icons-material/Troubleshoot'
+import Upload from '@mui/icons-material/Upload'
 import { Link, useNavigate } from "react-router-dom";
-import { Tooltip } from "@mui/material";
+import Tooltip from '@mui/material/Tooltip'
 import Loader from "../assets/Loader";
 import APIResponseStatus from "../components/APIResponseStatus";
 import axios from "axios";
@@ -22,7 +26,7 @@ function ReportAnalysisPage() {
   const [loading, setLoading] = useState<Boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [reportId,setReportId]= useState<any>("new-report")
-  const CLOUDINARY_CLOUDNAME = process.env.REACT_APP_CLOUDINARY_CLOUDNAME;
+  const CLOUDINARY_CLOUDNAME = import.meta.env.VITE_CLOUDINARY_CLOUDNAME;
 
   const navigate = useNavigate()
 

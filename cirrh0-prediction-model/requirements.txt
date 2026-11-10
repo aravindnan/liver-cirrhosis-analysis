@@ -9,4 +9,3 @@ catboost==1.2.10
 requests>=2.32
 pdfplumber>=0.11
 google-generativeai>=0.8
-inference-sdk>=0.20

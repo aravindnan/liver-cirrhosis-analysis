@@ -90,9 +90,7 @@ jobs:
           cache-dependency-path: cirrh0/package-lock.json
       - run: npm ci
       - run: npx tsc --noEmit
-      - run: npm test -- --watchAll=false
-        env:
-          CI: "true"
+      - run: npm test
       - run: npm run build
-        env:
-          CI: "false" # lint warnings predate CI and are tracked in IMPROVEMENT_PLAN.md
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high

@@ -1,13 +1,14 @@
 import React from 'react'
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import type { Mock } from 'vitest'
 import TrendsPage from './TrendsPage'
 import { getTrends } from '../services/trendsServices'
 
-jest.mock('../services/trendsServices', () => ({ getTrends: jest.fn() }))
-jest.mock('../auth/AuthContext', () => ({ useAuth: () => ({ user: { id: 'u1', fullName: 'Asha Menon' }, status: 'authenticated' }) }))
-jest.mock('../modals/LogoutModal', () => () => null)
-const mockedGetTrends = getTrends as jest.Mock
+vi.mock('../services/trendsServices', () => ({ getTrends: vi.fn() }))
+vi.mock('../auth/AuthContext', () => ({ useAuth: () => ({ user: { id: 'u1', fullName: 'Asha Menon' }, status: 'authenticated' }) }))
+vi.mock('../modals/LogoutModal', () => ({ default: () => null }))
+const mockedGetTrends = getTrends as unknown as Mock
 
 const thresholds = { fib4: { low: 1.3, lowFrom65: 2, high: 2.67 }, apri: { low: 0.5, high: 2 }, albi: { grade1: -2.6, grade2: -1.39 } }
 const labs = { bilirubin: 1, albumin: 4, platelets: 200, sgot: 40, alt: null, alk_phos: 120 }
@@ -18,7 +19,10 @@ const point = (id: string, date: string, fib4: number | null) => ({
 
 const renderPage = () => render(<MemoryRouter><TrendsPage /></MemoryRouter>)
 
-beforeEach(() => mockedGetTrends.mockReset())
+// Braces matter: Vitest runs a function returned from beforeEach as cleanup, and mockReset() returns the mock.
+beforeEach(() => {
+  mockedGetTrends.mockReset()
+})
 
 test('shows a loader, then charts for several reports', async () => {
   mockedGetTrends.mockResolvedValue({ thresholds, points: [point('a', '2026-01-01T00:00:00Z', 1.2), point('b', '2026-06-01T00:00:00Z', 1.8)] })
