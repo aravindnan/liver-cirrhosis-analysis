@@ -1,15 +1,16 @@
 import React from 'react'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { Mock } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import Navbar from './Navbar'
 import { useAuth } from '../auth/AuthContext'
 
-jest.mock('../auth/AuthContext', () => ({ useAuth: jest.fn() }))
+vi.mock('../auth/AuthContext', () => ({ useAuth: vi.fn() }))
 // The real modal pulls in the HTTP client; only the fact that it opens matters here.
-jest.mock('../modals/LogoutModal', () => () => <div role="dialog">logout dialog</div>)
+vi.mock('../modals/LogoutModal', () => ({ default: () => <div role="dialog">logout dialog</div> }))
 
-const mockedUseAuth = useAuth as jest.Mock
+const mockedUseAuth = useAuth as unknown as Mock
 const signedIn = { user: { id: 'u1', fullName: 'Asha Menon' }, status: 'authenticated' }
 const signedOut = { user: null, status: 'anonymous' }
 

@@ -1,13 +1,14 @@
 import React from 'react'
 import { render, screen, waitFor, act } from '@testing-library/react'
+import type { Mock } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth, useAuthPage } from './AuthContext'
 import RequireAuth from './RequireAuth'
 import { getUserById } from '../services/userServices'
 import { readSessionHint, writeSessionHint } from '../services/sessionHint'
 
-jest.mock('../services/userServices', () => ({ getUserById: jest.fn() }))
-const mockedGetUser = getUserById as jest.Mock
+vi.mock('../services/userServices', () => ({ getUserById: vi.fn() }))
+const mockedGetUser = getUserById as unknown as Mock
 
 const profile = { id: 'u1', username: 'asha', email: 'a@b.co', fullName: 'Asha', age: 40, gender: 'female', reportAnalysisSet: [], mriAnalysisSet: [] }
 
@@ -90,7 +91,7 @@ test('useAuthPage maps status to the legacy page states', async () => {
 })
 
 test('useAuth outside the provider fails loudly', () => {
-  const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+  const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
   expect(() => render(<Probe />)).toThrow(/AuthProvider/)
   spy.mockRestore()
 })

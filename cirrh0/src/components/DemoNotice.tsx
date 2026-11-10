@@ -2,11 +2,11 @@ import React from 'react'
 
 type DemoNoticeProps = { className?: string }
 
-// Shown only in builds made with REACT_APP_DEMO_NOTICE=true (the demo and private beta deployment).
+// Shown only in builds made with VITE_DEMO_NOTICE=true (the demo and private beta deployment).
 // Uploaded reports are stored at public file links until private storage is built, so people are
 // asked to use test data. Read at render time so it can be switched in tests.
 function DemoNotice({ className = '' }: DemoNoticeProps) {
-  if (process.env.REACT_APP_DEMO_NOTICE !== 'true') return null
+  if (import.meta.env.VITE_DEMO_NOTICE !== 'true') return null
   return (
     <div
       role="note"

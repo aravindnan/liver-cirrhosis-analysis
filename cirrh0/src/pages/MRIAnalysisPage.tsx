@@ -24,7 +24,7 @@ const fileTestInputRef = useRef<any>(null);
 const [fileList, setFileList] = useState<any>([]);
 const [loading, setLoading] = useState<Boolean>(false);
 const [error, setError] = useState<string | null>(null);
-const CLOUDINARY_CLOUDNAME = process.env.REACT_APP_CLOUDINARY_CLOUDNAME;
+const CLOUDINARY_CLOUDNAME = import.meta.env.VITE_CLOUDINARY_CLOUDNAME;
 
 const navigate = useNavigate()
 

@@ -6,6 +6,8 @@ import { useNavigate } from "react-router";
 import APIResponseStatus from "../components/APIResponseStatus";
 import Loader from "../assets/Loader";
 import { Link } from "react-router-dom";
+import cirr1 from "../assets/cirr1.jpg";
+import norm4 from "../assets/norm4.jpg";
 
 function HomePage() {
   const { myProfiledata, pageLoading, networkError } = useAuthPage();
@@ -70,7 +72,7 @@ function HomePage() {
               >
                 <img
                   className=" aspect-auto w-full md:min-w-[400px]"
-                  src={require("../assets/cirr1.jpg")}
+                  src={cirr1}
                 />
               </div>
               <div className="flex flex-col gap-[20px]">
@@ -121,7 +123,7 @@ function HomePage() {
               >
                 <img
                   className=" aspect-auto w-full md:min-w-[400px]"
-                  src={require("../assets/norm4.jpg")}
+                  src={norm4}
                 />
               </div>
               <div className="flex flex-col gap-[20px]">

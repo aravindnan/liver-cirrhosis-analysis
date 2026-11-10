@@ -26,7 +26,7 @@ function ReportAnalysisPage() {
   const [loading, setLoading] = useState<Boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [reportId,setReportId]= useState<any>("new-report")
-  const CLOUDINARY_CLOUDNAME = process.env.REACT_APP_CLOUDINARY_CLOUDNAME;
+  const CLOUDINARY_CLOUDNAME = import.meta.env.VITE_CLOUDINARY_CLOUDNAME;
 
   const navigate = useNavigate()
 
