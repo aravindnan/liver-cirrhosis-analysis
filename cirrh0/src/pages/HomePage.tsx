@@ -1,187 +1,125 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuthPage } from '../auth/AuthContext'
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import { useNavigate } from "react-router";
-import APIResponseStatus from "../components/APIResponseStatus";
-import Loader from "../assets/Loader";
-import { Link } from "react-router-dom";
-import cirr1 from "../assets/cirr1.jpg";
-import norm4 from "../assets/norm4.jpg";
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
+import APIResponseStatus from '../components/APIResponseStatus'
+import Loader from '../assets/Loader'
+import ScoreDial from '../components/ScoreDial'
+import { fib4, fib4Band } from '../utils/scores'
+import hero from '../assets/hero.jpg'
+import cirr1 from '../assets/cirr1.jpg'
+import norm4 from '../assets/norm4.jpg'
 
-function HomePage() {
-  const { myProfiledata, pageLoading, networkError } = useAuthPage();
+const TOOLS = [
+  { to: '/report-analysis', name: 'Analyse a report', body: 'Upload a lab report, check the values, get scores, a stage estimate and a plain-language explanation.' },
+  { to: '/simulator', name: 'What moves my number?', body: 'Drag platelets or AST and watch FIB-4 and the suggested next test change.' },
+  { to: '/learn', name: 'What your numbers mean', body: 'Ten liver values explained: what they measure, why they rise or fall, what to read them with.' },
+  { to: '/safety-check', name: 'Warning-sign check', body: 'Seven symptoms that need a doctor today, whatever the lab numbers say.' },
+  { to: '/trends', name: 'My trends', body: 'Every report as a point on a chart, with a note on what changed since the last one.' },
+]
 
-  const navigate = useNavigate();
-
-
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  // console.log("MYPROFILE : ",myProfiledata);
-
+// The one live thing on the page: the real FIB-4 formula on the demo report, with platelets in your hands.
+function LiveFib4() {
+  const [platelets, setPlatelets] = useState(200)
+  const value = fib4(55, 40, 36, platelets)
+  const band = fib4Band(value, 55)
   return (
-    <>
-      {pageLoading === "loaded" ? (
-        <div className="flex flex-col justify-between min-h-screen">
-          <Navbar activePage="home" />
-          <div className="flex flex-col flex-1">
-            {/* Home Page Hero */}
-            <div className="  min-h-screen  backgroundjif  mx-auto text-center gap-[10px]">
-             <div className="flex flex-col justify-center w-full h-full bg-[#0000008e] ">
-              <div
-                data-aos="fade-up"
-                data-aos-duration="700"
-                className="text-[40px] md:text-[70px] pt-[110px] md:pt-[70px] px-4 mx-auto text-center text-white font-bold league-spartan"
-              >
-                Redefining Liver Cirrhosis Analysis
-              </div>
-
-              <div
-                data-aos="fade-up"
-                data-aos-duration="600"
-                className="w-[90%] md:w-[60%] mx-auto text-[16px] md:text-[20px] text-white font"
-              >
-                Cirrh0 helps you read your liver lab reports. Upload a report, check the values we extract, and get an educational summary and questions to take to your doctor. It is a college research project and does not provide a diagnosis.
-              </div>
-             { !myProfiledata?.username&&
-                <Link
-                data-aos="fade-up" 
-                data-aos-duration="700" 
-                to="/report-analysis" className='shadow-md flex flex-row items-center gap-2 px-5 mt-[30px] mx-auto py-2 bg-C11 w-fit text-[14px] text-white font-semibold rounded-[2px]'>Explore Report Analyzer</Link>
-                }
-              {/* <div
-                data-aos="fade-up"
-                data-aos-duration="500"
-                className="text-[14px] w-[90%] md:w-[50%] mx-auto text-C11"
-              >
-              Advanced Insights and Suggestions for Cirrhosis
-           </div> */}
-           </div>
-            </div>
-
-            {/* Section 2 */}
-            <div className="mx-auto w-[90%] md:w-[80%] my-[50px] flex flex-col md:flex-row-reverse mt-[60px] md:mt-[100px] gap-[30px] md:gap-[50px] items-center">
-              <div
-                data-aos="fade-up"
-                data-aos-duration="900"
-                data-aos-once
-                className="  bg-gray-100  rounded-[2px] justify-center items-center flex border-C11 border-[1px]"
-              >
-                <img
-                  className=" aspect-auto w-full md:min-w-[400px]"
-                  src={cirr1}
-                />
-              </div>
-              <div className="flex flex-col gap-[20px]">
-                <div
-                  data-aos="fade-up"
-                  data-aos-duration="700"
-                  data-aos-once
-                  className="text-C11 font-semibold text-[30px] md:text-[45px] league-spartan"
-                >
-                  Liver Cirrhosis
-                </div>
-                <div
-                  data-aos="fade-up"
-                  data-aos-duration="600"
-                  data-aos-once
-                  className="text-[16px] md:text-[20px]"
-                >
-                  Liver cirrhosis is a progressive condition characterized by
-                  the scarring of liver tissue, which impairs its ability to
-                  function effectively. This serious disease often results from
-                  chronic liver damage due to factors such as excessive alcohol
-                  consumption, hepatitis infections, or prolonged exposure to
-                  toxins{" "}
-                </div>
-                <div
-                  data-aos="fade-up"
-                  data-aos-duration="500"
-                  data-aos-once
-                  className="text-[16px] text-C11"
-                >
-                  As cirrhosis advances, it can lead to complications such as
-                  liver failure, portal hypertension, and liver cancer. Managing
-                  liver cirrhosis involves addressing the underlying cause, such
-                  as abstaining from alcohol or treating hepatitis, along with
-                  lifestyle modifications like a balanced diet, regular
-                  exercise, and routine medical monitoring. Early{" "}
-                </div>
-              </div>
-            </div>
-
-            {/* Section 1 */}
-            <div className="mx-auto w-[90%] md:w-[80%] my-[50px] flex flex-col md:flex-row mt-[60px] md:mt-[100px] gap-[30px] md:gap-[50px] items-center">
-              <div
-                data-aos="fade-up"
-                data-aos-duration="900"
-                data-aos-once
-                className="  bg-gray-100 rounded-[2px] justify-center items-center flex border-C11 border-[1px]"
-              >
-                <img
-                  className=" aspect-auto w-full md:min-w-[400px]"
-                  src={norm4}
-                />
-              </div>
-              <div className="flex flex-col gap-[20px]">
-                <div
-                  className="text-C11 font-semibold text-[30px] md:text-[45px] league-spartan"
-                  data-aos="fade-up"
-                  data-aos-once
-                  data-aos-duration="700"
-                >
-                  Healthy Liver
-                </div>
-                <div
-                  data-aos="fade-up"
-                  data-aos-duration="600"
-                  className="text-[16px] md:text-[20px]"
-                  data-aos-once
-                >
-                  Maintaining a healthy liver is essential for overall
-                  well-being. The liver performs vital functions, including
-                  detoxifying harmful substances, metabolizing nutrients, and
-                  producing proteins for blood clotting and immune support.{" "}
-                </div>
-                <div
-                  data-aos="fade-up"
-                  data-aos-duration="500"
-                  data-aos-once
-                  className="text-[16px] text-C11"
-                >
-                  To support liver health, adopt a balanced lifestyle with a
-                  diet rich in fruits, vegetables, whole grains, and lean
-                  proteins, while minimizing processed foods and excessive fats.
-                  Staying hydrated and moderating alcohol consumption are also
-                  crucial. Regular medical check-ups can help monitor liver
-                  function and catch potential issues early. By prioritizing
-                  these practices, individuals can enhance liver function,
-                  promoting long-term health and overall vitality.
-                </div>
-              </div>
-            </div>
-          </div>
-          <Footer />
-        </div>
-      ) : pageLoading === "not-loaded" ? (
-        <div className="w-full min-h-screen flex justify-center items-center">
-          <div className="flex justify-center text-[16px] font-light flex-col ">
-            <Loader />
-          </div>
-        </div>
-      ) : (
-        <div className="flex items-center justify-center flex-1 w-full min-h-screen">
-          <APIResponseStatus
-            status={false}
-            message={`${networkError ? "Network Error" : "An Error Occured"}`}
-          />
-        </div>
-      )}
-    </>
-  );
+    <div className="bg-white text-black p-6 md:p-8 flex flex-col gap-5">
+      <div>
+        <label htmlFor="home-plt" className="league-spartan font-bold text-[22px]">Platelets: <span className="text-C11">{platelets}</span> <span className="font-normal text-[16px]">(10³/µL)</span></label>
+        <input id="home-plt" type="range" min={60} max={400} step={5} value={platelets} onChange={(e) => setPlatelets(Number(e.target.value))} className="w-full h-[30px] accent-[#A90307] mt-2" aria-describedby="home-plt-note" />
+        <p id="home-plt-note" className="text-[14px]">Demo values: age 55, AST 40, ALT 36. Lower platelets push FIB-4 up.</p>
+      </div>
+      <ScoreDial name="FIB-4" value={value} band={band} note="Screen for liver scarring" />
+      <Link to="/simulator" className="w-fit px-5 py-3 bg-C11 text-white font-semibold text-[15px] rounded-[2px]">Try all six values</Link>
+    </div>
+  )
 }
 
-export default HomePage;
+function HomePage() {
+  const { myProfiledata, pageLoading, networkError } = useAuthPage()
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+
+  if (pageLoading === 'not-loaded') {
+    return <div className="w-full min-h-screen flex justify-center items-center"><Loader /></div>
+  }
+  if (pageLoading !== 'loaded') {
+    return (
+      <div className="flex items-center justify-center flex-1 w-full min-h-screen">
+        <APIResponseStatus status={false} message={networkError ? 'Network Error' : 'An Error Occured'} />
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col justify-between min-h-screen">
+      <Navbar activePage="start" />
+      <main className="flex flex-col">
+        {/* Hero: the title and the action on the left, the picture filling the right to the edge */}
+        <section aria-labelledby="home-h" className="grid md:grid-cols-2 min-h-[100svh]">
+          <div className="flex flex-col justify-center gap-6 px-[4%] md:pl-[10%] md:pr-[5%] pt-[110px] pb-12">
+            <h1 id="home-h" className="league-spartan font-bold text-[40px] md:text-[44px] lg:text-[68px] leading-[1] tracking-[-0.03em] text-C11">Read your liver lab report</h1>
+            <p className="text-[18px] md:text-[22px] max-w-[34ch]">Upload a report and get three standard scores, a stage estimate and plain-language notes to take to your doctor.</p>
+            <div className="flex flex-wrap items-center gap-4">
+              <Link to="/report-analysis" className="px-6 py-3 bg-C11 text-white font-semibold text-[16px] rounded-[2px]">Analyse a report</Link>
+              {!myProfiledata?.username && <Link to="/simulator" className="px-2 py-3 font-semibold text-[16px] text-C11 underline">or try the what-if tool</Link>}
+            </div>
+            <p className="text-[15px] max-w-[44ch]"><strong>Demo project.</strong> Use made-up values only. This is not medical advice.</p>
+          </div>
+          <img src={hero} alt="Hands holding medical scan images" className="w-full h-[320px] md:h-full object-cover" />
+        </section>
+
+        {/* What it does */}
+        <section aria-labelledby="what-h" className="mx-auto w-[92%] md:w-[80%] py-24 md:py-40 grid gap-10 md:grid-cols-2 md:gap-20 items-center">
+          <div className="flex flex-col gap-5">
+            <h2 id="what-h" className="league-spartan font-bold text-[34px] md:text-[56px] leading-[1.05]">One report becomes three scores</h2>
+            <p className="text-[18px]">FIB-4 and APRI screen for liver scarring from age, AST, ALT and platelets. ALBI describes how well the liver is working, from bilirubin and albumin. They are plain formulas with published cut-offs, so the same values always give the same answer.</p>
+            <p className="text-[18px]">Beside them sits a research model&rsquo;s stage estimate, with its measured accuracy printed next to it: about half right on patients it had not seen.</p>
+            <Link to="/about" className="w-fit font-semibold text-C11 underline text-[17px]">How it works and what it collects</Link>
+          </div>
+          <img src={cirr1} alt="A liver with advanced scarring" className="w-full h-[360px] md:h-[520px] object-cover" />
+        </section>
+
+        {/* The live thing, on a whole field of colour */}
+        <section aria-labelledby="live-h" className="bg-C11 text-white">
+          <div className="mx-auto w-[92%] md:w-[80%] py-20 md:py-32 grid gap-10 md:grid-cols-2 md:gap-20 items-center">
+            <div className="flex flex-col gap-5">
+              <h2 id="live-h" className="league-spartan font-bold text-[34px] md:text-[56px] leading-[1.05]">Move one number, watch the score</h2>
+              <p className="text-[18px] max-w-[48ch]">Platelets are the value that moves FIB-4 the most. Drag it and see the score and its band change. Everything else on this page works the same way.</p>
+            </div>
+            <LiveFib4 />
+          </div>
+        </section>
+
+        {/* Tools: flat rows, each a real link */}
+        <section aria-labelledby="tools-h" className="mx-auto w-[92%] md:w-[80%] py-24 md:py-40 flex flex-col gap-8">
+          <h2 id="tools-h" className="league-spartan font-bold text-[34px] md:text-[56px] leading-[1.05]">What you can do here</h2>
+          <ul className="flex flex-col gap-3">
+            {TOOLS.map((t) => (
+              <li key={t.to}>
+                <Link to={t.to} className="grid gap-1 md:grid-cols-[1fr_2fr] md:gap-10 bg-C44 p-6 md:p-8 hover:bg-C11 hover:text-white focus-visible:bg-C11 focus-visible:text-white">
+                  <span className="league-spartan font-bold text-[24px] md:text-[30px]">{t.name}</span>
+                  <span className="text-[17px]">{t.body}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Why it exists */}
+        <section aria-labelledby="why-h" className="mx-auto w-[92%] md:w-[80%] pb-24 md:pb-40 grid gap-10 md:grid-cols-2 md:gap-20 items-center">
+          <img src={norm4} alt="A healthy liver" className="w-full h-[360px] md:h-[480px] object-cover md:order-1" />
+          <div className="flex flex-col gap-5">
+            <h2 id="why-h" className="league-spartan font-bold text-[34px] md:text-[56px] leading-[1.05]">Why check the liver at all</h2>
+            <p className="text-[18px]">Liver scarring (cirrhosis) usually causes no symptoms until it is advanced, and it is caused by things that can be changed: alcohol, fatty liver and hepatitis infections.</p>
+            <p className="text-[18px]">A blood test is how most scarring is first noticed. Cirrh0 helps you read that test and know which question to ask next. It is a student demo, not a doctor.</p>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  )
+}
+
+export default HomePage

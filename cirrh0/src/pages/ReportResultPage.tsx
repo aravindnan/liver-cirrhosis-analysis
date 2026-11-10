@@ -94,6 +94,9 @@ function ReportResultPage() {
                      className="league-spartan font-bold text-[32px] md:text-[50px] text-C11">
                         Report Result
                     </div>
+                    <button type="button" onClick={() => window.print()} className="no-print w-fit px-5 py-2 bg-C44 font-semibold text-[14px] hover:bg-C11 hover:text-white focus-visible:bg-C11 focus-visible:text-white rounded-[2px]">
+                        Print or save a one-page summary for your doctor
+                    </button>
                     <Disclaimer extra={reportResult?.stage ? "How reliable is this estimate? On patients it had not seen during testing, the model picked the right stage about half the time (roughly 50%, compared with 38% for always guessing the most common stage), and it is least reliable for stage 1. It was trained on a 1970s-80s study of one liver disease (primary biliary cholangitis)." : undefined}/>
                     <div 
                     data-aos="fade-up"

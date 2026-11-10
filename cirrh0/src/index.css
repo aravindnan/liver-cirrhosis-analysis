@@ -227,3 +227,12 @@ td:hover,th:hover{
   background-size: cover;
   background-attachment: fixed;
 }
+
+@media print {
+    header, footer, .no-print { display: none !important; }
+    body { background: white; }
+    .pt-\[100px\], .md\:pt-\[120px\] { padding-top: 0 !important; }
+    details { display: block; }
+    details > summary { display: none; }
+    details > * { display: block !important; }
+}

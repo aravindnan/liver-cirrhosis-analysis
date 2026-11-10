@@ -82,8 +82,19 @@ function Navbar({ activePage }: NavbarProps) {
               <div className={`absolute left-[-10px] top-[100%] min-w-[220px] rounded-[2px] p-2 shadow-lg backdrop-blur-[30px] ${menuSurface}`}>
                 <Link to="/mri-analysis" className={itemClass}>Slide Image Analysis</Link>
                 <Link to="/report-analysis" className={itemClass}>Report Analysis</Link>
+                <Link to="/simulator" className={itemClass}>What-if tool</Link>
+                <Link to="/safety-check" className={itemClass}>Warning-sign check</Link>
               </div>
             )}
+          </li>
+          <li>
+            <Link
+              to="/learn"
+              aria-current={activePage === 'learn' ? 'page' : undefined}
+              className={`${activePage === 'learn' ? 'underline' : ''} ${linkColor} hover:underline underline-offset-2 decoration-C11 decoration-2`}
+            >
+              Learn
+            </Link>
           </li>
           <li>
             <Link
@@ -164,6 +175,9 @@ function Navbar({ activePage }: NavbarProps) {
           <ul className="flex flex-col gap-1 font-semibold text-[16px]">
             <li><Link to="/mri-analysis" className={itemClass}>Slide Image Analysis</Link></li>
             <li><Link to="/report-analysis" className={itemClass}>Report Analysis</Link></li>
+            <li><Link to="/simulator" className={itemClass}>What-if tool</Link></li>
+            <li><Link to="/safety-check" className={itemClass}>Warning-sign check</Link></li>
+            <li><Link to="/learn" className={itemClass}>Learn</Link></li>
             <li><Link to="/about" className={itemClass}>About</Link></li>
             {user ? (
               <>

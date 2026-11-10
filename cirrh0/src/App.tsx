@@ -19,6 +19,9 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const MRIResultPage = lazy(() => import('./pages/MRIResultPage'));
 const ReportResultPage = lazy(() => import('./pages/ReportResultPage'));
 const TrendsPage = lazy(() => import('./pages/TrendsPage'));
+const LearnPage = lazy(() => import('./pages/LearnPage'));
+const SimulatorPage = lazy(() => import('./pages/SimulatorPage'));
+const SafetyCheckPage = lazy(() => import('./pages/SafetyCheckPage'));
 
 function App() {
   useEffect(()=>{
@@ -40,6 +43,9 @@ function App() {
           <Route path="/mri-result" element={<RequireAuth><MRIResultPage/></RequireAuth>}/>
           <Route path="/report-result" element={<RequireAuth><ReportResultPage/></RequireAuth>}/>
           <Route path="/trends" element={<RequireAuth><TrendsPage/></RequireAuth>}/>
+          <Route path="/learn" element={<LearnPage/>}/>
+          <Route path="/simulator" element={<SimulatorPage/>}/>
+          <Route path="/safety-check" element={<SafetyCheckPage/>}/>
           <Route path="*" element={<ErrorPage/>}/>
         </Routes>
       </Suspense>
