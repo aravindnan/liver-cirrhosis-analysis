@@ -3,9 +3,12 @@ import { useAuthPage } from '../auth/AuthContext'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useNavigate } from 'react-router';
-import { Add, AddCircle, AddRoadOutlined, Delete, FindInPage, ImageSearch, Title } from '@mui/icons-material';
+import AddCircle from '@mui/icons-material/AddCircle'
+import Delete from '@mui/icons-material/Delete'
+import FindInPage from '@mui/icons-material/FindInPage'
+import ImageSearch from '@mui/icons-material/ImageSearch'
 import { Link } from 'react-router-dom';
-import { Tooltip } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip'
 import { formatDateTime } from '../utils/formatDate';
 import { deleteReportById } from '../services/reportAnalysisServices';
 import { deleteMRIById } from '../services/mriAnalysisServices';

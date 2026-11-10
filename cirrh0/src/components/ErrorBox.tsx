@@ -1,4 +1,4 @@
-import { Error } from '@mui/icons-material'
+import Error from '@mui/icons-material/Error'
 import React from 'react'
 
 function ErrorBox(props:any) {

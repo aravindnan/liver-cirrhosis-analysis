@@ -7,7 +7,12 @@ import Loader from '../assets/Loader';
 import { getMRIResultById } from '../services/mriAnalysisServices';
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
-import { CalendarMonth, Female, InfoOutlined, Male, Person2, Transgender } from '@mui/icons-material';
+import CalendarMonth from '@mui/icons-material/CalendarMonth'
+import Female from '@mui/icons-material/Female'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
+import Male from '@mui/icons-material/Male'
+import Person2 from '@mui/icons-material/Person2'
+import Transgender from '@mui/icons-material/Transgender'
 import { formatDateTime } from '../utils/formatDate';
 
 function MRIResultPage() {

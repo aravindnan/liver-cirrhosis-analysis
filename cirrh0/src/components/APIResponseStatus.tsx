@@ -1,4 +1,5 @@
-import { CheckCircleOutline, Error } from '@mui/icons-material';
+import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline'
+import Error from '@mui/icons-material/Error'
 import React from 'react'
 import { colors } from '../assets/Constants';
 

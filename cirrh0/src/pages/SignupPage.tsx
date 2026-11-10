@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import LogoText from "../components/LogoText";
 import DemoNotice from "../components/DemoNotice";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowForwardRounded, ReplayRounded, RestartAltRounded, Visibility, VisibilityOff } from "@mui/icons-material";
+import ArrowForwardRounded from '@mui/icons-material/ArrowForwardRounded'
+import ReplayRounded from '@mui/icons-material/ReplayRounded'
+import RestartAltRounded from '@mui/icons-material/RestartAltRounded'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { registerUser } from "../services/authServices";
 import { useAuth } from "../auth/AuthContext";
 import ErrorBox from "../components/ErrorBox";

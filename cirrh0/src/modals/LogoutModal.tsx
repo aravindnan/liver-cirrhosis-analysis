@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router';
 import { logoutUser } from '../services/authServices';
-import { Close } from '@mui/icons-material';
+import Close from '@mui/icons-material/Close'
 import APIResponseStatus from '../components/APIResponseStatus';
 import Loader from '../assets/Loader';
 
